@@ -1,0 +1,17 @@
+\section{Type-agnostic optimization}
+\label{sec:templated_optimize}
+
+The goals of this section are to:
+
+\begin{itemize}
+  \item Highlight the function signature {\tt template<typename MatType> double
+Optimize()}.
+
+  \item Discuss the details of how templates get us speedup by effectively
+producing specialized code at compile-time.
+
+  \item Mention the types that {\tt Optimize()} will work with.
+
+  \item Discuss the compile-time checks we added to warn when an unsupported
+type is used?
+\end{itemize}

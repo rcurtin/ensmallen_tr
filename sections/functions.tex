@@ -1,0 +1,17 @@
+% TODO: this section name isn't particularly great...
+\section{Automatic function generation}
+\label{sec:automatic}
+
+In this section the goals are to:
+
+\begin{itemize}
+  \item Introduce {\tt EvaluateWithGradient()} and the motivation for that
+(logistic regression is a nice example).
+
+  \item Point out that a user doesn't need to implement {\bf both} {\tt
+Evaluate()} and {\tt EvaluateWithGradient()} but instead that we can
+automatically infer one from the other {\it at compile time}.
+
+  \item Discuss the general design of the template metaprogramming system that
+makes this work.
+\end{itemize}

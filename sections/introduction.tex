@@ -1,0 +1,73 @@
+\section{Introduction}
+\label{sec:introduction}
+
+The problem of mathematical optimization is fundamental in the computational
+sciences.  In short, this problem can be expressed as
+
+\begin{equation}
+\operatorname{argmin}_x f(x).
+\end{equation}
+
+The ubiquity of this problem gives rise to the proliferation of mathematical
+optimization toolkits: SciPy~\cite{TODO}, opt++~\cite{TODO},
+OR-Tools~\cite{TODO}, CVXOPT~\cite{TODO}, NLopt~\cite{TODO}, Ceres~\cite{ceres},
+and RBFOpt~\cite{TODO} are just a few examples of software dedicated solely to
+optimization.  On top of that, in the field of machine learning, many deep
+learning libraries have integrated optimization components---Theano~\cite{TODO},
+TensorFlow~\cite{TODO}, PyTorch~\cite{TODO}, and Caffe~\cite{TODO} all have
+integrated mathematical optimization components.
+
+However, these optimization routines are generally quite computationally
+intensive: for instance, the training of deep neural networks is dominated by
+the optimization of the model parameters on the data~\cite{TODO}.  Similarly,
+other popular machine learning algorithms such as logistic regression are also
+expressed as and dominated by an optimization~\cite{TODO}.
+% https://arc.aiaa.org/doi/abs/10.2514/1.G001480
+Computational bottlenecks occur even in fields as wide-ranging as rocket landing
+guidance systems~\cite{TODO}, motivating the development and implementation of
+specialized solvers.
+
+Yet, many general-purpose optimization libraries fail to make full use of the
+hardware on which they are running.  Often, in order to make a clean and
+easy-to-use API, general-purpose optimization libraries use design patterns that
+implicitly make performance compromises.  For instance, SciPy's {\tt minimize()}
+method takes the function {\tt fun} to be optimized as a parameter; but in
+Python, this will mean that every time {\tt fun} is called (e.g., to compute the
+value of $f(x)$ during the optimization routine), there will be overhead
+involved---it will be slower than if the optimization routine were written {\it
+specifically} for the function {\tt fun}.
+
+It is inefficiencies such as these that motivated us to implement the {\tt
+ensmallen} library in C++.  {\tt ensmallen} uses template metaprogramming
+techniques to produce efficient code during compilation; through these
+techniques, we are able to simultaneously provide a friendly and intuitive
+interface that matches the ease of use of popular optimization toolkits like
+SciPy, OR-Tools, and MATLAB's {\tt fminsearch()} function~\cite{TODO}.
+
+{\tt ensmallen} allows the user to define a function $f(x)$ to be optimized with
+a wide variety of optimization techniques (at the time of this writing, TODO
+optimizers are available).  Many of these optimization techniques operate on
+specific {\it classes} of objective functions---for instance, {\tt ensmallen}
+contains many optimizers that work on differentiable functions, and so a user
+must provide both $f(x)$ and $f'(x)$ in this case.  Via templates, {\tt
+ensmallen} allows the user to select an arbitrary type for $x$ (e.g., dense
+floating-point matrix, sparse integer matrix, etc.).  Users may also specify
+custom behavior via customizable {\it callbacks}.  It is also easy to implement
+new optimization techniques inside of the framework {\tt ensmallen} provides.
+
+In this paper, we describe the details of these template metaprogramming
+techniques and how we are able to simultaneously produce efficient code and a
+clean user interface.  In Section~\ref{sec:api}, we introduce the functionality
+and interface for {\tt ensmallen} with examples.
+Section~\ref{sec:templated_optimize} is our first foray into template
+metaprogramming, showing how {\tt ensmallen} can optimize objective functions
+$f(x)$ for any type $x$ without any extra runtime overhead.  Then,
+Section~\ref{sec:automatic} discusses the details of how {\tt ensmallen} is able
+to automatically generate methods not provided by the user.
+Section~\ref{sec:callbacks} describes {\tt ensmallen}'s callbacks.
+Finally, we demonstrate the empirical efficiency of {\tt ensmallen} in
+Section~\ref{sec:exerpiments} and conclude in Section~\ref{sec:conclusion}.
+
+This paper is an expanded description of {\tt ensmallen}'s original introduction
+in \citet{TODO, TODO}.
+% The citations above should be the workshop submissions
