@@ -12,4 +12,87 @@ The goals of this section are to:
 
   \item Mention some of the C++ parts used in the callback implementation in
 order to show that callbacks end up having no extra overhead.
+
+In ensmallen, callbacks are subclasses with a set of methods called at various
+stages of the optimization process, including epoch start/end, evaluate, and
+gradient step. Callbacks are useful to get a view on internal states and
+statistics of a function during optimization. A user can pass arbitrary
+callbacks to any optimizer.
+
+\begin{minted}{c++}
+// We assume that "X" and "y" are given.
+LinearRegressionFunction f(X, y);
+
+L_BFGS optimizer; // Create the optimizer with all default parameters.
+
+// The theta_best matrix will hold the best model that we find after we call
+// Optimize(); for now, we set it to the initial point (uniform random values).
+arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
+
+// Optimize the given function and provide three callbacks (EarlyStopAtMinLoss,
+// ProgressBar, StoreBestCoordinates) that is called at various stages during
+// the optimization process.
+optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar(), StoreBestCoordinates<>());
+\end{minted}
+
+Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()}, {\tt ProgressBar()}
+and {\tt StoreBestCoordinates<>()} the code snippet above shows not only how the
+L-BFGS optimizer can be used to find the best {\tt \small coordinates} but also
+how the callbacks can be used to control and overview the optimization process
+by calling the callbacks at different stages of the optimization process.
+
+A custom callback is a powerful tool to customize the behavior of a function
+during the optimization process. Examples include {\tt StoreBestCoordinates<>()}
+where the model is automatically saved during the optimization process or {\tt
+EarlyStoppingAtMinLoss()}  which stops the optimization process when the minimum
+of loss has been reached.
+
+\begin{minted}{c++}
+class EarlyStoppingAtMinLoss
+{
+ public:
+  // Set up the early stopping at min loss class, which keeps track of the
+  // minimum loss.
+  EarlyStop() : bestObjective(std::numeric_limits<double>::max()) { }
+
+  // Callback function called at the end of a pass over the data, which provides
+  // the current objective. We are only interested in the objective and ignore
+  // the rest.
+  template<typename OptimizerType, typename FunctionType, typename MatType>
+  void EndEpoch(OptimizerType&, FunctionType&, const MatType&, const size_t,
+                const double objective)
+  {
+    // Check if the given objective is lower as the previous objective.
+    if (objective < bestObjective)
+    {
+      bestObjective = objective; // Update the local objective.
+    }
+    else
+    {
+      return true; // Stop the optimization process.
+    }
+
+    return false; // Do not stop the optimization process.
+  }
+
+  double bestObjective;
+};
+\end{minted}
+
+
+\begin{minted}{c++}
+// We assume that "X" and "y" are given.
+LinearRegressionFunction f(X, y);
+
+L_BFGS optimizer; // Create the optimizer with all default parameters.
+
+// The theta_best matrix will hold the best model that we find after we call
+// Optimize(); for now, we set it to the initial point (uniform random values).
+arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
+
+// Optimize the given function and provide a callback (EarlyStoppingAtMinLoss)
+// that is called at the end of an epoch.
+optimizer.Optimize(f, theta_best, EarlyStoppingAtMinLoss());
+\end{minted}
+
 \end{itemize}
