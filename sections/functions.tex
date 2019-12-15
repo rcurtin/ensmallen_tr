@@ -2,6 +2,94 @@
 \section{Automatic function generation}
 \label{sec:automatic}
 
+In the previous section, we saw an example of how a user might implement {\tt
+Evaluate()} and {\tt Gradient()} for the linear regression objective function
+and use {\tt ensmallen} to find the minimum.  But there is a clear inefficiency:
+the objective function computation $f(\bm \theta)$ is defined as
+
+\begin{equation*}
+\| \bm X \bm \theta - \bm y \|^2
+\end{equation*}
+
+\noindent and the gradient computation $f'(\bm \theta)$ is defined as
+
+\begin{equation}
+2 \bm X^T (\bm X \bm \theta - \bm y).
+\end{equation}
+
+There is a shared inner computation in $f(\bm \theta)$ and $f'(\bm \theta)$: the
+term $(\bm X \bm \theta - \bm y)$.  But if we implement $f(\bm \theta)$ and
+$f'(\bm \theta)$ as separate functions, there is no easy way to exploit this
+shared computation: {\tt ensmallen}'s differentiable optimizers treat the
+functions they are given as oracular, and cannot and do not know anything about
+the internal computations of those functions.  In fact, this inefficiency
+necessarily applies to any optimization package that accepts an objective
+function and its gradient as separate parameters; that includes SciPy, {\tt
+bfgsmin()}, {\tt Optim.jl}, and other packages.\footnote{It could be possible
+for an autodifferentiation package to avoid this efficiency, or a
+programming language with introspection to operate directly on the AST of the
+given objective and gradient computations to successfully share the computation.
+However, at the time of this writing, we are not aware of any that do this, and
+that seems a difficult engineering task.}
+
+To work around this issue, we use template metaprogramming techniques to allow
+the user to provide {\it either} separate implementations of the objective
+function and gradient, {\it or} a combined implementation that computes {\it
+both} the objective function and gradient simultaneously (thus allowing the
+sharing of inner computations).  That is, the user can provide the methods {\tt
+Evaluate()} and {\tt Gradient()}, or {\tt EvaluateWithGradient()}.  (They can
+provide both, if they so choose.)
+
+Similarly, when implementing a differentiable optimizer in {\tt ensmallen}, it
+is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()} {\it or}
+{\tt EvaluateWithGradient()} (or both) during optimization.
+In fact, this same technique can be used to infer and provide missing methods
+for separable functions, differentiable separable functions, constrained
+functions, categorical functions, and others.  Not all of these possibilities
+are currently implemented in {\tt ensmallen}, but the framework described below
+makes it straightforward to add more.  We will describe the framework in a
+simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
+Evaluate()}/{\tt Gradient()} example described above.
+
+The framework for function inference operates via a `mix-in` class that uses
+template metaprogramming to automatically infer any missing functionality.  This
+`mix-in` class can provide an {\tt EvaluateWithGradient()} when only {\tt
+Evaluate()} and {\tt Gradient()} are provided, and can provide {\tt Evaluate()}
+and {\tt Gradient()} when only {\tt EvaluateWithGradient()} is provided.  The
+use of this mix-in class is very simple; an example differentiable optimizer
+that uses this mix-in class might look like this:
+
+\begin{minted}{c++}
+// FunctionType is the user-supplied function type to optimize.
+// MatType is the user-supplied type of the initial coordinates.
+// GradType is the user-specified type of the gradient.
+// typename MatType::elem_type represents the internal type held by MatType
+//     (e.g., if MatType is `arma::mat`, then this is `double`)
+template<typename FunctionType, typename MatType, typename GradType>
+typename MatType::elem_type Optimize(FunctionType& function,
+                                     MatType& coordinates)
+{
+  // The Function<> mix-in class adds all inferrable methods to `function`
+  // So, if `function` has `function.Evaluate()` and `function.Gradient()`, then
+  // `fullFunction` will have `fullFunction.EvaluateWithGradient()`.
+  typename Function<FunctionType, MatType, GradType> fullFunction(function);
+
+  // The rest of the optimizer's code should use `fullFunction`, not `function`.
+  ...
+}
+\end{minted}
+
+This is relatively uninvasive: {\tt ensmallen} contributors who are writing
+optimizers need only define a {\tt Function<FunctionType, ...>} wrapper at the
+beginning of optimization, and can then expect all three of {\tt Evaluate()},
+{\tt Gradient()}, and {\tt EvaluateWithGradient()} to be available.  Users who
+want to optimize objective functions with {\tt ensmallen} do not even need to
+think about it.
+
+TODO: continue here
+
+====
+
 In this section the goals are to:
 
 \begin{itemize}

@@ -148,9 +148,9 @@ optimizer, we simply need to provide implementations of $f(\bm \theta)$ and
 $f'(\bm \theta)$ according to the signatures required by the {\tt
 DifferentiableFunctionType} of objective function.  For a differentiable
 function, only two methods are necessary: {\tt Evaluate()} and {\tt Gradient()}.
-Full details of the different signatures required for each objective function
-are found in the {\tt ensmallen} documentation:
-\url{https://ensmallen.org/docs.html}.
+The introductory discussion here does not go into the full details of the
+different signatures required for each objective function; for that, see the
+{\tt ensmallen} documentation: \url{https://ensmallen.org/docs.html}.
 
 Returning to our linear regression example, we could easily use {\tt ensmallen}'s
 L-BFGS implementation to find $\bm \theta^*$; we just need to provide an
@@ -201,8 +201,8 @@ arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
 optimizer.Optimize(f, theta_best);
 \end{minted}
 
-However, it's possible to do much more than optimize a model that's stored as an
-{\tt \small arma::mat} (dense matrix).  {\tt ensmallen} supports:
+However, it's possible to do more than optimize a model that's stored as an {\tt
+\small arma::mat} (dense matrix).  {\tt ensmallen} supports:
 
 \begin{itemize}
   \item Use of types other than {\tt \small arma::mat} when calling {\tt \small
