@@ -4,7 +4,71 @@
 % We can start by expanding on the linear regression function example to point
 % out that we may want different types.
 
-% TODO: maybe this should come before the previous section?
+In the previous example, where we introduced the class {\tt
+LinearRegressionFunction}, a drawback is clear: it only works when {\tt X}, {\tt
+y}, and {\tt coordinates} ($\theta$) are of type {\tt arma::mat}---which
+represents a matrix that holds {\tt double}s.
+
+But in many applications it can be very important to specify a different
+underlying storage type.  For instance, in the field of machine learning, neural
+networks have been shown to be effective with low-precision floating point
+representations for weights~\cite{TODO}, and even low-precision
+integers~\cite{TODO} and single bits~\cite{TODO}.  In addition, many
+optimization problems have parameters that are best represented as sparse
+data~\cite{TODO}, which is another format that Armadillo supports~\cite{TODO}.
+Even alternate representations such as data held on the GPU can be quite
+important: the use of GPUs can often result in significant speedups~\cite{TODO}.
+
+In order to handle this diverse set of needs, {\tt ensmallen} has been built in
+such a way that any underlying storage type can be used to represent the
+coordinates to be optimized---so long as it matches the Armadillo
+API\footnote{This means that the Bandicoot GPU matrix library, found at
+\href{https://gitlab.com/conradsnicta/bandicoot-code}, can be used as a drop-in
+replacement once it is stable.}.
+
+Many other libraries, such as SciPy's optimization routines, or {\tt Octave}'s,
+also offer functionality that is quite generic.  However, this genericity often
+comes at a runtime cost in languages like Python, since the code is not compiled
+for a specific type.  In C++, we can use templates to generate code {\it
+specific to the underlying matrix representation} that will have no runtime
+overhead despite its flexibility.
+
+Consider the simple gradient descent optimizer shown below\footnote{Note that
+much is missing from this implementation, such as the ability to configure any
+parameters of the optimizer.  This is for the sake of brevity.}.
+
+\begin{minted}{c++}
+class GradientDescent
+{
+  template<typename FunctionType, typename MatType, typename GradType = MatType>
+  typename MatType::elem_type Optimize(FunctionType& function,
+                                       MatType& coordinates)
+  {
+    // The step size is hardcoded to 0.01, and the number of iterations is 1000.
+    for (size_t i = 0; i < 1000; ++i)
+    {
+      GradType gradient;
+      function.Gradient(coordinates, gradient);
+
+      // Take the step.
+      coordinates -= 0.01 * gradient;
+    }
+
+    // Compute and return the final objective.
+    return function.Evaluate(coordinates);
+  }
+};
+\end{minted}
+
+The use of templates means that at compilation time, the correct types are
+substituted in for {\tt FunctionType}, {\tt MatType}, and {\tt GradType} (which
+by default is set to be the same as {\tt MatType} in this code).  So long as
+each type has all the methods that are used inside of {\tt Optimize()}, there
+will be no compilation issue.  In addition, the code generated will be exactly
+the same as if {\tt Optimize()} was written with the types specified in those
+template parameters.  This means that there is no runtime overhead 
+
+----
 
 The goals of this section are to:
 
