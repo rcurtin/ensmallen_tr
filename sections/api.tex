@@ -65,31 +65,68 @@ require it here, as all {\tt ensmallen}'s current optimizers for constrained
 functions require a gradient to be available.} subject to constraints of the
 form $c_i(x)$; when the constraints are satisfied, $c_i(x) = 0\; \forall \; i$.
 Minimizing $f(x)$ then means minimizing $f(x) + \sum_i c_i(x)$.
-  \subitem {\bf Semidefinite programs} (SDPs).  {\tt ensmallen} has special
+
+\item {\bf Semidefinite programs} (SDPs).  {\it (These are a subset of
+constrained functions.)}  {\tt ensmallen} has special
 support to make optimizing semidefinite
 programs~\cite{vandenberghe1996semidefinite} simple.
 \end{itemize}
 
 Details about how to implement and use each type of objective function can be
-found on the {\tt ensmallen} website, at \url{https://ensmallen.org/docs.html}.
+found on the {\tt ensmallen} website, at \url{https://ensmallen.org/docs.html},
+but is omitted here for brevity (and because the software may change over
+time!).
 
 Using this straightforward abstraction framework, {\tt ensmallen} is able to
 provide a wide range of optimizers:
 
 \begin{itemize}
-  \item {\bf For arbitrary functions.}  TODO
+  \item {\bf For arbitrary functions.}  Simulated
+annealing~\cite{kirkpatrick1983optimization}, CNE
+(Conventional Neural Evolution)~\cite{montana1989training}, DE (Differential
+Evolution)~\cite{storn1997differential}, PSO (Particle Swarm
+Optimization)~\cite{Kennedy1995}, SPSA (Simultaneous Perturbation
+Stochastic Approximation)~\cite{spall1992multivariate}.
 
-  \item {\bf For differentiable functions.}  TODO
+  \item {\bf For differentiable functions.}  L-BFGS~\cite{liu1989limited},
+Frank-Wolfe~\cite{jaggi2013revisiting}, gradient descent.
 
-  \item {\bf For partially differentiable functions.}  TODO
+  \item {\bf For partially differentiable functions.}  SCD (Stochastic
+Coordinate Descent)~\cite{Shalev-Shwartz2009}.
 
-  \item {\bf For arbitrary separable functions.}  TODO
+  \item {\bf For arbitrary separable functions.}  CMA-ES (Covariance Matrix
+Adaptation Evolution Strategy)~\cite{Hansen2001}.
 
-  \item {\bf For differentiable separable functions.}  TODO
+  \item {\bf For differentiable separable functions.}
+AdaBound~\cite{Luo2019AdaBound},
+AdaDelta~\cite{zeiler2012adadelta}, AdaGrad~\cite{duchi2011adaptive},
+Adam~\cite{Kingma2014}, AdaMax~\cite{Kingma2014},
+AMSBound~\cite{Luo2019AdaBound}, AMSGrad~\cite{reddi2019convergence},
+Big Batch SGD~\cite{De2017}, Eve~\cite{Koushik2016}, FTML (Follow The Moving
+Leader)~\cite{Zheng2017},
+Hogwild!~\cite{recht2011hogwild}, IQN
+(Incremental Quasi-Newton)~\cite{1106.5730}, Katyusha~\cite{Allen-Zhu2016},
+Lookahead~\cite{Zhang2019}, SGD with momentum~\cite{rumelhart1988learning},
+Nadam~\cite{Dozat2015},
+NadaMax~\cite{Dozat2015}, SGD with Nesterov momentum~\cite{Nesterov1983},
+Optimistic
+Adam~\cite{daskalakis2017training}, QHAdam (Quasi-Hyperbolic
+Adam)~\cite{ma2019qh}, QHSGD
+(Quasi-Hyperbolic Stochastic Gradient Descent)~\cite{ma2019qh},
+RMSProp~\cite{tieleman2012lecture},
+SARAH/SARAH+~\cite{Nguyen2017}, stochastic gradient descent, SGDR (Stochastic Gradient
+Descent with Restarts)~\cite{Loshchilov2016}, Snapshot SGDR~\cite{Huang2017},
+SMORMS3~\cite{Funk2015}, SVRG (Stochastic Variance Reduced
+Gradient)~\cite{Johnson2013}, SWATS~\cite{Keskar2017},
+SPALeRA (Safe Parameter-wise Agnostic LEarning Rate
+Adaptation)~\cite{Schoenauer2017},
+WNGrad~\cite{Wu2018}.
 
-  \item {\bf For categorical functions.}  TODO
+  \item {\bf For categorical functions.}  Grid search.
 
-  \item {\bf For constrained functions.}  TODO
+  \item {\bf For constrained functions.}  Augmented Lagrangian method,
+primal-dual interior point SDP solver, LRSDP (low-rank accelerated SDP
+solver)~\cite{burer2003nonlinear}.
 \end{itemize}
 
 Table \ref{table:comparison} compares the types of objective functions supported
@@ -188,11 +225,11 @@ class LinearRegressionFunction
 
 In this example, we hold {\tt \small X} and {\tt \small y} as members of the
 class, and {\tt \small coordinates} is used to represent $\bm \theta$.  Via the
-use of Armadillo~\cite{TODO}, the linear algebra expressions to implement the
-objective function and gradient are readable in a way that closely matches
-Equations~\ref{eqn:obj_lr} and \ref{eqn:grad_lr}.  With {\tt \small
-LinearRegressionFunction} implemented, we can easily find $\bm \theta^*$ with
-the following code that uses {\tt ensmallen}'s L-BFGS optimizer:
+use of Armadillo~\cite{sanderson2016armadillo}, the linear algebra expressions
+to implement the objective function and gradient are readable in a way that
+closely matches Equations~\ref{eqn:obj_lr} and \ref{eqn:grad_lr}.  With {\tt
+\small LinearRegressionFunction} implemented, we can easily find $\bm \theta^*$
+with the following code that uses {\tt ensmallen}'s L-BFGS optimizer:
 
 \begin{minted}{c++}
 // We assume that "X" and "y" are given.
