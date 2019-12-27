@@ -2,30 +2,34 @@
 \label{sec:introduction}
 
 The problem of mathematical optimization is fundamental in the computational
-sciences.  In short, this problem can be expressed as
+sciences.  In short, this problem is expressed as
 
 \begin{equation}
 \operatorname{argmin}_x f(x).
 \end{equation}
 
 The ubiquity of this problem gives rise to the proliferation of mathematical
-optimization toolkits: SciPy~\cite{TODO}, opt++~\cite{TODO},
-OR-Tools~\cite{TODO}, CVXOPT~\cite{TODO}, NLopt~\cite{TODO}, Ceres~\cite{ceres},
-and RBFOpt~\cite{TODO} are just a few examples of software dedicated solely to
-optimization.  On top of that, in the field of machine learning, many deep
-learning libraries have integrated optimization components---Theano~\cite{TODO},
-TensorFlow~\cite{TODO}, PyTorch~\cite{TODO}, and Caffe~\cite{TODO} all have
-integrated mathematical optimization components.
+optimization toolkits: SciPy~\cite{2019arXiv190710121V},
+opt++~\cite{meza1994opt++},
+OR-Tools~\cite{ortools}, CVXOPT~\cite{vandenberghe2010cvxopt},
+NLopt~\cite{johnson2014nlopt}, Ceres~\cite{ceres-solver},
+and RBFOpt~\cite{costa2018rbfopt} are just a few examples of software dedicated
+solely to optimization.  On top of that, in the field of machine learning, many
+deep learning libraries have integrated optimization
+components---for example, Theano~\cite{2016arXiv160502688full},
+TensorFlow~\cite{tensorflow2015-whitepaper}, PyTorch~\cite{NEURIPS2019_9015},
+and Caffe~\cite{jia2014caffe} all have integrated mathematical optimization
+components.
 
 However, these optimization routines are generally quite computationally
 intensive: for instance, the training of deep neural networks is dominated by
-the optimization of the model parameters on the data~\cite{TODO}.  Similarly,
+the optimization of the model parameters on the
+data~\cite{krizhevsky2012imagenet, lauzon2012introduction}.  Similarly,
 other popular machine learning algorithms such as logistic regression are also
-expressed as and dominated by an optimization~\cite{TODO}.
-% https://arc.aiaa.org/doi/abs/10.2514/1.G001480
-Computational bottlenecks occur even in fields as wide-ranging as rocket landing
-guidance systems~\cite{TODO}, motivating the development and implementation of
-specialized solvers.
+expressed as and dominated by an optimization~\cite{zhang2004solving,
+manogaran2018health}.  Computational bottlenecks occur even in fields as
+wide-ranging as rocket landing guidance systems~\cite{dueri2016customized},
+motivating the development and implementation of specialized solvers.
 
 Yet, many general-purpose optimization libraries fail to make full use of the
 hardware on which they are running.  Often, in order to make a clean and
@@ -42,10 +46,12 @@ ensmallen} library in C++.  {\tt ensmallen} uses template metaprogramming
 techniques to produce efficient code during compilation; through these
 techniques, we are able to simultaneously provide a friendly and intuitive
 interface that matches the ease of use of popular optimization toolkits like
-SciPy, OR-Tools, and MATLAB's {\tt fminsearch()} function~\cite{TODO}.
+SciPy, OR-Tools, and MATLAB's {\tt fminsearch()}
+function~\cite{matlab_fminsearch}.
 
+% the 46 optimizers are as of 2.11.0
 {\tt ensmallen} allows the user to define a function $f(x)$ to be optimized with
-a wide variety of optimization techniques (at the time of this writing, TODO
+a wide variety of optimization techniques (at the time of this writing, 46
 optimizers are available).  Many of these optimization techniques operate on
 specific {\it classes} of objective functions---for instance, {\tt ensmallen}
 contains many optimizers that work on differentiable functions, and so a user
@@ -66,8 +72,7 @@ Section~\ref{sec:automatic} discusses the details of how {\tt ensmallen} is able
 to automatically generate methods not provided by the user.
 Section~\ref{sec:callbacks} describes {\tt ensmallen}'s callbacks.
 Finally, we demonstrate the empirical efficiency of {\tt ensmallen} in
-Section~\ref{sec:exerpiments} and conclude in Section~\ref{sec:conclusion}.
+Section~\ref{sec:experiments} and conclude in Section~\ref{sec:conclusion}.
 
-This paper is an expanded description of {\tt ensmallen}'s original introduction
-in \citet{TODO, TODO}.
-% The citations above should be the workshop submissions
+This paper is an expanded description of {\tt ensmallen}'s original
+introduction~\cite{ensmallen2018, curtin2017generic}.
