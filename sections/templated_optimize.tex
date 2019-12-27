@@ -66,21 +66,76 @@ by default is set to be the same as {\tt MatType} in this code).  So long as
 each type has all the methods that are used inside of {\tt Optimize()}, there
 will be no compilation issue.  In addition, the code generated will be exactly
 the same as if {\tt Optimize()} was written with the types specified in those
-template parameters.  This means that there is no runtime overhead 
+template parameters.  This means that there is no additional runtime overhead
+when a different {\tt MatType} is used.  This is in contrast with languages like
+Python, where any ducktyping is resolved at runtime dynamically\footnote{The
+same would happen if we used C++'s {\tt virtual} keyword for virtual
+inheritance.}.  In fact, for heavily-called functions, the overhead of runtime
+resolution can be a noticeable and non-negligible slowdown~\cite{TODO}.
+% For this citation see the "future of mlpack" document, it's some C++ TR
+Thus, the ability to avoid this overhead at runtime and instead resolve at
+compile time is a unique benefit to languages that have good compile-time
+support for generic programming.  In Section~\ref{TODO}, we will see that this
+helps {\tt ensmallen} outperform other optimization toolkits.
 
-----
+However, there is one important drawback of C++ that we must work around when
+providing support for any {\tt MatType}, and that is the issue of compiler
+errors.  The compiler may fail to substitute a given {\tt MatType} into the
+code above for {\tt GradientDescent::Optimize()}; a typical reason might be that
+some needed method of {\tt MatType} or {\tt FunctionType} is not available.
+(Consider, for instance, if the given {\tt MatType} did not have an {\tt
+operator\*()} method!)  When this happens, most C++ compilers will emit a huge
+amount of error messages, with all relevant information about the attempted
+template instantions.
 
-The goals of this section are to:
+This onslaught of error messages can be confusing and discouraging to users;
+thus, we endeavor to avoid it via the use of C++ compile-time static assertions
+({\tt static\_assert()}).  Specifically for checking {\tt MatType} and {\tt
+GradType}, we have built some utility functions that can be used inside of any
+{\tt Optimize()} method:
 
 \begin{itemize}
-  \item Highlight the function signature {\tt template<typename MatType> double
-Optimize()}.
+  \item {\tt RequireFloatingPointType<MatType>()}: this requires that the
+element type held by {\tt MatType} is either {\tt float} or {\tt double} (this
+is generally needed by optimizers that use LAPACK or BLAS functionality).
 
-  \item Discuss the details of how templates get us speedup by effectively
-producing specialized code at compile-time.
+  \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
+{\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
+be useful for differentiable optimizers, where we want to ensure, e.g., that a
+user can't pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
+holds {\tt unsigned int}s.
 
-  \item Mention the types that {\tt Optimize()} will work with.
-
-  \item Discuss the compile-time checks we added to warn when an unsupported
-type is used?
+  \item {\tt RequireDenseFloatingPointType<MatType>()}: this requires that the
+element type held by {\tt MatType} is either {\tt float} or {\tt double}, and
+that the representation used for storage by {\tt MatType} is dense.
 \end{itemize}
+
+At the time of writing this report, these are the only three checks that have
+been needed, but it is easy to add more.  The implementation of these functions
+is just a {\tt static\_assert()} that uses some underlying traits of the given
+template parameters.  For example, below is the implementation of {\tt
+RequireSameInternalTypes<...>()}:
+
+\begin{minted}{c++}
+/**
+ * Require that the internal element type of the matrix type and gradient type
+ * are the same.  A static_assert() will fail if not.
+ */
+template<typename MatType, typename GradType>
+void RequireSameInternalTypes()
+{
+#ifndef ENS_DISABLE_TYPE_CHECKS
+  static_assert(std::is_same<typename MatType::elem_type,
+                             typename GradType::elem_type>::value,
+      "The internal element types of the given MatType and GradType must be "
+      "identical, or it is not known to work!  If you would like to try "
+      "anyway, set the preprocessor macro ENS_DISABLE_TYPE_CHECKS before "
+      "including ensmallen.hpp.  However, you get to pick up all the pieces if "
+      "there is a failure!");
+#endif
+}
+\end{minted}
+
+Note that for users who would like to continue despite the checks failing, they
+simply need to define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in their code
+before the line {\tt \#include <ensmallen.hpp>}.
