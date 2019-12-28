@@ -1,45 +1,107 @@
 \section{Callbacks}
 \label{sec:callbacks}
 
-The goals of this section are to:
+Many optimizers offer the ability to modify the optimization process. Examples
+include changing the step size, adding custom constraints when they are violated
+by the current solution, or providing custom heuristics to find and investigate
+feasible solutions.
 
-\begin{itemize}
-  \item Introduce how callbacks are used with a simple example.
-
-  \item List the callbacks we currently have support for.
-
-  \item Give a simple example of how a user might implement a custom callback.
-
-  \item Mention some of the C++ parts used in the callback implementation in
-order to show that callbacks end up having no extra overhead.
-
-In ensmallen, callbacks are subclasses with a set of methods called at various
-stages of the optimization process, including epoch start/end, evaluate, and
-gradient step. Callbacks are useful to get a view on internal states and
-statistics of a function during optimization. A user can pass arbitrary
-callbacks to any optimizer.
+In the past this functionality was limited to solver-specific interfaces [], in
+contrast, ensmallen provides, optimizer independent callbacks to allow guidance
+of the optimization process and to monitor the behavior of optimizers. In
+particular, ensmallen's callbacks allow code to be executed regularly during an
+optimization session. To use callbacks, either for optimization, tuning or
+logging, a user can pass arbitrary callbacks to any optimizer in the Optimize()
+function:
 
 \begin{minted}{c++}
-// We assume that "X" and "y" are given.
-LinearRegressionFunction f(X, y);
+RosenbrockFunction f;
+arma::mat coordinates = f.GetInitialPoint();
 
-L_BFGS optimizer; // Create the optimizer with all default parameters.
-
-// The theta_best matrix will hold the best model that we find after we call
-// Optimize(); for now, we set it to the initial point (uniform random values).
-arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
-
-// Optimize the given function and provide three callbacks (EarlyStopAtMinLoss,
-// ProgressBar, StoreBestCoordinates) that is called at various stages during
-// the optimization process.
-optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar(), StoreBestCoordinates<>());
+MomentumSGD optimizer(0.01, 32, 100000, 1e-5, true, MomentumUpdate(0.5));
+optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar());
 \end{minted}
 
-Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()}, {\tt ProgressBar()}
-and {\tt StoreBestCoordinates<>()} the code snippet above shows not only how the
-L-BFGS optimizer can be used to find the best {\tt \small coordinates} but also
-how the callbacks can be used to control and overview the optimization process
-by calling the callbacks at different stages of the optimization process.
+Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()} and {\tt
+ProgressBar()} the code snippet above shows not only how the Momentum-SGD
+optimizer can be used to find the best coordinates but also how the callbacks
+can be used to control and overview the optimization process by calling the
+callbacks at different stages of the optimization process
+
+There are eight types of optimization callback routines that are regularly
+called during the optimization process (depending on the function type):
+
+\begin{itemize}
+\item {\bf BeginOptimization:} Called at the beginning of the optimization process.
+
+\item {\bf EndOptimization:} Called at the end of the optimization process.
+
+\item {\bf Evaluate:} Called after any call to {\tt Evaluate()}.
+
+\item {\bf EvaluateConstraint:} Called after any call to {\tt EvaluateConstraint()}.
+
+\item {\bf Gradient:} Called after any call to {\tt Gradient()}.
+
+\item {\bf GradientConstraint:} Called after any call to {\tt GradientConstraint()}.
+
+\item {\bf BeginEpoch:} Called at the beginning of a pass over the data.
+
+\item {\bf EndEpoch:} Called at the end of a pass over the data.
+\end{itemize}
+
+Callbacks are executed in the order that they are specified, by default
+subsequent callbacks are discared if a callback terminates the optimization
+process under circumstances defined by the application. To terminate the
+optimiation process via callbacks, each callback routine can return an boolean,
+true if continue, or false to indicate that the optimization process should be
+terminated,
+
+If your callback requires additional parameters beyond what is passed through
+the predefined arguments, a user is encouraged to manully instantiate an object
+with them, and pass the object or access optimizer specific parameter via the
+optimizer interface. ensmallen does not modify or dereference the object, so it
+is safe to use for this purpose.
+
+\begin{minted}{c++}
+struct CustomCallback
+{
+  CustomCallback(double rIn) : p(rIn) {}
+
+  template<typename OptimizerType, typename FunctionType, typename MatType>
+    void StepTaken(OptimizerType& optimizer,
+                   FunctionType& function,
+                   MatType& coordinates)
+    {
+      optimizer.StepSize() *= r;
+    }
+
+  double r;
+};
+
+RosenbrockFunction f;
+arma::mat coordinates = f.GetInitialPoint();
+
+Adam opt;
+CustomCallback cb(0.9);
+opt.Optimize(f, coordinates, cb);
+\end{minted}
+
+In this example, we pass an instatiated custom callback that takes an additional
+step size decay parameter as input, in addition, inside the StepTake() callback
+we use the optimizer interface ({\tt StepSize()}) to update the step size.
+
+Please see a complete list and description of ensmallens's callback functions in
+the callback documentation. In addition, we recommend closely reviewing the
+examples provided in
+\url{include/ensmallen_bits/callbacks}
+which provide examples of how to use most of these callback functions.
+
+
+
+
+
+
+
 
 A custom callback is a powerful tool to customize the behavior of a function
 during the optimization process. Examples include {\tt StoreBestCoordinates<>()}
@@ -94,5 +156,3 @@ arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
 // that is called at the end of an epoch.
 optimizer.Optimize(f, theta_best, EarlyStoppingAtMinLoss());
 \end{minted}
-
-\end{itemize}
