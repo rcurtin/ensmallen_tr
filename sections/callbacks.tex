@@ -8,12 +8,17 @@ feasible solutions.
 
 In the past this functionality was limited to solver-specific interfaces [], in
 contrast, ensmallen provides, optimizer independent callbacks to allow guidance
-of the optimization process and to monitor the behavior of optimizers. In
+of the optimization process and to monitor the behavior of optimization. In
 particular, ensmallen's callbacks allow code to be executed regularly during an
 optimization session. To use callbacks, either for optimization, tuning or
 logging, a user can pass arbitrary callbacks to any optimizer in the Optimize()
-function:
+function. Figure~\ref{fig:example_prog_callbacks} contains a simple C++ program which briefly demonstrates usage of the callback functionaility.
 
+\begin{figure}[H]
+\centering
+\hrule
+\vspace{1ex}
+\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 RosenbrockFunction f;
 arma::mat coordinates = f.GetInitialPoint();
@@ -21,12 +26,21 @@ arma::mat coordinates = f.GetInitialPoint();
 MomentumSGD optimizer(0.01, 32, 100000, 1e-5, true, MomentumUpdate(0.5));
 optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar());
 \end{minted}
+\end{adjustbox}
+\vspace{1ex}
+\hrule
+\caption
+  {
+  A simple C++ program to demonstrate usage of the callback functionality using pre-defined callbacks: \texttt{EarlyStopAtMinLoss()} and \texttt{ProgressBar}.
+  }
+\label{fig:example_prog_callbacks}
+\end{figure}
 
 Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()} and {\tt
 ProgressBar()} the code snippet above shows not only how the Momentum-SGD
 optimizer can be used to find the best coordinates but also how the callbacks
 can be used to control and overview the optimization process by calling the
-callbacks at different stages of the optimization process.
+callbacks at different stages of the optimization process.\newline
 
 There are eight types of optimization callback routines that are regularly
 called during the optimization process (depending on the function type).
@@ -69,6 +83,11 @@ optimiation process via callbacks, each callback routine can return an boolean,
 true to continue, or false to indicate that the optimization process should be
 terminated.
 
+\begin{figure}[H]
+\centering
+\hrule
+\vspace{1ex}
+\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 class CustomCallback
 {
@@ -82,13 +101,27 @@ class CustomCallback
   }
 };
 \end{minted}
+\end{adjustbox}
+\vspace{1ex}
+\hrule
+\caption
+  {
+  Control the optimization process via the return value of the callback routine.
+  }
+\label{fig:example_prog_callbacks}
+\end{figure}
 
-If your callback requires additional parameters beyond what is passed through
+If a callback requires additional parameters beyond what is passed through
 the predefined arguments, a user is encouraged to manully instantiate an object
 with them, and pass the object or access optimizer specific parameter via the
 optimizer interface. ensmallen does not modify or dereference the object, so it
 is safe to use for this purpose.
 
+\begin{figure}[H]
+\centering
+\hrule
+\vspace{1ex}
+\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 struct CustomCallback
 {
@@ -112,21 +145,28 @@ Adam opt;
 CustomCallback cb(0.9);
 opt.Optimize(f, coordinates, cb);
 \end{minted}
+\end{adjustbox}
+\vspace{1ex}
+\hrule
+\caption
+  {
+  A simple C++ program of adding additional parameter to a Callback and accessing optimizer specific parameter.
+  }
+\label{fig:example_prog_callbacks_parameter}
+\end{figure}
 
-In this example, we pass an instatiated custom callback that takes an additional
-step size decay parameter as input, in addition, inside the StepTake() callback
-we use the optimizer interface ({\tt StepSize()}) to update the step size.
+In this example~\ref{fig:example_prog_callbacks_parameter}, we pass an
+instatiated custom callback that takes an additional step-size decay parameter
+as input, in addition, inside the {\tt StepTake()} callback we use the optimizer
+interface ({\tt StepSize()}) to update the step size.
 
-Please see a complete list and description of ensmallens's callback functions in
-the callback documentation. In addition, we recommend closely reviewing the
-examples provided in
-\url{include/ensmallen_bits/callbacks}
-which provide examples of how to use most of these callback functions.
+To demonstrate the advantages of the template-based optimization mechanism, we
+performed a set of experiments~\ref{fig:callback_compilter_opt}, that compared
+the machine code of an optimizer with callback support and without. In all
+cases, a modern C++ compiler [] optimized away the non-used code, the resultant
+machine code appears as if the never existed in the first place.
 
-
-
-
-\begin{figure}[!tb]
+\begin{figure}[H]
 \centering
 \hrule
 \hrule
@@ -162,8 +202,8 @@ void main()
 \begin{minted}[escapeinside=||,fontsize=\footnotesize]{c++}
 struct Optimizer
 {
-  template<typename FT, |\colorbox{yellow}{typename... CT}|>
-  void Optimize(FT& f, arma::mat& p, CT&&... c)
+  template<typename FT, |\colorbox{yellow}{typename... CallbackType}|>
+  void Optimize(FT& f, arma::mat& p, CallbackType&&... c)
   {
     |\colorbox{yellow}{Callback::BeginOptimization(*this, f, p, c...);}|
     f.Evaluate(iterate);
@@ -186,11 +226,29 @@ void main()
   Left panel: A C++ program that mimics the ensmallen optimizer interface
   without any callback functionality. Right panel: A corresponding C++ program
   using an empty callback routine that is automatically optimized out. Both
-  programs produce the exact same assembler output, resulting in no performance
+  programs produce the exact same machine code, resulting in no performance
   penalty if no callbacks are used.
   }
-\label{fig:manual_vs_automatic_conversion}
+\label{fig:callback_compilter_opt}
 \end{figure}
+
+For the sake of brevity we omit the expressions for the {\tt BeginOptimization}
+method \footnote{Interested readers can find that code in {\tt
+ensmallen\_bits/callbacks/callbacks.hpp}.}. The function depend heavily on
+SFINAE techniques for method detection; {\tt HasBeginOptimization} will evaluate
+to {\tt true} if {\tt CallbackType} has {\tt BeginOptimization()} and {\tt
+false} otherwise.
+
+Using the boolean template variable, we can then use template specialization to
+control whether {\tt BeginOptimization} returns a boolean, void to control the
+optimization process or if the callback ends in an empty function
+call.
+
+
+
+
+
+
 
 
 
@@ -202,6 +260,11 @@ where the model is automatically saved during the optimization process or {\tt
 EarlyStoppingAtMinLoss()}  which stops the optimization process when the minimum
 of loss has been reached.
 
+\begin{figure}[H]
+\centering
+\hrule
+\vspace{1ex}
+\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 class EarlyStoppingAtMinLoss
 {
@@ -249,3 +312,18 @@ arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
 // that is called at the end of an epoch.
 optimizer.Optimize(f, theta_best, EarlyStoppingAtMinLoss());
 \end{minted}
+\end{adjustbox}
+\vspace{1ex}
+\hrule
+\caption
+  {
+  A simple C++ program that demonstrates the implementation of a custom callback function.
+  }
+\label{fig:example_prog_callbacks_parameter}
+\end{figure}
+
+Please see a complete list and description of ensmallens's callback functions in
+the callback documentation. In addition, we recommend closely reviewing the
+examples provided in
+\url{include/ensmallen_bits/callbacks}
+which provide examples of how to use most of these callback functions.
