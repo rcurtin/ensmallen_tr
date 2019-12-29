@@ -126,6 +126,71 @@ which provide examples of how to use most of these callback functions.
 
 
 
+\begin{figure}[!tb]
+\centering
+\hrule
+\hrule
+\vspace{0.5ex}
+\begin{minipage}{0.45\textwidth}
+\begin{minted}[fontsize=\footnotesize,stripnl=false]{c++}
+struct Optimizer
+{
+  template<typename FT>
+  void Optimize(FT& f, arma::mat& p)
+  {
+    f.Evaluate(p);
+  }
+};
+
+void main()
+{
+  RosenbrockFunction rf;
+  arma::mat parameters = rf.GetInitialPoint();
+  Optimizer opt;
+  opt.Optimize(rf, parameters);
+}
+
+\end{minted}
+\end{minipage}
+%
+\hfill
+\vline
+\vline
+\hfill
+%
+\begin{minipage}{0.45\textwidth}
+\begin{minted}[escapeinside=||,fontsize=\footnotesize]{c++}
+struct Optimizer
+{
+  template<typename FT, |\colorbox{yellow}{typename... CT}|>
+  void Optimize(FT& f, arma::mat& p, CT&&... c)
+  {
+    |\colorbox{yellow}{Callback::BeginOptimization(*this, f, p, c...);}|
+    f.Evaluate(iterate);
+  }
+};
+void main()
+{
+  RosenbrockFunction rf;
+  arma::mat parameters = rf.GetInitialPoint();
+  Optimizer opt;
+  opt.Optimize(rf, parameters);
+}
+\end{minted}
+\end{minipage}
+\vspace{0.5ex}
+\hrule
+\hrule
+\caption
+  {
+  Left panel: A C++ program that mimics the ensmallen optimizer interface
+  without any callback functionality. Right panel: A corresponding C++ program
+  using an empty callback routine that is automatically optimized out. Both
+  programs produce the exact same assembler output, resulting in no performance
+  penalty if no callbacks are used.
+  }
+\label{fig:manual_vs_automatic_conversion}
+\end{figure}
 
 
 
