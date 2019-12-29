@@ -26,35 +26,62 @@ Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()} and {\tt
 ProgressBar()} the code snippet above shows not only how the Momentum-SGD
 optimizer can be used to find the best coordinates but also how the callbacks
 can be used to control and overview the optimization process by calling the
-callbacks at different stages of the optimization process
+callbacks at different stages of the optimization process.
 
 There are eight types of optimization callback routines that are regularly
-called during the optimization process (depending on the function type):
+called during the optimization process (depending on the function type).
+Table~\ref{tab:callback_list} lists the available types.
 
-\begin{itemize}
-\item {\bf BeginOptimization:} Called at the beginning of the optimization process.
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+{\bf Function} & {\bf Description} & {\bf Function type} \\
+\hline
+\texttt{BeginOptimization}   & Called at the beginning of the optimization process  & all \\
+\texttt{EndOptimization}     & Called at the end of the optimization process        & all \\
+\texttt{Evaluate}            & Called after any call to {\it Evaluate()}            & Arbitrary, Differentiable, Partially differentiable,  \\
+                             &                                                      & Arbitrary separable, Differentiable separable \\
+\texttt{EvaluateConstraint}  & Called after any call to {\it EvaluateConstraint()}  & Constrained \\
+\texttt{Gradient}            & Called after any call to {\it Gradient()}            & Differentiable, Partially differentiable \\
+                             &                                                      & Differentiable separable \\
+\texttt{GradientConstraint}  & Called after any call to {\it GradientConstraint()}  & Constrained \\
+\texttt{BeginEpoch}          & Called at the beginning of a pass over the data      & Differentiable separable \\
+\texttt{EndEpoch}            & Called at the end of a pass over the data            & Differentiable separable \\
 
-\item {\bf EndOptimization:} Called at the end of the optimization process.
-
-\item {\bf Evaluate:} Called after any call to {\tt Evaluate()}.
-
-\item {\bf EvaluateConstraint:} Called after any call to {\tt EvaluateConstraint()}.
-
-\item {\bf Gradient:} Called after any call to {\tt Gradient()}.
-
-\item {\bf GradientConstraint:} Called after any call to {\tt GradientConstraint()}.
-
-\item {\bf BeginEpoch:} Called at the beginning of a pass over the data.
-
-\item {\bf EndEpoch:} Called at the end of a pass over the data.
-\end{itemize}
+\bottomrule
+\end{tabular}
+\vspace{0.5ex}
+\caption
+  {
+  Available callback routines, with brief descriptions.
+  Optional additional arguments have been omitted for brevity.
+  See {\href{http://www.ensmallen.org/docs.html}{\mbox{\tt http://www.ensmallen.org/docs.html}}} for more detailed documentation.
+  }
+\label{tab:callback_list}
+\end{table}
 
 Callbacks are executed in the order that they are specified, by default
 subsequent callbacks are discared if a callback terminates the optimization
 process under circumstances defined by the application. To terminate the
 optimiation process via callbacks, each callback routine can return an boolean,
-true if continue, or false to indicate that the optimization process should be
-terminated,
+true to continue, or false to indicate that the optimization process should be
+terminated.
+
+\begin{minted}{c++}
+class CustomCallback
+{
+  template<typename OptimizerType, typename FunctionType, typename MatType>
+  bool Evaluate(OptimizerType& optimizer,
+                FunctionType& function,
+                const MatType& coordinates,
+                const double objective)
+  {
+    return true;  // Continue the optimization process.
+  }
+};
+\end{minted}
 
 If your callback requires additional parameters beyond what is passed through
 the predefined arguments, a user is encouraged to manully instantiate an object
@@ -95,6 +122,7 @@ the callback documentation. In addition, we recommend closely reviewing the
 examples provided in
 \url{include/ensmallen_bits/callbacks}
 which provide examples of how to use most of these callback functions.
+
 
 
 
