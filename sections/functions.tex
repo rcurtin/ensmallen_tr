@@ -54,8 +54,12 @@ simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
 Evaluate()}/{\tt Gradient()} example described above.
 
 Using our framework for function inference is very simple; an example
-differentiable optimizer might look like this:
+differentiable optimizer might look like what is shown in
+Figure~\ref{fig:ex_optimize}.
 
+\begin{figure}[t]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 // FunctionType is the user-supplied function type to optimize.
 // MatType is the user-supplied type of the initial coordinates.
@@ -75,6 +79,32 @@ typename MatType::elem_type Optimize(FunctionType& function,
   ...
 }
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{An example implementation of an {\tt ensmallen} optimizer's {\tt
+Optimize()} method.  The use of the {\tt Function<>} mix-in class will provide
+methods that the original {\tt FunctionType} may not have had.}
+\label{fig:ex_optimize}
+\end{figure}
+
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
+\begin{minted}{c++}
+template<typename FunctionType, typename MatType, typename GradType>
+class Function :
+    ... // lots of other mixin classes omitted
+    public AddEvaluateWithGradient<FunctionType, MatType, GradType>,
+    ...
+    public FunctionType
+\end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Snippet of the definition of the {\tt Function} class.  The full
+implementation contains numerous other mix-in classes like {\tt
+AddEvaluateWithGradient}.}
+\label{fig:function_snippet}
+\end{figure}
 
 This is relatively uninvasive: {\tt ensmallen} contributors who are writing
 optimizers need only define a {\tt Function<FunctionType, ...>} wrapper at the
@@ -85,17 +115,8 @@ think about it.
 
 The class {\tt Function<...>} is like a {\it mixin}
 class~\cite{smaragdakis2000mixin}; more accurately, it is a {\it collection} of
-mixin classes.  Below is a shortened snippet of the definition of the {\tt
-Function} class:
-
-\begin{minted}{c++}
-template<typename FunctionType, typename MatType, typename GradType>
-class Function :
-    ... // lots of other mixin classes omitted
-    public AddEvaluateWithGradient<FunctionType, MatType, GradType>,
-    ...
-    public FunctionType
-\end{minted}
+mixin classes.  Figure~\ref{fig:function_snippet} shows a shortened snippet of the definition of the {\tt
+Function} class.
 
 We can see that {\tt Function} inherits methods from the given {\tt
 FunctionType} (which is the user-supplied objective function class that is to be
@@ -108,8 +129,12 @@ provide an {\tt EvaluateWithGradient()} function.
 
 The details of how this work depend on the SFINAE technique~\cite{TODO} and
 template specialization.  The {\tt AddEvaluateWithGradient} class has five
-template parameters; the last two of these have default values:
+template parameters, shown in Figure~\ref{fig:aewg}; the last two of these have
+default values.
 
+\begin{figure}[b!]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 template<typename FunctionType,
          typename MatType,
@@ -128,6 +153,13 @@ class AddEvaluateWithGradient
       traits::UnconstructableType&);
 };
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Definition of the {\tt AddEvaluateWithGradient} mix-in class.  The
+first three template parameters are the `inputs', and the last two template
+parameters are computed quantities used for later template specialization.}
+\label{fig:aewg}
+\end{figure}
 
 For the sake of brevity we omit the expressions for the {\tt bool} parameters
 {\tt HasEvaluateGradient} and {\tt HasEvaluateWithGradient}\footnote{Interested
@@ -142,9 +174,14 @@ an overload of {\tt EvaluateWithGradient()}, and {\tt false} otherwise.
 
 Using these two boolean template variables, we can then use template
 specialization to control the behavior of {\tt AddEvaluateWithGradient} as a
-function of what is provided by {\tt FunctionType}.  Specifically, we make the
-following two specializations:
+function of what is provided by {\tt FunctionType}.  Specifically, we make two
+specializations: one for when {\tt EvaluateWithGradient()} exists, and one for
+when both {\tt Evaluate()} and {\tt Gradient()} exist but {\tt
+EvaluateWithGradient()} does not.
 
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 template<typename FunctionType,
          typename MatType,
@@ -169,10 +206,17 @@ class AddEvaluateWithGradient<FunctionType,
   }
 };
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Partial template specialization of {\tt AddEvaluateWithGradient} for
+when the given {\tt FunctionType} does have an {\tt EvaluateWithGradient()}
+method available already.}
+\label{fig:aewg-s1}
+\end{figure}
 
-This specialization above is for when {\tt HasEvaluateWithGradient} is {\tt
-true}---meaning that {\tt FunctionType} already has {\tt
-EvaluateWithGradient()}.  In this situation, the implementation of {\tt
+The first specialization, shown in Figure~\ref{fig:aewg-s1} is for when {\tt
+HasEvaluateWithGradient} is {\tt true}---meaning that {\tt FunctionType} already
+has {\tt EvaluateWithGradient()}.  In this situation, the implementation of {\tt
 AddEvaluateWithGradient::EvaluateWithGradient()} simply calls out to {\tt
 FunctionType::EvaluateWithGradient()}.  However, there is some complexity here,
 as to successfully call {\tt FunctionType::EvaluateWithGradient()}, we must
@@ -188,8 +232,12 @@ methods), and {\tt HasEvaluateWithGradient} is {\tt false} (i.e., there is no
 {\tt EvaluateWithGradient()} provided by {\tt FunctionType}).  In this
 situation, we intend to synthesize an implementation for {\tt
 EvaluateWithGradient()} by using both of the provided {\tt Evaluate()} and {\tt
-Gradient()} methods sequentially.
+Gradient()} methods sequentially.  Figure~\ref{fig:aewg-s2} shows this
+specialization.
 
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 template<typename FunctionType, typename MatType, typename GradType>
 class AddEvaluateWithGradient<FunctionType, MatType, GradType, true, false>
@@ -209,6 +257,13 @@ class AddEvaluateWithGradient<FunctionType, MatType, GradType, true, false>
   }
 };
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Partial template specialization of {\tt AddEvaluateWithGradient} for
+when {\tt EvaluateWithGradient()} is not available, but {\tt Evaluate()} and
+{\tt Gradient()} are.}
+\label{fig:aewg-s2}
+\end{figure}
 
 The same complexity with casting is necessary in this specialization too.  The
 last specialization is the general case: where there is neither {\tt Evaluate()}
