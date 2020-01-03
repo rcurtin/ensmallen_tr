@@ -24,11 +24,19 @@
 \usepackage{bm}
 \usepackage{booktabs}      % for \toprule in tables
 \usepackage{multirow}      % for table multirow
-\usepackage{tcolorbox}	   % colorbox in minted
+\usepackage{tcolorbox}   % colorbox in minted
 \usepackage{times}
 %\usepackage{palatino}     % changes the default sans serif font
 \usepackage{inconsolata}   % changes the default typewriter font
 \usepackage{adjustbox}
+\usepackage{threeparttable}
+\usepackage{parcolumns}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{wasysym}
 
 % disable ligatures such as "fi" being joined into one symbol
 \usepackage{microtype}
@@ -36,6 +44,12 @@
 
 \renewcommand{\baselinestretch}{1.1}\small\normalsize
 
+\newcolumntype{R}[2]{%
+  >{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+  l%
+  <{\egroup}%
+}
+\newcommand*\rot{\multicolumn{1}{R{30}{2.0em}}}
 
 
 \begin{document}

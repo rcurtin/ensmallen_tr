@@ -1,6 +1,96 @@
 \section{API overview and examples}
 \label{sec:api}
 
+\begin{table}[t!]
+\centering
+    \begin{tabular}{@{} cl*{9}c @{}}
+%  \begin{tabular}{ccccccc}
+        & & \multicolumn{7}{c}{} \\[0.6ex]
+            % If there is any coherent framework at all, this is true.
+        & & \rot{unified framework}
+            % If there is any support for constrained optimization, this is
+            % true.
+          & \rot{constraints}
+            % If the optimization framework can do mini-batch, this is true.
+          & \rot{separable functions / batches}
+            % If I can implement any arbitrary function to be optimized, this is
+            % true.
+          & \rot{arbitrary functions}
+            % If I can implement any new optimization technique to use, this is
+            % true.
+          & \rot{arbitrary optimizers}
+            % If the framework could take advantage of when the gradient is
+            % sparse, this is true.
+          & \rot{sparse gradients}
+            % If the framework can handle categorical/discrete variables for
+            % optimization, this is true.
+          & \rot{categorical}
+            % If any type can be optimized, this is true.
+          & \rot{arbitrary types}
+            % If callback support is available.
+          & \rot{callbacks} \\
+        \cmidrule[1pt]{2-11}
+        % It might be reasonable to say mlpack categorical support is only
+        % partial, but I am not sure exactly where we draw the line.
+        & \texttt{\small ensmallen}            & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE\\
+        % The Shogun toolbox has a fairly nice framework, but it doesn't support
+        % sparse gradients or categorical features.  It also does not appear to
+        % support constraints, arbitrary types, or callbacks.
+        & Shogun \cite{sonnenburg2010shogun}             & \CIRCLE & - & \CIRCLE
+& \CIRCLE & \CIRCLE & - & - & - & - \\
+        % VW doesn't appear to have any framework whatsoever and the code is
+        % awful, but it does support batches and categorical features.
+        & Vowpal Wabbit \cite{Langford2007VW}      & - & - & \CIRCLE  & - & - & - &
+\CIRCLE & - & - \\
+        % TensorFlow has a few optimizers, but they are all SGD-related.  You
+        % can write most objectives easily (but some very hard), and categorical
+        % support might be possible but would not be easy.
+        & TensorFlow \cite{tensorflow2015-whitepaper}        & \CIRCLE & -  & \CIRCLE  & \LEFTcircle & - &
+\LEFTcircle & - & \LEFTcircle & - \\
+        % Caffe has a nice framework, but it's only for SGD-related optimizers.
+        % I think I could write a new one, but it is not the easiest thing in
+        % the world.
+        & Caffe \cite{jia2014caffe}           & \CIRCLE & -  & \CIRCLE & \LEFTcircle & \LEFTcircle
+& - & - & \LEFTcircle & \CIRCLE \\
+        % Keras is restricted to neural networks and SGD-like optimizers.  I
+        % don't know that it is possible to easily write a new optimizer.
+        & Keras \cite{chollet2015keras}            & \CIRCLE & -  & \CIRCLE & \LEFTcircle & \LEFTcircle
+& - & - & \LEFTcircle & \CIRCLE \\
+        % sklearn has a few optimizer frameworks, but they are all in different
+        % places and have somewhat different support.
+        & scikit-learn \cite{pedregosa2011scikit}       & \LEFTcircle & - & \LEFTcircle  & \LEFTcircle & -
+& - & - & \LEFTcircle & - \\
+        % scipy has some nice optimizer framework but it does not support
+        % batches or some of the more complex functionality.  And you can't
+        % write your own.
+        & SciPy \cite{jones2014scipy}             & \CIRCLE & \CIRCLE  & -  &
+\CIRCLE & - & - & - & \LEFTcircle & \CIRCLE \\
+        % MATLAB is very similar to scipy.
+        & MATLAB \cite{matlab_fminsearch}            & \CIRCLE & \CIRCLE & - &
+\CIRCLE & - & - & - & \LEFTcircle & - \\
+        % Optim.jl isn't the only Julia package for optimization, but it's the
+        % one we compare against.
+        & Julia (\texttt{\small Optim.jl}) \cite{mogensen2018optim}         &
+\CIRCLE & - & - & \CIRCLE & - & - & - & \CIRCLE & - \\
+        \cmidrule[1pt]{2-11}
+    \end{tabular}
+\caption{\footnotesize{
+Feature comparison: \CIRCLE = provides feature,
+\LEFTcircle = partially provides feature, - = does not provide feature.
+{\it unified framework} indicates if there is some kind of generic/unified
+optimization framework; {\it constraints} and {\it separable functions /
+batches} indicate support for constrained functions and separable functions;
+{\it arbitrary functions} means arbitrary objective functions are easily
+implemented; {\it arbitrary optimizers} means arbitrary optimizers are easily
+implemented; {\it sparse gradient} indicates that the framework can natively
+take advantage of sparse gradients; {\it categorical} refers to if support
+for categorical features exists; {\it arbitrary types} mean that arbitrary types
+can be used for the parameters $x$; and {\it callbacks} mean that
+user-implementable callback support is available.
+}}
+\label{tab:comparison}
+\end{table}
+
 {\tt ensmallen} provides a {\bf set of optimizers} for optimizing {\bf
 user-defined objective functions}.  These optimizers are generic and flexible,
 meaning that they can support a wide range of use cases and applications.  A
@@ -9,6 +99,11 @@ via template metaprogramming, which means that it comes at no runtime cost.
 In addition to allowing users to easily define and optimize their own objective
 functions, {\tt ensmallen} also makes it easy to implement new optimizers, which
 can then be contributed back upstream and incorporated into the library.
+
+Table~\ref{tab:comparison} compares the functionality
+supported by {\tt ensmallen} and other optimization toolkits.
+
+\subsection{Types of objective functions}
 
 Overall, our primary goal is to provide an easy-to-use and efficient library
 that can solve the problem $\operatorname{argmin}_x f(x)$ for any function
@@ -20,7 +115,7 @@ function $f(x)$, the user can provide an implementation of the gradient $f'(x)$,
 which in turn allows a first-order optimizer to be used.  This generally leads
 to significant, order-of-magnitude speedups.
 
-To codify these structures, {\tt ensmallen}'s optimizers are made to accept
+To capture this structure, {\tt ensmallen}'s optimizers are built to work with
 different types of objective functions.  These classes of objectives functions
 are listed below.
 
@@ -77,6 +172,8 @@ found on the {\tt ensmallen} website, at \url{https://ensmallen.org/docs.html},
 but is omitted here for brevity (and because the software may change over
 time!).
 
+\subsection{Types of optimizers}
+
 Using this straightforward abstraction framework, {\tt ensmallen} is able to
 provide a wide range of optimizers:
 
@@ -129,8 +226,7 @@ primal-dual interior point SDP solver, LRSDP (low-rank accelerated SDP
 solver)~\cite{burer2003nonlinear}.
 \end{itemize}
 
-Table \ref{table:comparison} compares the types of objective functions supported
-by {\tt ensmallen} and other optimization toolkits.
+\subsection{Using {\tt ensmallen}}
 
 The task of optimizing an objective function with {\tt ensmallen} is
 straightforward.  The class of objective function (e.g., arbitrary, constrained,
@@ -192,8 +288,12 @@ different signatures required for each objective function; for that, see the
 Returning to our linear regression example, we could easily use {\tt ensmallen}'s
 L-BFGS implementation to find $\bm \theta^*$; we just need to provide an
 implementation of $f(\bm \theta)$ and $f'(\bm \theta)$ (as L-BFGS requires a
-differentiable objective function).  Below is an example implementation.
+differentiable objective function).  Figure~\ref{fig:lr_function} is an example
+implementation.
 
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 class LinearRegressionFunction
 {
@@ -222,15 +322,16 @@ class LinearRegressionFunction
   const arma::vec& y;
 };
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{An example implementation of an objective function class for linear
+regression.}
+\label{fig:lr_function}
+\end{figure}
+\begin{figure}[t!]
 
-In this example, we hold {\tt \small X} and {\tt \small y} as members of the
-class, and {\tt \small coordinates} is used to represent $\bm \theta$.  Via the
-use of Armadillo~\cite{sanderson2016armadillo}, the linear algebra expressions
-to implement the objective function and gradient are readable in a way that
-closely matches Equations~\ref{eqn:obj_lr} and \ref{eqn:grad_lr}.  With {\tt
-\small LinearRegressionFunction} implemented, we can easily find $\bm \theta^*$
-with the following code that uses {\tt ensmallen}'s L-BFGS optimizer:
-
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 // We assume that "X" and "y" are given.
 LinearRegressionFunction f(X, y);
@@ -243,6 +344,21 @@ arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
 
 optimizer.Optimize(f, theta_best);
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Example usage of {\tt ensmallen}'s L-BFGS optimizer to optimize the
+linear regression objective function.}
+\label{fig:lbfgs_lr_opt}
+\end{figure}
+
+In this example, we hold {\tt \small X} and {\tt \small y} as members of the
+class, and {\tt \small coordinates} is used to represent $\bm \theta$.  Via the
+use of Armadillo~\cite{sanderson2016armadillo}, the linear algebra expressions
+to implement the objective function and gradient are readable in a way that
+closely matches Equations~\ref{eqn:obj_lr} and \ref{eqn:grad_lr}.  With {\tt
+\small LinearRegressionFunction} implemented, we can easily find $\bm \theta^*$
+with the code in Figure~\ref{fig:lbfgs_lr_opt} that uses {\tt ensmallen}'s
+L-BFGS optimizer.
 
 However, it's possible to do more than optimize a model that's stored as an {\tt
 \small arma::mat} (dense matrix).  {\tt ensmallen} supports:

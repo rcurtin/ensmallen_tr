@@ -33,10 +33,9 @@ for a specific type.  In C++, we can use templates to generate code {\it
 specific to the underlying matrix representation} that will have no runtime
 overhead despite its flexibility.
 
-Consider the simple gradient descent optimizer shown below\footnote{Note that
-much is missing from this implementation, such as the ability to configure any
-parameters of the optimizer.  This is for the sake of brevity.}.
-
+\begin{figure}[t]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 class GradientDescent
 {
@@ -59,8 +58,19 @@ class GradientDescent
   }
 };
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Example implementation of a gradient descent optimizer.  It is
+significantly simplified from {\tt ensmallen}'s actual {\tt GradientDescent}
+optimizer.}
+\label{fig:gd}
+\end{figure}
 
-The use of templates means that at compilation time, the correct types are
+Consider the simple gradient descent optimizer shown in
+Figure~\ref{fig:gd}\footnote{Note that much is missing from this implementation,
+such as the ability to configure any parameters of the optimizer.  This is for
+the sake of brevity.}.  The use of the template types {\tt FunctionType}, {\tt
+MatType}, and {\tt GradType} means that at compilation time, the correct types are
 substituted in for {\tt FunctionType}, {\tt MatType}, and {\tt GradType} (which
 by default is set to be the same as {\tt MatType} in this code).  So long as
 each type has all the methods that are used inside of {\tt Optimize()}, there
@@ -113,9 +123,12 @@ that the representation used for storage by {\tt MatType} is dense.
 At the time of writing this report, these are the only three checks that have
 been needed, but it is easy to add more.  The implementation of these functions
 is just a {\tt static\_assert()} that uses some underlying traits of the given
-template parameters.  For example, below is the implementation of {\tt
-RequireSameInternalTypes<...>()}:
+template parameters.  For example, Figure~\ref{fig:rsit} is the implementation
+of {\tt RequireSameInternalTypes<...>()}.
 
+\begin{figure}[t]
+\hrule
+\vspace{1ex}
 \begin{minted}{c++}
 /**
  * Require that the internal element type of the matrix type and gradient type
@@ -135,6 +148,12 @@ void RequireSameInternalTypes()
 #endif
 }
 \end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Implementation of {\tt RequireSameInternalTypes()} from internal {\tt
+ensmallen} code.}
+\label{fig:rsit}
+\end{figure}
 
 Note that for users who would like to continue despite the checks failing, they
 simply need to define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in their code
