@@ -262,15 +262,12 @@ given a matrix of predictors $\bm X \in \mathcal{R}^{n \times d}$ and a vector
 of responses $\bm y \in \mathcal{R}^n$.  Our task is to find the best linear
 model $\bm \theta \in \mathcal{R}^d$; that is, we want to find $\bm \theta^* =
 \operatorname{argmin} f(\bm \theta)$ for
-
 \begin{equation}
 f(\bm \theta) = \| \bm X \bm \theta - \bm y \|^2 = (\bm X \bm \theta - \bm y)^T
 (\bm X \bm \theta - \bm y).
 \label{eqn:obj_lr}
 \end{equation}
-
 From this we can easily derive the gradient $f'(\bm \theta)$:
-
 \begin{equation}
 f'(\bm \theta) = 2 \bm X^T (\bm X \bm \theta - \bm y).
 \label{eqn:grad_lr}

@@ -12,12 +12,15 @@ represents a matrix that holds {\tt double}s.
 But in many applications it can be very important to specify a different
 underlying storage type.  For instance, in the field of machine learning, neural
 networks have been shown to be effective with low-precision floating point
-representations for weights~\cite{TODO}, and even low-precision
-integers~\cite{TODO} and single bits~\cite{TODO}.  In addition, many
+representations for weights~\cite{vanhoucke2011improving}, and even low-precision
+integers~\cite{courbariaux2015training} and single
+bits~\cite{courbariaux2015binaryconnect}.  In addition, many
 optimization problems have parameters that are best represented as sparse
-data~\cite{TODO}, which is another format that Armadillo supports~\cite{TODO}.
+data~\cite{van2011sparse, recht2011hogwild}, which is another format that
+Armadillo supports~\cite{sanderson2018user, mca24030070}.
 Even alternate representations such as data held on the GPU can be quite
-important: the use of GPUs can often result in significant speedups~\cite{TODO}.
+important: the use of GPUs can often result in significant
+speedups~\cite{oh2004gpu, athanasopoulos2011gpu}.
 
 In order to handle this diverse set of needs, {\tt ensmallen} has been built in
 such a way that any underlying storage type can be used to represent the
@@ -85,8 +88,8 @@ resolution can be a noticeable and non-negligible slowdown~\cite{TODO}.
 % For this citation see the "future of mlpack" document, it's some C++ TR
 Thus, the ability to avoid this overhead at runtime and instead resolve at
 compile time is a unique benefit to languages that have good compile-time
-support for generic programming.  In Section~\ref{TODO}, we will see that this
-helps {\tt ensmallen} outperform other optimization toolkits.
+support for generic programming.  In Section~\ref{sec:experiments}, we will see
+that this helps {\tt ensmallen} outperform other optimization toolkits.
 
 However, there is one important drawback of C++ that we must work around when
 providing support for any {\tt MatType}, and that is the issue of compiler
