@@ -374,7 +374,9 @@ Auxiliary structures like {\tt AddEvaluateWithGradient} should be optimized out
 by the compiler.
 
 There are more methods than just {\tt EvaluateWithGradient()} that can be
-inferred.  We can use the same design strategy to infer numerous other methods:
+inferred.  We can use the same design strategy to infer numerous other methods.
+Below are a few examples that are currently implemented in the {\tt ensmallen}
+codebase.
 
 \begin{itemize}
   \item {\it (Differentiable functions.)}  If the user provides an objective
@@ -396,7 +398,8 @@ non-separable version of {\tt Gradient()}.
   \item {\it (Separable functions.)}  If the user provides an objective
 function with {\tt EvaluateWithGradient()} and {\tt NumFunctions()}, we can
 synthesize a non-separable version of {\tt Gradient()}.
-
-% TODO: are there more?
-% TODO: maybe this is better as a non-comprehensive list?
 \end{itemize}
+
+All of the code involved with automatic generation of functions can be found in
+the {\tt ensmallen} source code in the directory {\tt
+include/ensmallen\_bits/function/}.

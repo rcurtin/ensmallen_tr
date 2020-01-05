@@ -1,24 +1,35 @@
 \section{Callbacks}
 \label{sec:callbacks}
 
-Many optimizers offer the ability to modify the optimization process. Examples
-include changing the step size, adding custom constraints when they are violated
-by the current solution, or providing custom heuristics to find and investigate
-feasible solutions.
+Many of {\tt ensmallen}'s optimizers offer the ability to modify parts of the
+optimization process.  Example modifications might include changing the step
+size, adding custom constraints when they are violated by the current solution,
+or providing custom heuristics to find and investigate feasible solutions.  In
+many existing toolkits, this type of functionality is provided only via
+solver-specific interfaces.  For instance, the {\tt tick} statistical learning
+toolkit~\cite{bacry2017tick} requires the use of a solver-specific {\tt History}
+class to inspect and work with internal parts of the optimization process.  In
+contrast, {\tt ensmallen} provides optimizer-independent callbacks to allow
+guidance of the optimization process and to monitor the behavior of
+optimization.  In particular, {\tt ensmallen}'s callbacks allow code to be
+executed regularly during an optimization session.
 
-In the past this functionality was limited to solver-specific interfaces [], in
-contrast, ensmallen provides, optimizer independent callbacks to allow guidance
-of the optimization process and to monitor the behavior of optimization. In
-particular, ensmallen's callbacks allow code to be executed regularly during an
-optimization session. To use callbacks, either for optimization, tuning or
-logging, a user can pass arbitrary callbacks to any optimizer in the Optimize()
-function. Figure~\ref{fig:example_prog_callbacks} contains a simple C++ program which briefly demonstrates usage of the callback functionaility.
+\subsection{Using callbacks with {\tt ensmallen}}
 
-\begin{figure}[H]
+To use callbacks, either for optimization, tuning or logging, a user can pass
+arbitrary callbacks to any optimizer in the {\tt Optimize()} function.
+Figure~\ref{fig:example_prog_callbacks} contains a simple C++ program which
+briefly demonstrates usage of the callback functionality.  Given the pre-defined
+callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
+not only how the {\tt MomentumSGD} optimizer can be used to find the best
+coordinates but also how the callbacks can be used to control and monitor the
+optimization.
+
+\begin{figure}[t!]
 \centering
 \hrule
 \vspace{1ex}
-\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
+%\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 RosenbrockFunction f;
 arma::mat coordinates = f.GetInitialPoint();
@@ -26,25 +37,23 @@ arma::mat coordinates = f.GetInitialPoint();
 MomentumSGD optimizer(0.01, 32, 100000, 1e-5, true, MomentumUpdate(0.5));
 optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar());
 \end{minted}
-\end{adjustbox}
-\vspace{1ex}
+%\end{adjustbox}
 \hrule
+\vspace*{-0.5em}
 \caption
   {
-  A simple C++ program to demonstrate usage of the callback functionality using pre-defined callbacks: \texttt{EarlyStopAtMinLoss()} and \texttt{ProgressBar}.
+  A simple C++ program to demonstrate usage of the callback functionality using
+pre-defined callbacks: \texttt{EarlyStopAtMinLoss} and \texttt{ProgressBar}.
+{\tt EarlyStopAtMinLoss} will terminate the optimization as soon as the
+objective value stars increasing, and {\tt ProgressBar} will print a progress
+bar during the optimization.
   }
 \label{fig:example_prog_callbacks}
 \end{figure}
 
-Given the pre-defined callbacks {\tt EarlyStopAtMinLoss()} and {\tt
-ProgressBar()} the code snippet above shows not only how the Momentum-SGD
-optimizer can be used to find the best coordinates but also how the callbacks
-can be used to control and overview the optimization process by calling the
-callbacks at different stages of the optimization process.\newline
-
 There are eight types of optimization callback routines that are regularly
-called during the optimization process (depending on the function type).
-Table~\ref{tab:callback_list} lists the available types.
+called during the optimization process (depending on the objective function
+type).  Table~\ref{tab:callback_list} lists the available types.
 
 \begin{table}[H]
 \centering
@@ -53,14 +62,14 @@ Table~\ref{tab:callback_list} lists the available types.
 \toprule
 {\bf Function} & {\bf Description} & {\bf Function type} \\
 \hline
-\texttt{BeginOptimization}   & Called at the beginning of the optimization process  & all \\
-\texttt{EndOptimization}     & Called at the end of the optimization process        & all \\
-\texttt{Evaluate}            & Called after any call to {\it Evaluate()}            & Arbitrary, Differentiable, Partially differentiable,  \\
+\texttt{BeginOptimization}   & Called at the beginning of the optimization process  & {\it all} \\
+\texttt{EndOptimization}     & Called at the end of the optimization process & {\it all} \\
+\texttt{Evaluate}            & Called after any call to {\tt Evaluate()}            & Arbitrary, Differentiable, Partially differentiable,  \\
                              &                                                      & Arbitrary separable, Differentiable separable \\
-\texttt{EvaluateConstraint}  & Called after any call to {\it EvaluateConstraint()}  & Constrained \\
-\texttt{Gradient}            & Called after any call to {\it Gradient()}            & Differentiable, Partially differentiable \\
+\texttt{EvaluateConstraint}  & Called after any call to {\tt EvaluateConstraint()}  & Constrained \\
+\texttt{Gradient}            & Called after any call to {\tt Gradient()}            & Differentiable, Partially differentiable \\
                              &                                                      & Differentiable separable \\
-\texttt{GradientConstraint}  & Called after any call to {\it GradientConstraint()}  & Constrained \\
+\texttt{GradientConstraint}  & Called after any call to {\tt GradientConstraint()}  & Constrained \\
 \texttt{BeginEpoch}          & Called at the beginning of a pass over the data      & Differentiable separable \\
 \texttt{EndEpoch}            & Called at the end of a pass over the data            & Differentiable separable \\
 
@@ -76,64 +85,112 @@ Table~\ref{tab:callback_list} lists the available types.
 \label{tab:callback_list}
 \end{table}
 
-Callbacks are executed in the order that they are specified, by default
-subsequent callbacks are discared if a callback terminates the optimization
-process under circumstances defined by the application. To terminate the
-optimiation process via callbacks, each callback routine can return an boolean,
-true to continue, or false to indicate that the optimization process should be
-terminated.
+Callbacks are executed in the order that they are specified, and each callback
+may terminate the optimization via its {\tt bool} return value ({\tt false}
+indicates that the optimization should be stopped).  By default, subsequent
+callbacks are not called if an earlier callback terminates the optimization: the
+optimizer terminates immediately.
+
+{\tt ensmallen} implements a number of callbacks that can be used without
+needing any custom code:
+
+\begin{itemize}
+  \item {\tt EarlyStopAtMinLoss}: stops the optimization process if the loss
+stops decreasing or no improvement has been made.
+
+  \item {\tt PrintLoss}: callback that prints loss to {\tt stdout} or a
+specified output stream.
+
+  \item {\tt ProgressBar}: callback that prints a progress bar to {\tt stdout}
+or a specified output stream.
+
+  \item {\tt StoreBestCoordinates}: callback that stores the model parameter
+after every epoch if the objective decreased.
+\end{itemize}
+
+Note that to use the {\tt StoreBestCoordinates} callback, the user will need to
+instantiate a {\tt StoreBestCoordinates} object, and then call {\tt
+BestCoordinates()} in order to recover the best coordinates found during the
+optimization.  This process is detailed more in the following section.
+
+\subsection{Implementing custom callbacks}
+
+Implementing a custom callback is quite straightforward; a user only needs to
+create a class that has functions whose names are the same as the callback
+functions listed in Table~\ref{tab:callback_list}.  So, e.g., if a custom
+callback was desired that took some action after any call to {\tt Evaluate()}
+happened, then it would simply need a {\tt bool Evaluate(...)} method that
+performed the desired action.  An example of a custom callback that simply
+prints a line to {\tt std::cout} every time the optimization calls {\tt
+Evaluate()} is shown in Figure~\ref{fig:example_prog_callbacks_2}.  The {\tt
+CustomCallback} class could simply be used exactly like {\tt
+EarlyStopAtMinLoss} in Figure~\ref{fig:example_prog_callbacks}---the only change
+needed is to add {\tt CustomCallback()} to the list of arguments passed to {\tt
+optimizer.Optimize()}.
+
+Comprehensive documentation on the required signatures for each callback can be
+found in the {\tt ensmallen} documentation at
+\url{http://ensmallen.org/docs.html#callback-states}.
 
 \begin{figure}[H]
 \centering
 \hrule
 \vspace{1ex}
-\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
+%\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 class CustomCallback
 {
+ public:
   template<typename OptimizerType, typename FunctionType, typename MatType>
   bool Evaluate(OptimizerType& optimizer,
                 FunctionType& function,
                 const MatType& coordinates,
                 const double objective)
   {
-    return true;  // Continue the optimization process.
+    std::cout << "The optimization process called Evaluate()!" << std::endl;
+    return true; // Continue the optimization process.
   }
 };
 \end{minted}
-\end{adjustbox}
-\vspace{1ex}
+%\end{adjustbox}
 \hrule
+\vspace*{-0.5em}
 \caption
   {
-  Control the optimization process via the return value of the callback routine.
+  An example of a custom callback.  This callback prints to {\tt std::cout}
+after each time the {\tt Evaluate()} function is called by the optimizer.  The
+callback always returns {\tt true}, meaning that the optimization should not be
+terminated on behalf of the callback.
   }
-\label{fig:example_prog_callbacks}
+\label{fig:example_prog_callbacks_2}
 \end{figure}
 
-If a callback requires additional parameters beyond what is passed through
-the predefined arguments, a user is encouraged to manully instantiate an object
-with them, and pass the object or access optimizer specific parameter via the
-optimizer interface. ensmallen does not modify or dereference the object, so it
-is safe to use for this purpose.
+If a callback class requires additional parameters or state beyond what is
+passed through the predefined arguments to functions in
+Table~\ref{tab:callback_list}, a user should manually create an instance of the
+callback class with those additional parameters, and then pass the object to the
+optimizer as a callback when {\tt Optimize()} is called.  {\tt ensmallen} does
+not modify or dereference the object, so it is safe to use for this purpose.
+Figure~\ref{fig:example_prog_callbacks_parameter} provides an example of this.
 
-\begin{figure}[H]
+\begin{figure}[t!]
 \centering
 \hrule
 \vspace{1ex}
-\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
+%\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
 struct CustomCallback
 {
   CustomCallback(double rIn) : p(rIn) {}
 
   template<typename OptimizerType, typename FunctionType, typename MatType>
-    void StepTaken(OptimizerType& optimizer,
-                   FunctionType& function,
-                   MatType& coordinates)
-    {
-      optimizer.StepSize() *= r;
-    }
+  void StepTaken(OptimizerType& optimizer,
+                 FunctionType& function,
+                 MatType& coordinates)
+  {
+    // Multiply the step size by r (hopefully r is less than 1!).
+    optimizer.StepSize() *= r;
+  }
 
   double r;
 };
@@ -142,37 +199,42 @@ RosenbrockFunction f;
 arma::mat coordinates = f.GetInitialPoint();
 
 Adam opt;
-CustomCallback cb(0.9);
-opt.Optimize(f, coordinates, cb);
+CustomCallback cb(0.9); // Instantiate the custom callback...
+opt.Optimize(f, coordinates, cb); // ...and call Optimize() with that object!
 \end{minted}
-\end{adjustbox}
-\vspace{1ex}
+%\end{adjustbox}
 \hrule
+\vspace*{-0.5em}
 \caption
   {
-  A simple C++ program of adding additional parameter to a Callback and accessing optimizer specific parameter.
+  A simple C++ program demonstrating how to add additional parameters/state to a
+callback and accessing optimizer-specific parameters.
   }
 \label{fig:example_prog_callbacks_parameter}
 \end{figure}
 
-In this example~\ref{fig:example_prog_callbacks_parameter}, we pass an
-instatiated custom callback that takes an additional step-size decay parameter
-as input, in addition, inside the {\tt StepTake()} callback we use the optimizer
-interface ({\tt StepSize()}) to update the step size.
+In the example of Figure~\ref{fig:example_prog_callbacks_parameter}, we pass an
+instantiated custom callback that takes an additional step-size decay parameter
+as input.  In addition, inside the {\tt StepTaken()} callback, we use the
+optimizer's interface function ({\tt StepSize()}) to update the step size.  (Of
+course, if this callback were ever used with an optimizer that did not have a
+{\tt StepSize()} function, compilation would fail, so some care is necessary
+when implementing custom callbacks.)
 
-To demonstrate the advantages of the template-based optimization mechanism, we
-performed a set of experiments~\ref{fig:callback_compilter_opt}, that compared
-the machine code of an optimizer with callback support and without. In all
-cases, a modern C++ compiler [] optimized away the non-used code, the resultant
-machine code appears as if the never existed in the first place.
+To demonstrate the advantages of our callback implementation, which is done via
+template-based mechanisms, we performed a set of
+experiments (Figure~\ref{fig:callback_compilter_opt}) that compared the machine
+code of an optimizer with callback support and without. In all cases, a modern
+C++ compiler optimized away the unused code; the resultant machine code appears
+as if the callback code never existed in the first place.  This experiment was
+performed with both {\tt clang-1100.0.33.16} and {\tt g++} 9.2.1.
 
-\begin{figure}[H]
+\begin{figure}[t!]
 \centering
 \hrule
-\hrule
-\vspace{0.5ex}
-\begin{minipage}{0.45\textwidth}
-\begin{minted}[fontsize=\footnotesize,stripnl=false]{c++}
+\vspace{1ex}
+\begin{minipage}{0.47\textwidth}
+\begin{minted}[stripnl=false]{c++}
 struct Optimizer
 {
   template<typename FT>
@@ -195,17 +257,17 @@ void main()
 %
 \hfill
 \vline
-\vline
 \hfill
 %
-\begin{minipage}{0.45\textwidth}
-\begin{minted}[escapeinside=||,fontsize=\footnotesize]{c++}
+\begin{minipage}{0.51\textwidth}
+\begin{minted}[escapeinside=||]{c++}
 struct Optimizer
 {
   template<typename FT, |\colorbox{yellow}{typename... CallbackType}|>
-  void Optimize(FT& f, arma::mat& p, CallbackType&&... c)
+  void Optimize(FT& f, arma::mat& p,
+                CallbackType&&... c)
   {
-    |\colorbox{yellow}{Callback::BeginOptimization(*this, f, p, c...);}|
+    |\!\!\colorbox{yellow}{Callback::BeginOptimization(*this, f, p, c...);}|
     f.Evaluate(iterate);
   }
 };
@@ -218,9 +280,9 @@ void main()
 }
 \end{minted}
 \end{minipage}
-\vspace{0.5ex}
+\vspace{1ex}
 \hrule
-\hrule
+%\vspace*{-0.5em}
 \caption
   {
   Left panel: A C++ program that mimics the ensmallen optimizer interface
@@ -232,98 +294,221 @@ void main()
 \label{fig:callback_compilter_opt}
 \end{figure}
 
-For the sake of brevity we omit the expressions for the {\tt BeginOptimization}
-method \footnote{Interested readers can find that code in {\tt
-ensmallen\_bits/callbacks/callbacks.hpp}.}. The function depend heavily on
-SFINAE techniques for method detection; {\tt HasBeginOptimization} will evaluate
-to {\tt true} if {\tt CallbackType} has {\tt BeginOptimization()} and {\tt
-false} otherwise.
+\subsection{Internal workings of callbacks}
 
-Using the boolean template variable, we can then use template specialization to
-control whether {\tt BeginOptimization} returns a boolean, void to control the
-optimization process or if the callback ends in an empty function
-call.
+{\tt ensmallen}'s support for callbacks is implemented via templates---like much
+of the rest of {\tt ensmallen}.  This design strategy was chosen in order to
+minimize runtime overhead caused by callbacks, and produce machine code roughly
+equivalent to the machine code that would have been produced if the callback had
+been directly integrated into the optimizer's code.
 
+An optimizer that supports callbacks should call out to the static methods in
+the {\tt Callback} class inside of its {\tt Optimize()} method, like below:
 
+\begin{minted}{c++}
+    double functionValue = function.Evaluate(coordinates);
+    bool terminate = Callback::Evaluate(*this, function, coordinates, functionValue, callbacks...);
+\end{minted}
 
+In this short snippet, {\tt function} represents the function being optimized,
+{\tt *this} is the optimizer itself, {\tt coordinates} is the current
+coordinates of the optimization, and {\tt callbacks} is a template vararg pack
+containing all of the given callbacks.  (Note that this means {\tt callbacks}
+could be empty, of course.)
 
+The {\tt Callback} class contains a top-level method to use for each of the
+callback types supported by {\tt ensmallen}; so, there is a {\tt
+Callback::Gradient()} method, a {\tt Callback::EvaluateConstraint()}, a {\tt
+Callback::BeginEpoch()}, and so forth.  (See Table~\ref{tab:callback_list}.)
 
-
-
-
-
-
-
-A custom callback is a powerful tool to customize the behavior of a function
-during the optimization process. Examples include {\tt StoreBestCoordinates<>()}
-where the model is automatically saved during the optimization process or {\tt
-EarlyStoppingAtMinLoss()}  which stops the optimization process when the minimum
-of loss has been reached.
-
-\begin{figure}[H]
-\centering
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
-\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
 \begin{minted}{c++}
-class EarlyStoppingAtMinLoss
+template<typename OptimizerType, typename FunctionType, typename MatType, typename... CallbackTypes>
+static bool Callback::Evaluate(OptimizerType& optimizer,
+                               FunctionType& function,
+                               const MatType& coordinates,
+                               const double objective,
+                               CallbackTypes&... callbacks)
 {
- public:
-  // Set up the early stopping at min loss class, which keeps track of the
-  // minimum loss.
-  EarlyStop() : bestObjective(std::numeric_limits<double>::max()) { }
-
-  // Callback function called at the end of a pass over the data, which provides
-  // the current objective. We are only interested in the objective and ignore
-  // the rest.
-  template<typename OptimizerType, typename FunctionType, typename MatType>
-  void EndEpoch(OptimizerType&, FunctionType&, const MatType&, const size_t,
-                const double objective)
-  {
-    // Check if the given objective is lower as the previous objective.
-    if (objective < bestObjective)
-    {
-      bestObjective = objective; // Update the local objective.
-    }
-    else
-    {
-      return true; // Stop the optimization process.
-    }
-
-    return false; // Do not stop the optimization process.
-  }
-
-  double bestObjective;
-};
+  // This will return immediately once a callback returns true.
+  bool result = false;
+  (void) std::initializer_list<bool>{ result =
+      result || Callback::EvaluateFunction(callbacks, optimizer, function,
+      coordinates, objective)... };
+   return result;
+}
 \end{minted}
-
-
-\begin{minted}{c++}
-// We assume that "X" and "y" are given.
-LinearRegressionFunction f(X, y);
-
-L_BFGS optimizer; // Create the optimizer with all default parameters.
-
-// The theta_best matrix will hold the best model that we find after we call
-// Optimize(); for now, we set it to the initial point (uniform random values).
-arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
-
-// Optimize the given function and provide a callback (EarlyStoppingAtMinLoss)
-// that is called at the end of an epoch.
-optimizer.Optimize(f, theta_best, EarlyStoppingAtMinLoss());
-\end{minted}
-\end{adjustbox}
-\vspace{1ex}
 \hrule
-\caption
-  {
-  A simple C++ program that demonstrates the implementation of a custom callback function.
-  }
-\label{fig:example_prog_callbacks_parameter}
+\vspace*{-0.5em}
+\caption{Implementation of {\tt Callback::Evaluate()}, showing part of the
+process of calling each callback given in the template vararg pack {\tt
+callbacks}.}
+\label{fig:callback_evaluate}
 \end{figure}
 
-Please see a complete list and description of ensmallens's callback functions in
-the callback documentation. In addition, we recommend closely reviewing the
-examples provided in
-\url{include/ensmallen_bits/callbacks}
-which provide examples of how to use most of these callback functions.
+The {\tt Callback::Evaluate()} method calls the {\tt Evaluate()} method of every
+given callback that has an {\tt Evaluate()} method implemented.  This means that
+there is some amount of difficulty we have to handle: not every callback in {\tt
+callbacks...} will have an {\tt Evaluate()} method available.  Thus, we can use
+the same techniques as in Section~\ref{sec:automatic} to detect, via SFINAE,
+whether an {\tt Evaluate()} method exists for a given callback, and then perform
+the correct action based on the result.
+
+The definition of {\tt Callback::Evaluate()} is given in
+Figure~\ref{fig:callback_evaluate}.  Each callback function takes several
+template parameters, including {\tt OptimizerType} (the type of optimizer that
+is being used), {\tt FunctionType} (the type of function being optimized), {\tt
+MatType} (the matrix type used to store the coordinates), and {\tt
+CallbackTypes} (the set of types of callbacks).  Of these, {\tt CallbackTypes}
+is the most interesting and most important.  Since it is a template vararg, the
+type {\tt CallbackTypes} is actually a pack that corresponds to every type of
+every callback that must be called.
+
+The implementation of the function cleverly unpacks the {\tt callbacks}, calling
+each callback's {\tt Evaluate()} method (if it exists) in sequence, and
+terminating early if any of these callbacks returns {\tt true}.  The way that
+each callback's {\tt Evaluate()} method is called is through the helper function
+{\tt Callback::EvaluateFunction()}, which uses SFINAE traits to control behavior
+depending on whether the given callback has an {\tt Evaluate()} method or not.
+Figure~\ref{fig:callback_evaluate_function} shows the two overloads of {\tt
+Callback::EvaluateFunction()}.
+
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
+\begin{minted}{c++}
+template<typename CallbackType, typename OptimizerType, typename FunctionType, typename MatType>
+static typename std::enable_if<callbacks::traits::HasEvaluateSignature<
+    CallbackType, OptimizerType, FunctionType, MatType>::value, bool>::type
+EvaluateFunction(CallbackType& callback,
+                 OptimizerType& optimizer,
+                 FunctionType& function,
+                 const MatType& coordinates,
+                 const double objective)
+{
+  return (const_cast<CallbackType&>(callback).Evaluate(optimizer, function, coordinates, objective),
+      false);
+}
+
+template<typename CallbackType, typename OptimizerType, typename FunctionType, typename MatType>
+static typename std::enable_if<!callbacks::traits::HasEvaluateSignature<
+    CallbackType, OptimizerType, FunctionType, MatType>::value, bool>::type
+EvaluateFunction(CallbackType& /* callback */,
+                 OptimizerType& /* optimizer */,
+                 FunctionType& /* function */,
+                 const MatType& /* coordinates */,
+                 const double /* objective */)
+{ return false; }
+\end{minted}
+\hrule
+\vspace*{-0.5em}
+\label{fig:callback_evaluate_function}
+\caption{Implementation of {\tt Callback::EvaluateFunction()}.  Two overloads
+are specified: the first is used when {\tt CallbackType} has an {\tt Evaluate()}
+method, and the second is used when {\tt CallbackType} does not have an {\tt
+Evaluate()} method.  SFINAE is used, via {\tt
+callbacks::traits::HasEvaluateSignature}, to determine which overload to use.}
+\end{figure}
+
+Similar to Section~\ref{sec:automatic}, a traits class is used to determine
+which of the two overloads of {\tt EvaluateFunction()} to call.  The traits
+class {\tt callbacks::traits::HasEvaluateSignature<...>::value}
+evaluates to a {\tt true} only when the inner callback and arguments can form a
+valid {\tt Evaluate()} signature.  Thus, the correct overload is called when
+{\tt EvaluateFunction()} is called from {\tt Callback::Evaluate()}.
+
+Each of the other callbacks in the {\tt Callback} class is implemented in
+virtually identical form, although with different arguments depending on what
+the callback is.  For further details on {\tt ensmallen}'s callback
+infrastructure, examples are provided in the code repository in the directory
+{\tt include/ensmallen\_bits/callbacks/}.
+
+%For the sake of brevity we omit the expressions for the {\tt BeginOptimization}
+%method \footnote{Interested readers can find that code in {\tt
+%ensmallen\_bits/callbacks/callbacks.hpp}.}. The function depend heavily on
+%SFINAE techniques for method detection; {\tt HasBeginOptimization} will evaluate
+%to {\tt true} if {\tt CallbackType} has {\tt BeginOptimization()} and {\tt
+%false} otherwise.
+
+%Using the boolean template variable, we can then use template specialization to
+%control whether {\tt BeginOptimization} returns a boolean, void to control the
+%optimization process or if the callback ends in an empty function
+%call.
+
+
+
+
+
+
+
+
+
+
+
+%A custom callback is a powerful tool to customize the behavior of a function
+%during the optimization process. Examples include {\tt StoreBestCoordinates<>()}
+%where the model is automatically saved during the optimization process or {\tt
+%EarlyStoppingAtMinLoss()}  which stops the optimization process when the minimum
+%of loss has been reached.
+
+% RC: seems like we already have a similar example, so I've commented this one
+% out.
+%\begin{figure}[t!]
+%\centering
+%\hrule
+%\vspace{1ex}
+%\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
+%\begin{minted}{c++}
+%class EarlyStoppingAtMinLoss
+%{
+% public:
+%  // Set up the early stopping at min loss class, which keeps track of the
+%  // minimum loss.
+%  EarlyStop() : bestObjective(std::numeric_limits<double>::max()) { }
+%
+%  // Callback function called at the end of a pass over the data, which provides
+%  // the current objective. We are only interested in the objective and ignore
+%  // the rest.
+%  template<typename OptimizerType, typename FunctionType, typename MatType>
+%  void EndEpoch(OptimizerType&, FunctionType&, const MatType&, const size_t,
+%                const double objective)
+%  {
+%    // Check if the given objective is lower as the previous objective.
+%    if (objective < bestObjective)
+%      bestObjective = objective; // Update the local objective.
+%    else
+%      return true; // Stop the optimization process.
+%
+%    return false; // Do not stop the optimization process.
+%  }
+%
+%  double bestObjective;
+%};
+%\end{minted}
+
+
+%\begin{minted}{c++}
+%// We assume that "X" and "y" are given.
+%LinearRegressionFunction f(X, y);
+%
+%L_BFGS optimizer; // Create the optimizer with all default parameters.
+%
+%// The theta_best matrix will hold the best model that we find after we call
+%// Optimize(); for now, we set it to the initial point (uniform random values).
+%arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
+%
+%// Optimize the given function and provide a callback (EarlyStoppingAtMinLoss)
+%// that is called at the end of an epoch.
+%optimizer.Optimize(f, theta_best, EarlyStoppingAtMinLoss());
+%\end{minted}
+%\end{adjustbox}
+%\vspace{1ex}
+%\hrule
+%\caption
+%  {
+%  A simple C++ program that demonstrates the implementation of a custom callback function.
+%  }
+%\label{fig:example_prog_callbacks_parameter}
+%\end{figure}
