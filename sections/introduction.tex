@@ -3,43 +3,59 @@
 
 The problem of mathematical optimization is fundamental in the computational
 sciences.  In short, this problem is expressed as
-
+%
 \begin{equation}
 \operatorname{argmin}_x f(x).
 \end{equation}
 
 The ubiquity of this problem gives rise to the proliferation of mathematical
-optimization toolkits: SciPy~\cite{2019arXiv190710121V},
+optimization toolkits, such as SciPy~\cite{2019arXiv190710121V},
 opt++~\cite{meza1994opt++},
 OR-Tools~\cite{ortools}, CVXOPT~\cite{vandenberghe2010cvxopt},
 NLopt~\cite{johnson2014nlopt}, Ceres~\cite{ceres-solver},
-and RBFOpt~\cite{costa2018rbfopt} are just a few examples of software dedicated
-solely to optimization.  On top of that, in the field of machine learning, many
-deep learning libraries have integrated optimization
-components---for example, Theano~\cite{2016arXiv160502688full},
+and RBFOpt~\cite{costa2018rbfopt}.
+Furthermore, in the field of machine learning, many
+deep learning frameworks have integrated optimization
+components.  Examples inclulde Theano~\cite{2016arXiv160502688full},
 TensorFlow~\cite{tensorflow2015-whitepaper}, PyTorch~\cite{NEURIPS2019_9015},
-and Caffe~\cite{jia2014caffe} all have integrated mathematical optimization
-components.
+and Caffe~\cite{jia2014caffe}.
 
-However, these optimization routines are generally quite computationally
-intensive: for instance, the training of deep neural networks is dominated by
+Function optimization is generally quite computationally intensive.
+For instance, the training of deep neural networks is dominated by
 the optimization of the model parameters on the
 data~\cite{krizhevsky2012imagenet, lauzon2012introduction}.  Similarly,
 other popular machine learning algorithms such as logistic regression are also
-expressed as and dominated by an optimization~\cite{zhang2004solving,
+expressed as and dominated by an optimization process~\cite{zhang2004solving,
 manogaran2018health}.  Computational bottlenecks occur even in fields as
 wide-ranging as rocket landing guidance systems~\cite{dueri2016customized},
 motivating the development and implementation of specialized solvers.
 
-Yet, many general-purpose optimization libraries fail to make full use of the
+Many general-purpose optimization libraries do not make full use of the
 hardware on which they are running.  Often, in order to make a clean and
 easy-to-use API, general-purpose optimization libraries use design patterns that
-implicitly make performance compromises.  For instance, SciPy's {\tt minimize()}
-method takes the function {\tt fun} to be optimized as a parameter; but in
-Python, this will mean that every time {\tt fun} is called (e.g., to compute the
+implicitly make performance compromises.
+\TODO{No clear link between ``making full use of hardware'' and ``design patterns''.
+Suggest to delete the first sentence, as it's too general and doesn't link with anything.}
+For instance, SciPy's {\tt minimize()}
+method takes the function {\tt fun} to be optimized as a parameter;
+This will mean that every time {\tt fun} is called (e.g., to compute the
 value of $f(x)$ during the optimization routine), there will be overhead
 involved---it will be slower than if the optimization routine were written {\it
 specifically} for the function {\tt fun}.
+\TODO{The point being made here is not clear. Very hand-wavy.
+Where does the inefficiency come from? Why is there overhead?
+Python has inherent overhead in handling of objects so there is no news here.
+Each time {\tt fun} is referenced in Python code,
+Python first needs to work out what is {\tt fun}.
+In C++ there is no such overhead, as all types are known beforehand.
+So in this limited sense ensmallen doesn't bring anything new to the table.
+The ``Python vs C++'' argument is not novel,
+so another angle of attack is required.
+I suggest to focus on the relative breadth of the ensmallen framework,
+as listed in Table~\ref{tab:comparison}.
+It can be mentioned in passing that ``C++ also has an inherent advantage
+in that all types are known beforehand thereby avoiding the inevitable
+Python overhead''. However, this cannot be a central point.}
 
 It is inefficiencies such as these that motivated us to implement the {\tt
 ensmallen} library in C++, originally as a part of the {\tt mlpack} machine
@@ -49,6 +65,17 @@ these techniques, we are able to simultaneously provide a friendly and intuitive
 interface that matches the ease of use of popular optimization toolkits like
 SciPy, OR-Tools, and MATLAB's {\tt fminsearch()}
 function~\cite{matlab_fminsearch}.
+\TODO{I'm not convinced that providing the function to be optimized
+as a template parameter brings in much efficiency gains over simply
+providing a pointer to the function (ala NLopt).
+Perhaps for trivial functions and/or processing only small vectors
+this may make a bit of difference, but in general it's simply not worth it
+due to added complexity and increased compilation time.
+In many cases the bottleneck is matrix multiplication
+(eg. code in Fig.~\ref{fig:lr_function}),
+so specializing an optimizer via template argument isn't going to provide much speedups.
+Template metaprogramming is, however, useful for determining which methods are available.}
+
 
 % the 46 optimizers are as of 2.11.0
 {\tt ensmallen} allows the user to define a function $f(x)$ to be optimized with
@@ -56,11 +83,11 @@ a wide variety of optimization techniques (at the time of this writing, 46
 optimizers are available).  Many of these optimization techniques operate on
 specific {\it classes} of objective functions---for instance, {\tt ensmallen}
 contains many optimizers that work on differentiable functions, and so a user
-must provide both $f(x)$ and $f'(x)$ in this case.  Via templates, {\tt
-ensmallen} allows the user to select an arbitrary type for $x$ (e.g., dense
-floating-point matrix, sparse integer matrix, etc.).  Users may also specify
-custom behavior via customizable {\it callbacks}.  It is also easy to implement
-new optimization techniques inside of the framework {\tt ensmallen} provides.
+must provide both $f(x)$ and $f'(x)$ in this case.
+Through template metaprogramming, {\tt ensmallen} allows the user to select
+an arbitrary type for $x$ (e.g., dense floating-point matrix, sparse integer matrix, etc.).
+Users may also specify custom behavior via customizable {\it callbacks}.
+It is also easy to implement new optimization techniques employing the framework provided by {\tt ensmallen}.
 
 In this paper, we describe the details of these template metaprogramming
 techniques and how we are able to simultaneously produce efficient code and a
@@ -68,11 +95,11 @@ clean user interface.  In Section~\ref{sec:api}, we introduce the functionality
 and interface for {\tt ensmallen} with examples.
 Section~\ref{sec:templated_optimize} is our first foray into template
 metaprogramming, showing how {\tt ensmallen} can optimize objective functions
-$f(x)$ for any type $x$ without any extra runtime overhead.  Then,
+$f(x)$ for any type $x$ without any extra runtime overhead.
 Section~\ref{sec:automatic} discusses the details of how {\tt ensmallen} is able
 to automatically generate methods not provided by the user.
 Section~\ref{sec:callbacks} describes {\tt ensmallen}'s callbacks.
-Finally, we demonstrate the empirical efficiency of {\tt ensmallen} in
+We demonstrate the empirical efficiency of {\tt ensmallen} in
 Section~\ref{sec:experiments} and conclude in Section~\ref{sec:conclusion}.
 
 This paper is an expanded description of {\tt ensmallen}'s original
