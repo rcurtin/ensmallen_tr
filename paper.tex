@@ -66,16 +66,16 @@
 \end{center}
 
 \section*{Abstract}
-{\tt ensmallen} is a fast and flexible C++ library for mathematical optimization
-of arbitrary user-supplied functions.  Several types of objective functions are
-supported, including differentiable, separable, constrained, and categorical
-objective functions.  The library provides numerous pre-built optimizers
-(including many variants of SGD and Quasi-Newton optimizers), as well as a
-flexible framework for implementing new optimizers and objective functions.
-Implementation of a new optimizer requires only one method and a new objective
-function requires typically only one or two C++ methods.  This can aid in the
-quick implementation and prototyping of new algorithms.  Via C++ template
-metaprogramming, {\tt ensmallen} is able to provide support for arbitrary
+The {\tt ensmallen} library provides a fast and flexible C++ framework
+for mathematical optimization of arbitrary user-supplied functions.
+Several types of objective functions are supported, including differentiable,
+separable, constrained, and categorical objective functions.
+The library provides a large set of pre-built optimizers,
+including many variants of SGD and Quasi-Newton optimizers.
+Implementation of a new optimizer requires only one method,
+while a new objective function requires typically only one or two C++ methods.
+This can aid in the quick implementation and prototyping of new algorithms.
+Through C++ template metaprogramming, {\tt ensmallen} is able to provide support for arbitrary
 user-supplied callbacks and automatic inference of unsupplied methods without
 any runtime overhead.  Empirical comparisons show that {\tt ensmallen}
 outperforms other optimization frameworks (such as Julia and SciPy), sometimes
