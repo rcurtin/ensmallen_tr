@@ -1,4 +1,4 @@
-@ARTICLE{2019arXiv190710121V,
+@ARTICLE{2019arXiv190710121V-full,
        author = {{Virtanen}, Pauli and {Gommers}, Ralf and {Oliphant},
          Travis E. and {Haberland}, Matt and {Reddy}, Tyler and
          {Cournapeau}, David and {Burovski}, Evgeni and {Peterson}, Pearu
@@ -26,33 +26,46 @@ archivePrefix = {arXiv},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 
+@ARTICLE{2019arXiv190710121V,
+       author = {{Virtanen}, Pauli and {Gommers}, Ralf and {Oliphant},
+         Travis E. and {Haberland}, Matt and {Reddy}, Tyler and
+         {Cournapeau}, David and {Burovski}, Evgeni and {Peterson}, Pearu
+         and others
+         },
+        title = "{SciPy 1.0--Fundamental Algorithms for Scientific
+                  Computing in Python}",
+      journal = {arXiv pre-print},
+      volume  = {1907.10121},
+      year    = {2019}
+}
+
 @techreport{meza1994opt++,
-  title={OPT++: An object-oriented class library for nonlinear optimization},
+  title={{OPT++}: An object-oriented class library for nonlinear optimization},
   author={Meza, Juan C.},
   year={1994},
   institution={Sandia National Labs., Livermore, CA (United States)}
 }
 
-@software{ortools,
+@misc{ortools,
   title = {OR-Tools},
   version = {7.2},
   author = {Laurent Perron and Vincent Furnon},
   organization = {Google},
-  url = {https://developers.google.com/optimization/},
+  note = {https://developers.google.com/optimization/},
   date = {2019-7-19}
 }
 
 @article{vandenberghe2010cvxopt,
-  title={The CVXOPT linear and quadratic cone program solvers},
+  title={The {CVXOPT} linear and quadratic cone program solvers},
   author={Vandenberghe, Lieven},
-  journal={Online: http://cvxopt. org/documentation/coneprog. pdf},
+  note={http://cvxopt.org},
   year={2010}
 }
 
-@software{johnson2014nlopt,
-  title={The NLopt nonlinear-optimization package},
+@misc{johnson2014nlopt,
+  title={The {NLopt} nonlinear-optimization package},
   author={Johnson, Steven G.},
-  url={https://github.com/stevengj/nlopt}
+  note={https://github.com/stevengj/nlopt}
 }
 
 @misc{ceres-solver,
@@ -73,7 +86,7 @@ archivePrefix = {arXiv},
 }
 
 
-@ARTICLE{2016arXiv160502688full,
+@ARTICLE{2016arXiv160502688-full,
    author = {
      Rami Al-Rfou and
      Guillaume Alain and
@@ -198,7 +211,31 @@ archivePrefix = {arXiv},
       url = {http://arxiv.org/abs/1605.02688},
 }
 
-@misc{tensorflow2015-whitepaper,
+@ARTICLE{2016arXiv160502688,
+   author = {
+     Rami Al-Rfou and
+     Guillaume Alain and
+     Amjad Almahairi and
+     Christof Angermueller and
+     Dzmitry Bahdanau and
+     Nicolas Ballas and
+     Fr\'ed\'eric Bastien and
+     Justin Bayer and
+     Anatoly Belikov and
+     others
+     },
+ collaboration = {Theano Development Team},
+    title = "{Theano: A {Python} framework for fast computation of mathematical expressions}",
+  journal = {arXiv pre-print},
+   volume = {1605.02688},
+ primaryClass = "cs.SC",
+ keywords = {Computer Science - Symbolic Computation, Computer Science - Learning, Computer Science - Mathematical Software},
+     year = 2016,
+    month = may,
+      url = {http://arxiv.org/abs/1605.02688},
+}
+
+@misc{tensorflow2015-whitepaper-full,
 title={ {TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
 url={https://www.tensorflow.org/},
 note={Software available from tensorflow.org},
@@ -246,9 +283,40 @@ author={
   year={2015},
 }
 
-@incollection{NEURIPS2019_9015,
-title = {PyTorch: An Imperative Style, High-Performance Deep Learning Library},
+@misc{tensorflow2015-whitepaper,
+title={ {TensorFlow}: Large-Scale Machine Learning on Heterogeneous Systems},
+url={https://www.tensorflow.org/},
+note={Software available from tensorflow.org},
+author={
+    Mart\'{\i}n~Abadi and
+    Ashish~Agarwal and
+    Paul~Barham and
+    Eugene~Brevdo and
+    Zhifeng~Chen and
+    Craig~Citro and
+    Greg~S.~Corrado and
+    Andy~Davis and
+    Jeffrey~Dean and
+    Matthieu~Devin and
+    others
+    },
+  year={2015},
+}
+
+@incollection{NEURIPS2019_9015-full,
+title = {{PyTorch}: An Imperative Style, High-Performance Deep Learning Library},
 author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and Kopf, Andreas and Yang, Edward and DeVito, Zachary and Raison, Martin and Tejani, Alykhan and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and Bai, Junjie and Chintala, Soumith},
+booktitle = {Advances in Neural Information Processing Systems 32},
+editor = {H. Wallach and H. Larochelle and A. Beygelzimer and F. d\textquotesingle Alch\'{e}-Buc and E. Fox and R. Garnett},
+pages = {8024--8035},
+year = {2019},
+publisher = {Curran Associates, Inc.},
+url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf}
+}
+
+@incollection{NEURIPS2019_9015,
+title = {{PyTorch}: An Imperative Style, High-Performance Deep Learning Library},
+author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and others},
 booktitle = {Advances in Neural Information Processing Systems 32},
 editor = {H. Wallach and H. Larochelle and A. Beygelzimer and F. d\textquotesingle Alch\'{e}-Buc and E. Fox and R. Garnett},
 pages = {8024--8035},
@@ -259,7 +327,8 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 
 @article{jia2014caffe,
   Author = {Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
-  Journal = {arXiv preprint arXiv:1408.5093},
+  Journal = {arXiv pre-print}
+  volume = {1408.5093},
   Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
   Year = {2014}
 }
@@ -267,7 +336,7 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @inproceedings{krizhevsky2012imagenet,
   title={Imagenet classification with deep convolutional neural networks},
   author={Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
-  booktitle={Advances in neural information processing systems},
+  booktitle={Advances in Neural Information Processing Systems},
   pages={1097--1105},
   year={2012}
 }
@@ -325,13 +394,12 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
                optimization},
   author    = {Bhardwaj, Shikhar and Curtin, Ryan R. and Edel, Marcus and
                Mentekidis, Yannis and Sanderson, Conrad},
-  booktitle = {Proceedings of the Workshop on Systems and ML and Open Source
-               Software at NeurIPS 2018},
+  booktitle = {Workshop on Systems and ML and Open Source Software at NeurIPS},
   year      = {2018}
 }
 
 @article{curtin2017generic,
-  title={A generic and fast C++ optimization framework},
+  title={A generic and fast {C++} optimization framework},
   author={Curtin, Ryan R and Bhardwaj, Shikhar and Edel, Marcus and Mentekidis, Yannis},
   journal={arXiv preprint arXiv:1711.06581},
   year={2017}
@@ -351,7 +419,7 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{kirkpatrick1983optimization,
   title={Optimization by simulated annealing},
   author={Kirkpatrick, Scott and Gelatt, C Daniel and Vecchi, Mario P},
-  journal={science},
+  journal={Science},
   volume={220},
   number={4598},
   pages={671--680},
@@ -526,7 +594,7 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 }
 
 @techreport{Dozat2015,
-  title       = {Incorporating Nesterov momentum into Adam},
+  title       = {Incorporating {Nesterov} momentum into {Adam}},
   author      = {Timothy Dozat},
   institution = {Stanford University},
   address     = {Stanford},
@@ -546,7 +614,7 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{daskalakis2017training,
   author  = {Constantinos Daskalakis and Andrew Ilyas and Vasilis Syrgkanis and
              Haoyang Zeng},
-  title   = {Training GANs with Optimism},
+  title   = {Training {GANs} with Optimism},
   year    = {2017},
   url     = {https://arxiv.org/abs/1711.00141},
   journal = {CoRR}
@@ -572,9 +640,10 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{Nguyen2017,
   author  = {{Nguyen}, L.~M. and {Liu}, J. and {Scheinberg},
              K. and {Tak{\'a}{\v c}}, M.},
-  title   = {SARAH: A Novel Method for Machine Learning Problems Using
+  title   = {{SARAH}: A Novel Method for Machine Learning Problems Using
              Stochastic Recursive Gradient},
-  journal = {ArXiv e-prints},
+  journal = {ArXiv pre-print},
+  volume  = {1703.00102},
   url     = {https://arxiv.org/abs/1703.00102},
   year    = {2017}
 }
@@ -599,9 +668,9 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 
 @misc{Funk2015,
   author = {Simon Funk},
-  title  = {RMSprop loses to SMORMS3 - Beware the Epsilon!},
+  title  = {{RMSprop} loses to {SMORMS3} - {Beware} the {Epsilon!}},
   year   = {2015},
-  url    = {http://sifter.org/~simon/journal/20150420.html}
+  note   = {http://sifter.org/~simon/journal/20150420.html}
 }
 
 @inproceedings{Johnson2013,
@@ -818,19 +887,16 @@ Representations (ICLR 2015)},
 
 @inproceedings{sanderson2018user,
     author = {Sanderson, C. and Curtin, R.R.},
-    title = {A User-Friendly Hybrid Sparse Matrix Class in {C}++},
-    booktitle = {Proceedings of the 2018 International Congress on Mathematical
-        Software (ICMS)},
+    title = {A User-Friendly Hybrid Sparse Matrix Class in {C++}},
+    booktitle = {Lecture Notes in Computer Science (LNCS), Vol.~10931},
     pages = {422--430},
-    publisher = {Springer},
-    isbn="978-3-319-96418-8",
     year = {2018}
 }
 
 
 @Article{mca24030070,
 AUTHOR = {Sanderson, Conrad and Curtin, Ryan},
-TITLE = {Practical Sparse Matrices in C++ with Hybrid Storage and Template-Based Expression Optimisation},
+TITLE = {Practical Sparse Matrices in {C++} with Hybrid Storage and Template-Based Expression Optimisation},
 JOURNAL = {Mathematical and Computational Applications},
 VOLUME = {24},
 YEAR = {2019},
@@ -838,7 +904,6 @@ NUMBER = {3},
 ARTICLE-NUMBER = {70},
 URL = {https://www.mdpi.com/2297-8747/24/3/70},
 ISSN = {2297-8747},
-ABSTRACT = {Despite the importance of sparse matrices in numerous fields of science, software implementations remain difficult to use for non-expert users, generally requiring the understanding of the underlying details of the chosen sparse matrix storage format. In addition, to achieve good performance, several formats may need to be used in one program, requiring explicit selection and conversion between the formats. This can be both tedious and error-prone, especially for non-expert users. Motivated by these issues, we present a user-friendly and open-source sparse matrix class for the C++ language, with a high-level application programming interface deliberately similar to the widely-used MATLAB language. This facilitates prototyping directly in C++ and aids the conversion of research code into production environments. The class internally uses two main approaches to achieve efficient execution: (i) a hybrid storage framework, which automatically and seamlessly switches between three underlying storage formats (compressed sparse column, red-black tree, coordinate list) depending on which format is best suited and/or available for specific operations, and (ii) a template-based meta-programming framework to automatically detect and optimise the execution of common expression patterns. Empirical evaluations on large sparse matrices with various densities of non-zero elements demonstrate the advantages of the hybrid storage framework and the expression optimisation mechanism.},
 DOI = {10.3390/mca24030070}
 }
 
@@ -854,7 +919,7 @@ DOI = {10.3390/mca24030070}
 }
 
 @inproceedings{athanasopoulos2011gpu,
-  title={GPU acceleration for support vector machines},
+  title={{GPU} acceleration for support vector machines},
   author={Athanasopoulos, Andreas and Dimou, Anastasios and Mezaris, Vasileios and Kompatsiaris, Ioannis},
   booktitle={Procs. 12th Inter. Workshop on Image Analysis for Multimedia Interactive Services (WIAMIS 2011), Delft, Netherlands},
   pages={17--55},
@@ -862,7 +927,7 @@ DOI = {10.3390/mca24030070}
 }
 
 @article{bacry2017tick,
-  title={Tick: a Python library for statistical learning, with an emphasis on hawkes processes and time-dependent models},
+  title={Tick: a {Python} library for statistical learning, with an emphasis on hawkes processes and time-dependent models},
   author={Bacry, Emmanuel and Bompaire, Martin and Deegan, Philip and Ga{\"\i}ffas, St{\'e}phane and Poulsen, S{\o}ren V},
   journal={The Journal of Machine Learning Research},
   volume={18},
@@ -892,7 +957,7 @@ Wehbring},
 }
 
 @inproceedings{lam2015numba,
-  title={Numba: A {LLVM}-based python {JIT} compiler},
+  title={Numba: A {LLVM}-based {Python} {JIT} compiler},
   author={Lam, Siu Kwan and Pitrou, Antoine and Seibert, Stanley},
   booktitle={Second Workshop on the LLVM Compiler Infrastructure in HPC},
   pages={7},
