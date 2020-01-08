@@ -1,4 +1,4 @@
-\section{API overview and examples}
+\section{API Overview and Examples}
 \label{sec:api}
 
 \begin{table}[t!]
@@ -25,7 +25,7 @@
             % If the framework can handle categorical/discrete variables for
             % optimization, this is true.
           & \rot{categorical}
-            % If any type can be optimized, this is true.
+            % If any type can be optimized, this is true.mention
           & \rot{arbitrary types}
             % If callback support is available.
           & \rot{callbacks} \\
@@ -74,9 +74,9 @@
 \CIRCLE & - & - & \CIRCLE & - & - & - & \CIRCLE & - \\
         \cmidrule[1pt]{2-11}
     \end{tabular}
-\caption{\footnotesize{
-Feature comparison: \CIRCLE = provides feature,
-\LEFTcircle = partially provides feature, - = does not provide feature.
+\caption{
+Feature comparison: \CIRCLE~= provides feature,
+\LEFTcircle~= partially provides feature, -~= does not provide feature.
 {\it unified framework} indicates if there is some kind of generic/unified
 optimization framework; {\it constraints} and {\it separable functions /
 batches} indicate support for constrained functions and separable functions;
@@ -85,23 +85,25 @@ implemented; {\it arbitrary optimizers} means arbitrary optimizers are easily
 implemented; {\it sparse gradient} indicates that the framework can natively
 take advantage of sparse gradients; {\it categorical} refers to if support
 for categorical features exists; {\it arbitrary types} mean that arbitrary types
-can be used for the parameters $x$; and {\it callbacks} mean that
-user-implementable callback support is available.
-}}
+can be used for the parameters $x$;
+{\it callbacks} indicates that user-implementable callback support is available.
+\TODO{may want to add a comparison with PyTorch, as that's getting popular these days}
+}
 \label{tab:comparison}
 \end{table}
 
 {\tt ensmallen} provides a {\bf set of optimizers} for optimizing {\bf
 user-defined objective functions}.  These optimizers are generic and flexible,
-meaning that they can support a wide range of use cases and applications.  A
-primary differentiator from other toolkits is that this flexibility is provided
-via template metaprogramming, which means that it comes at no runtime cost.
-In addition to allowing users to easily define and optimize their own objective
-functions, {\tt ensmallen} also makes it easy to implement new optimizers, which
-can then be contributed back upstream and incorporated into the library.
-
+meaning that they can support a wide range of use cases and applications.
 Table~\ref{tab:comparison} compares the functionality
 supported by {\tt ensmallen} and other optimization toolkits.
+
+A primary differentiator from other toolkits is that this flexibility is provided
+via template metaprogramming, meaning that the flexibility comes without runtime costs.
+In addition to allowing users to easily define and optimize their own objective
+functions, {\tt ensmallen} also makes it easy to implement new optimizers, which
+can then be contributed upstream and incorporated into the library.
+
 
 \subsection{Types of objective functions}
 
@@ -116,7 +118,7 @@ which in turn allows a first-order optimizer to be used.  This generally leads
 to significant, order-of-magnitude speedups.
 
 To capture this structure, {\tt ensmallen}'s optimizers are built to work with
-different types of objective functions.  These classes of objectives functions
+many types of objective functions.  The classes of objectives functions
 are listed below.
 
 \begin{itemize}
@@ -133,16 +135,12 @@ PartiallyDifferentiableFunctionType}).  A partially differentiable function
 $f(x)$ is a differentiable function with the additional property that the
 gradient $f'(x)$ can be decomposed along some basis $j$ such that $f_j'(x)$ is
 sparse.  Often, this is used for coordinate descent algorithms (i.e., $f'(x)$
-can be decomposed into $f_{x1}'(x)$, $f_{x2}'(x)$, etc.).
+can be decomposed into $f_{1}'(x)$, $f_{2}'(x)$, etc.).
 
 \item {\bf Arbitrary separable functions} ({\tt \small
 ArbitrarySeparableFunctionType}).  An arbitrary separable function is an
 arbitrary function $f(x)$ that can be decomposed into the sum of several
-objective functions:
-
-\begin{equation}
-f(x) = \sum_i f_i(x).
-\end{equation}
+objective functions: $f(x) = \sum\nolimits_i f_i(x)$.
 
 \item {\bf Differentiable separable functions} ({\tt \small
 DifferentiableSeparableFunctionType}).  A differentiable separable function is a
@@ -164,17 +162,18 @@ Minimizing $f(x)$ then means minimizing $f(x) + \sum_i c_i(x)$.
 \item {\bf Semidefinite programs} (SDPs).  {\it (These are a subset of
 constrained functions.)}  {\tt ensmallen} has special
 support to make optimizing semidefinite
-programs~\cite{vandenberghe1996semidefinite} simple.
+programs~\cite{vandenberghe1996semidefinite} straightforward.
 \end{itemize}
 
-Details about how to implement and use each type of objective function can be
-found on the {\tt ensmallen} website, at \url{https://ensmallen.org/docs.html},
-but is omitted here for brevity (and because the software may change over
-time!).
+Details on how to implement and use each type of objective function 
+are omitted here for brevity.
+They can be found on the {\tt ensmallen} website,
+at \mbox{\url{https://ensmallen.org/docs.html}}.
+%The details are subject to evolution over time.
 
 \subsection{Types of optimizers}
 
-Using this straightforward abstraction framework, {\tt ensmallen} is able to
+Using the straightforward abstraction framework, {\tt ensmallen} is able to
 provide a wide range of optimizers:
 
 \begin{itemize}
@@ -226,13 +225,13 @@ primal-dual interior point SDP solver, LRSDP (low-rank accelerated SDP
 solver)~\cite{burer2003nonlinear}.
 \end{itemize}
 
-\subsection{Using {\tt ensmallen}}
+\subsection{Example usage}
 \label{sec:linreg_example}
 
 The task of optimizing an objective function with {\tt ensmallen} is
 straightforward.  The class of objective function (e.g., arbitrary, constrained,
 differentiable, etc.) defines the implementation requirements.  For instance, if
-a user wants to optimize some objective function $f(x)$ that is differentiable,
+a user wants to optimize an objective function $f(x)$ that is differentiable,
 they merely need to provide an implementation of $f(x)$ and $f'(x)$ and then
 they can immediately use one of {\tt ensmallen}'s optimizers for differentiable
 functions.  That is, each objective function type has some minimal set of
@@ -242,8 +241,8 @@ methods.
 Note that not every type of objective function can be used with every type of
 optimizer.  For instance, {\tt L\_BFGS} is a differentiable optimizer, and so it
 cannot be used with any non-differentiable object function type (e.g. an
-arbitrary function).  However, {\tt ensmallen} still allows as much flexibility
-as possible via template metaprogramming:
+arbitrary function).  However, {\tt ensmallen} still allows flexibility
+via template metaprogramming:
 
 \begin{enumerate}
   \item When an optimizer is used with a user-provided objective function,
@@ -255,7 +254,7 @@ not provided.  For instance, given a separable objective function where an
 implementation of $f_i(x)$ is provided (as well as the number of such separable
 objectives), an implementation of $f(x)$ can be inferred.  This is all done at
 compile-time, and so there is no additional runtime overhead compared to a
-handwritten implementation.
+manual implementation.
 \end{enumerate}
 
 To give an example, consider the example of linear regression, where we are
@@ -280,13 +279,13 @@ $f'(\bm \theta)$ according to the signatures required by the {\tt
 DifferentiableFunctionType} of objective function.  For a differentiable
 function, only two methods are necessary: {\tt Evaluate()} and {\tt Gradient()}.
 The introductory discussion here does not go into the full details of the
-different signatures required for each objective function; for that, see the
-{\tt ensmallen} documentation: \url{https://ensmallen.org/docs.html}.
+signatures required for each objective function; for more details, see the
+{\tt ensmallen} documentation at \url{https://ensmallen.org/docs.html}.
 
 Returning to our linear regression example, we could easily use {\tt ensmallen}'s
 L-BFGS implementation to find $\bm \theta^*$; we just need to provide an
-implementation of $f(\bm \theta)$ and $f'(\bm \theta)$ (as L-BFGS requires a
-differentiable objective function).  Figure~\ref{fig:lr_function} is an example
+implementation of $f(\bm \theta)$ and $f'(\bm \theta)$, as L-BFGS requires a
+differentiable objective function.  Figure~\ref{fig:lr_function} shows an example
 implementation.
 
 \begin{figure}[t!]
@@ -309,11 +308,10 @@ class LinearRegressionFunction
     gradient = 2 * X.t() * (X * coordinates - y);
   }
 
-  // Note that ensmallen gives us the option of only implementing *one* function
+  // We use both Evaluate() and Gradient() here for simplicity of exposition.
+  // Note that ensmallen provides the option of implementing only one function
   // EvaluateWithGradient() instead, which would be more efficient in this case
-  // since it can share computation between Evaluate() and Gradient()!
-  //
-  // (We use both Evaluate() and Gradient() here for simplicity of exposition.)
+  // since it can share computation between Evaluate() and Gradient().
 
  private:
   const arma::mat& X;
@@ -323,11 +321,15 @@ class LinearRegressionFunction
 \hrule
 \vspace*{-0.5em}
 \caption{An example implementation of an objective function class for linear
-regression.}
+regression.
+The {\tt arma::mat} and {arma::vec} types are 
+dense matrix and vector classes
+from the Armadillo linear algebra library~\cite{sanderson2016armadillo}.
+}
 \label{fig:lr_function}
 \end{figure}
-\begin{figure}[t!]
 
+\begin{figure}[t!]
 \hrule
 \vspace{1ex}
 \begin{minted}{c++}
@@ -345,7 +347,9 @@ optimizer.Optimize(f, theta_best);
 \hrule
 \vspace*{-0.5em}
 \caption{Example usage of {\tt ensmallen}'s L-BFGS optimizer to optimize the
-linear regression objective function.}
+linear regression objective function.
+The {\tt LinearRegressionFunction} class is defined in Figure~\ref{fig:lr_function}.
+}
 \label{fig:lbfgs_lr_opt}
 \end{figure}
 
@@ -358,8 +362,8 @@ closely matches Equations~\ref{eqn:obj_lr} and \ref{eqn:grad_lr}.  With {\tt
 with the code in Figure~\ref{fig:lbfgs_lr_opt} that uses {\tt ensmallen}'s
 L-BFGS optimizer.
 
-However, it's possible to do more than optimize a model that's stored as an {\tt
-\small arma::mat} (dense matrix).  {\tt ensmallen} supports:
+It is possible to do more than optimize a model that's stored as an {\tt
+\small arma::mat} (dense matrix).  {\tt ensmallen} also supports:
 
 \begin{itemize}
   \item Use of types other than {\tt \small arma::mat} when calling {\tt \small
@@ -368,7 +372,7 @@ type whose implementation matches the Armadillo API.
 
   \item Callbacks, which can specify custom behavior during the optimization.
 Examples include printing the loss function value at each iteration, or
-terminating when a time budget is used up, or other custom user-supplied
+terminating when a time limit is reached, or other custom user-supplied
 functionality.
 
   \item Inference of functions not supplied by the user.  One example is that
@@ -378,5 +382,5 @@ them separately.  {\tt ensmallen} can automatically infer variants of {\tt
 Gradient()} and {\tt Evaluate()} when needed.
 \end{itemize}
 
-Each of the following sections will discuss how we are able to achieve the
+The following sections discuss how we are able to achieve the
 functionality above---with no runtime overhead.
