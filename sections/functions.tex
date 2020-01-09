@@ -4,8 +4,9 @@
 
 \TODO{CS: my impression is that this section is too heavy
 with fine-grained details of the underlying C++ implementation.
-These kind of details may be better placed as part 
-of the online documentation. This would also sidestep the issue of
+These kind of details may be better placed either in
+an appendix or as part of the online documentation.
+The latter would also sidestep the issue of
 the information becoming out of date (in this paper)
 each time ensmallen's internals are improved / refactored, etc.
 More details in the TODO below.
@@ -20,7 +21,7 @@ Out of these, I suspect that Type 1 would be the vast majority (ML practitioners
 Type 2 users are more adventurous or skilled, or want to experiment with new optimizers (optimization researchers).
 Type 3 users are heavy duty C++ coders and optimization researchers, and are likely to be in a tiny minority.
 Right now the content in this section seems to be aimed at Type~3, without providing an easily digestible form for Type~1 and Type~2.
-I suggest to move all the Type~3 content to the ensmallen website,
+I suggest to move all the Type~3 content to an appendix (or to the ensmallen website),
 and streamline this section to target Type~1 and Type~2 users.
 }
 
@@ -92,10 +93,7 @@ typename MatType::elem_type Optimize(FunctionType& function,
 
   // The rest of the optimizer's code should use `fullFunction`, not `function`.
   ...
-}% Note that this is only required when defining new optimizers.
-% Users who want to optimize objective functions with {\tt ensmallen}
-% do not need to be aware of these details.
-
+}
 \end{minted}
 \hrule
 \vspace*{-0.5em}
@@ -126,7 +124,7 @@ AddEvaluateWithGradient}.}
 \end{figure}
 
 Using our framework for function inference is straightforward;
-an example differentiable optimizer mat resemble the code in Figure~\ref{fig:ex_optimize}.
+an example differentiable optimizer may resemble the code in Figure~\ref{fig:ex_optimize}.
 Code for a new optimizer only needs to define a {\tt Function<FunctionType, ...>} wrapper at the
 beginning of optimization, and can then expect all three of {\tt Evaluate()},
 {\tt Gradient()}, and {\tt EvaluateWithGradient()} to be available.
@@ -317,9 +315,15 @@ the beginning of the {\tt Optimize()} method:
 \end{minted}
 
 This technique is adapted to each objective function type that {\tt ensmallen}
-supports, in order to provide easier error messages of the form shown below
-(with {\tt clang++}).
+supports, in order to provide straightforward error messages of the form shown in Figure~\ref{fig:example_error_message_1}.
+This {\tt static\_assert()} failure output appears typically at the end of the
+error output, which is far preferable to the output without {\tt
+CheckFunctionTypeAPI}.  Example output produced by {\tt clang++} is shown in
+Figure~\ref{fig:example_error_message_2}.
 
+\begin{figure}[!tb]
+\hrule
+\vspace{1ex}
 \begin{verbatim}
     ...
     include/ensmallen_bits/function/static_checks.hpp:292:3: error: static_assert
@@ -333,12 +337,14 @@ supports, in order to provide easier error messages of the form shown below
       ^
     ...
 \end{verbatim}
+\hrule
+\caption{\TODO{caption}}
+\label{fig:example_error_message_1}
+\end{figure}
 
-This {\tt static\_assert()} failure output appears typically at the end of the
-error output, which is far preferable to the output without {\tt
-CheckFunctionTypeAPI}.  That output looks like this with {\tt clang++} ({\tt
-g++} output is more verbose):
-
+\begin{figure}[!tb]
+\hrule
+\vspace{1ex}
 \begin{verbatim}
     ...
     include/ensmallen_bits/lbfgs/lbfgs_impl.hpp:376:30: error: no matching member
@@ -359,6 +365,10 @@ g++} output is more verbose):
       static typename MatType::elem_type EvaluateWithGradient(
     ...
 \end{verbatim}
+\hrule
+\caption{\TODO{caption}}
+\label{fig:example_error_message_2}
+\end{figure}
 
 Note that the error message above can be highly misleading: it's not actually a
 requirement that {\tt EvaluateWithGradient()} be supplied by the objective
