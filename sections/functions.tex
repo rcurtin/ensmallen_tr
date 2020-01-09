@@ -1,61 +1,76 @@
 % TODO: this section name isn't particularly great...
-\section{Automatic function generation}
+\section{Automatic Function Generation}
 \label{sec:automatic}
 
-In the previous section, we saw an example of how a user might implement {\tt
+\TODO{CS: my impression is that this section is too heavy
+with fine-grained details of the underlying C++ implementation.
+These kind of details may be better placed as part 
+of the online documentation. This would also sidestep the issue of
+the information becoming out of date (in this paper)
+each time ensmallen's internals are improved / refactored, etc.
+More details in the TODO below.
+}
+
+\TODO{CS: We may need to refocus and streamline the content of this paper for the expected main use cases.
+I think there are 3 types of users of ensmallen:
+Type~1: users of existing optimisers who don't want to muck around and simply get a result for their problem at hand.
+Type~2: users which want to add a new optimiser (or adapt an existing one) but don't want to fluff around with the internal details (ie. metaprogramming voodoo).
+Type~3: users which may want to improve the internals (eg. use of OpenMP for explicit parallelisation or GPU offloading, etc).
+Out of these, I suspect that Type 1 would be the vast majority (ML practitioners/researchers, not interested in improving optimizers).
+Type 2 users are more adventurous or skilled, or want to experiment with new optimizers (optimization researchers).
+Type 3 users are heavy duty C++ coders and optimization researchers, and are likely to be in a tiny minority.
+Right now the content in this section seems to be aimed at Type~3, without providing an easily digestible form for Type~1 and Type~2.
+I suggest to move all the Type~3 content to the ensmallen website,
+and streamline this section to target Type~1 and Type~2 users.
+}
+
+
+In the preceding section, we saw an example of how a user might implement {\tt
 Evaluate()} and {\tt Gradient()} for the linear regression objective function
-and use {\tt ensmallen} to find the minimum.  But there is a clear inefficiency:
-the objective function computation $f(\bm \theta)$ is defined as
-
-\begin{equation*}
-\| \bm X \bm \theta - \bm y \|^2
-\end{equation*}
-
-\noindent and the gradient computation $f'(\bm \theta)$ is defined as
-
-\begin{equation}
-2 \bm X^T (\bm X \bm \theta - \bm y).
-\end{equation}
-
+and use {\tt ensmallen} to find the minimum.
+However, there is an inefficiency:
+the objective function computation is defined as $f(\bm \theta) = \| \bm X \bm \theta - \bm y \|^2$,
+and the gradient computation is defined as $f'(\bm \theta) = 2 \bm X^T (\bm X \bm \theta - \bm y)$.
 There is a shared inner computation in $f(\bm \theta)$ and $f'(\bm \theta)$: the
-term $(\bm X \bm \theta - \bm y)$.  But if we implement $f(\bm \theta)$ and
-$f'(\bm \theta)$ as separate functions, there is no easy way to exploit this
-shared computation: {\tt ensmallen}'s differentiable optimizers treat the
-functions they are given as oracular, and cannot and do not know anything about
-the internal computations of those functions.  In fact, this inefficiency
-necessarily applies to any optimization package that accepts an objective
-function and its gradient as separate parameters; that includes SciPy, {\tt
-bfgsmin()}, {\tt Optim.jl}, and other packages.\footnote{It could be possible
-for an autodifferentiation package to avoid this efficiency, or a
-programming language with introspection to operate directly on the AST of the
-given objective and gradient computations to successfully share the computation.
-However, at the time of this writing, we are not aware of any that do this, and
-that seems a difficult engineering task.}
+term $(\bm X \bm \theta - \bm y)$.
+If $f(\bm \theta)$ and $f'(\bm \theta)$ are implemented as separate functions,
+there is no easy way to exploit this shared computation:
+{\tt ensmallen}'s differentiable optimizers treat the functions they are given as oracular,
+and cdo not know anything about the internal computations of those functions.
+This inefficiency%
+\footnote
+  {It may be possible to use auto-differentiation to avoid this efficiency,
+  or a programming language with introspection to operate directly on the AST of the
+  given objective and gradient computations to successfully share the computation.
+  However, at the time of this writing, we are not aware of any that do this.
+  \TODO{acronym ``AST'' not defined and not explained; need to add a reference for the explanation}
+  }
+can apply to any optimization package that accepts an objective
+function and its gradient as separate parameters, including SciPy, {\tt bfgsmin()},
+and {\tt Optim.jl} among other packages.
+\TODO{{\tt bfgsmin()} not mentioned beforehand; need to explain what it is}
 
 To work around this issue, we use template metaprogramming techniques to allow
 the user to provide {\it either} separate implementations of the objective
 function and gradient, {\it or} a combined implementation that computes {\it
-both} the objective function and gradient simultaneously (thus allowing the
-sharing of inner computations).  That is, the user can provide the methods {\tt
-Evaluate()} and {\tt Gradient()}, or {\tt EvaluateWithGradient()}.  (They can
-provide both, if they so choose.)  For the example objective function above, we
-will see in our experiments that the ability to provide {\tt
-EvaluateWithGradient()} can result in a significant speedup.
+both} the objective function and gradient simultaneously.
+The latter options allows the sharing of inner computations.
+That is, the user can provide the methods {\tt Evaluate()} and {\tt Gradient()},
+or {\tt EvaluateWithGradient()}.
+For the example objective function above,
+we empirically show (Section~\ref{sec:experiments}) that the ability to provide
+{\tt EvaluateWithGradient()} can result in a significant speedup.
 
-Similarly, when implementing a differentiable optimizer in {\tt ensmallen}, it
-is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()} {\it or}
-{\tt EvaluateWithGradient()} (or both) during optimization.
-In fact, this same technique can be used to infer and provide missing methods
+Similarly, when implementing a differentiable optimizer in {\tt ensmallen},
+it is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()},
+{\it or} {\tt EvaluateWithGradient()} during optimization.
+The same technique can be used to infer and provide missing methods
 for separable functions, differentiable separable functions, constrained
 functions, categorical functions, and others.  Not all of these possibilities
 are currently implemented in {\tt ensmallen}, but the framework described below
-makes it straightforward to add more.  We will describe the framework in a
+makes it straightforward to add more.  We describe the framework in a
 simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
 Evaluate()}/{\tt Gradient()} example described above.
-
-Using our framework for function inference is very simple; an example
-differentiable optimizer might look like what is shown in
-Figure~\ref{fig:ex_optimize}.
 
 \begin{figure}[t]
 \hrule
@@ -77,13 +92,18 @@ typename MatType::elem_type Optimize(FunctionType& function,
 
   // The rest of the optimizer's code should use `fullFunction`, not `function`.
   ...
-}
+}% Note that this is only required when defining new optimizers.
+% Users who want to optimize objective functions with {\tt ensmallen}
+% do not need to be aware of these details.
+
 \end{minted}
 \hrule
 \vspace*{-0.5em}
-\caption{An example implementation of an {\tt ensmallen} optimizer's {\tt
-Optimize()} method.  The use of the {\tt Function<>} mix-in class will provide
-methods that the original {\tt FunctionType} may not have had.}
+\caption{An example implementation of an {\tt ensmallen} optimizer's
+{\tt Optimize()} method.
+The use of the {\tt Function<>} mix-in class~\cite{smaragdakis2000mixin}
+will provide methods that the original {\tt FunctionType} may not have.
+}
 \label{fig:ex_optimize}
 \end{figure}
 
@@ -93,10 +113,9 @@ methods that the original {\tt FunctionType} may not have had.}
 \begin{minted}{c++}
 template<typename FunctionType, typename MatType, typename GradType>
 class Function :
-    ... // lots of other mixin classes omitted
     public AddEvaluateWithGradient<FunctionType, MatType, GradType>,
-    ...
     public FunctionType
+    ... // many other mixin classes omitted
 \end{minted}
 \hrule
 \vspace*{-0.5em}
@@ -106,18 +125,20 @@ AddEvaluateWithGradient}.}
 \label{fig:function_snippet}
 \end{figure}
 
-This is relatively uninvasive: {\tt ensmallen} contributors who are writing
-optimizers need only define a {\tt Function<FunctionType, ...>} wrapper at the
+Using our framework for function inference is straightforward;
+an example differentiable optimizer mat resemble the code in Figure~\ref{fig:ex_optimize}.
+Code for a new optimizer only needs to define a {\tt Function<FunctionType, ...>} wrapper at the
 beginning of optimization, and can then expect all three of {\tt Evaluate()},
-{\tt Gradient()}, and {\tt EvaluateWithGradient()} to be available.  Users who
-want to optimize objective functions with {\tt ensmallen} do not even need to
-think about it.
+{\tt Gradient()}, and {\tt EvaluateWithGradient()} to be available.
+The class {\tt Function<...>} is like a {\it mix-in} class~\cite{smaragdakis2000mixin};
+more accurately, it is a {\it collection} of mix-in classes.
 
-The class {\tt Function<...>} is like a {\it mixin}
-class~\cite{smaragdakis2000mixin}; more accurately, it is a {\it collection} of
-mixin classes.  Figure~\ref{fig:function_snippet} shows a shortened snippet of the definition of the {\tt
-Function} class.
+% Note that this is only required when defining new optimizers.
+% Users who want to optimize objective functions with {\tt ensmallen}
+% do not need to be aware of these details.
 
+Figure~\ref{fig:function_snippet} shows a shortened snippet of the definition
+of the {\tt Function} class.
 We can see that {\tt Function} inherits methods from the given {\tt
 FunctionType} (which is the user-supplied objective function class that is to be
 optimized), and also from the {\tt AddEvaluateWithGradient<...>} mixin class.
