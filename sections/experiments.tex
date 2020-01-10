@@ -44,16 +44,16 @@ int main()
 \hrule
 \vspace*{-0.5em}
 \caption{Code to use {\tt ensmallen} to optimize the Rosenbrock function using
-100k iterations of simulated annealing.}
+100K iterations of simulated annealing.}
 \label{fig:rosenbrock_run}
 \end{figure}
 
 \subsection{Simple optimizations and overhead}
 
-For our first experiment, we aim to capture the overhead involved in different
+For our first experiment, we aim to capture the overhead involved in various
 optimization toolkits.  In order to do this, we consider the simple and popular
 Rosenbrock function~\cite{Rosenbrock1960}:
-
+%
 \begin{equation}
 f([x_1, x_2]) = 100 (x_2 - x_1^2)^2 + (1 - x_1^2).
 \end{equation}
@@ -61,10 +61,10 @@ f([x_1, x_2]) = 100 (x_2 - x_1^2)^2 + (1 - x_1^2).
 This objective function is useful for this task because the computational effort
 involved in computing $f(\cdot)$ is trivial.  Therefore, if we hold the number
 of iterations of each toolkit constant, then this will help us understand the
-different overhead costs of each toolkit.  For the optimizer, we use simulated
+overhead costs of each toolkit.  For the optimizer, we use simulated
 annealing~\cite{kirkpatrick1983optimization}, a gradient-free optimizer.
 Simulated annealing will call the objective function numerous times; for each
-simulation we limit the optimizer to 100k objective evaluations.
+simulation we limit the optimizer to 100K objective evaluations.
 
 The code used to run this simulation for {\tt ensmallen} (including the
 implementation of the Rosenbrock function) is given in
@@ -84,7 +84,7 @@ tuned & & 0.574s & & 3.122s \\
 \end{tabular}
 \end{center}
 \vspace*{-0.5em}
-\caption{Runtimes for $100000$ iterations of simulated annealing with various
+\caption{Runtimes for $100$K iterations of simulated annealing with various
 frameworks on the simple Rosenbrock function.  Julia code runs do not count
 compilation time.  The {\it tuned} row indicates that the code was manually
 modified for speed.}
@@ -94,8 +94,9 @@ modified for speed.}
 % TODO: code snippet comparison for each language?
 
 We compare four frameworks for this task:
-
+%
 \begin{itemize}
+\itemsep=-1ex
   \item[{\bf (i)}] {\tt ensmallen},
   \item[{\bf (ii)}] {\tt scipy.optimize.anneal} from SciPy 0.14.1~\cite{jones2014scipy},
   \item[{\bf (iii)}] simulated annealing implementation in {\tt Optim.jl} with Julia 1.0.1~\cite{mogensen2018optim},
@@ -115,7 +116,7 @@ compiled, and thus are able to avoid the function pointer dereference for
 evaluating the Rosenbrock function and take advantage of inlining and related
 optimizations.  The overhead of both {\tt scipy} and {\tt samin} are quite
 large---{\tt ensmallen} is nearly three orders of magnitude faster for the same
-task!
+task.
 
 % TODO: keep removing \small from here
 
@@ -199,7 +200,7 @@ observe that the output of automatic differentiators is not as efficient,
 especially with \texttt{\small ForwardDiff.jl}.  We expect this effect to be
 more pronounced with increasingly complex objective functions.
 
-\subsection{Easy pluggability of different optimizers}
+\subsection{Easy pluggability of various optimizers}
 
 Lastly, we demonstrate the easy pluggability in \texttt{\small ensmallen}
 for using various optimizers on the same task.
