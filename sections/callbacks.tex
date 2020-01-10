@@ -1,23 +1,27 @@
 \section{Callbacks}
 \label{sec:callbacks}
 
-Many of {\tt ensmallen}'s optimizers offer the ability to modify parts of the
-optimization process.  Example modifications might include changing the step
-size, adding custom constraints when they are violated by the current solution,
-or providing custom heuristics to find and investigate feasible solutions.  In
-many existing toolkits, this type of functionality is provided only via
+Many of the optimizers in {\tt ensmallen} offer the ability to monitor
+and modify parts of the optimization process.
+Example modifications include changing the step size,
+adding custom constraints when they are violated by the current solution,
+or providing custom heuristics to find and investigate feasible solutions.
+
+In many existing toolkits, this type of functionality is provided only via
 solver-specific interfaces.  For instance, the {\tt tick} statistical learning
 toolkit~\cite{bacry2017tick} requires the use of a solver-specific {\tt History}
 class to inspect and work with internal parts of the optimization process.  In
 contrast, {\tt ensmallen} provides optimizer-independent callbacks to allow
 guidance of the optimization process and to monitor the behavior of
-optimization.  In particular, {\tt ensmallen}'s callbacks allow code to be
+optimization.  In particular, the callbacks allow code to be
 executed regularly during an optimization session.
 
-\subsection{Using callbacks with {\tt ensmallen}}
 
-To use callbacks, either for optimization, tuning or logging, a user can pass
-arbitrary callbacks to any optimizer in the {\tt Optimize()} function.
+\subsection{Using callbacks}
+
+To use callbacks, either for optimization, tuning or logging, 
+arbitrary callbacks to any optimizer can be optionally provided
+to the {\tt Optimize()} function.
 Figure~\ref{fig:example_prog_callbacks} contains a simple C++ program which
 briefly demonstrates usage of the callback functionality.  Given the pre-defined
 callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
@@ -51,11 +55,8 @@ bar during the optimization.
 \label{fig:example_prog_callbacks}
 \end{figure}
 
-There are eight types of optimization callback routines that are regularly
-called during the optimization process (depending on the objective function
-type).  Table~\ref{tab:callback_list} lists the available types.
 
-\begin{table}[H]
+\begin{table}[!tb]
 \centering
 \small
 \begin{tabular}{lll}
@@ -85,13 +86,17 @@ type).  Table~\ref{tab:callback_list} lists the available types.
 \label{tab:callback_list}
 \end{table}
 
-Callbacks are executed in the order that they are specified, and each callback
-may terminate the optimization via its {\tt bool} return value ({\tt false}
-indicates that the optimization should be stopped).  By default, subsequent
-callbacks are not called if an earlier callback terminates the optimization: the
-optimizer terminates immediately.
+Eight types of optimization callback routines are available,
+as shown in Table~\ref{tab:callback_list}.
+These callbacks are regularly called during the optimization process,
+depending on the objective function type.
+Callbacks are executed in the order that they are specified.
+Each callback may terminate the optimization via its {\tt bool} return value,
+where {\tt false} indicates that the optimization should be stopped.
+By default, subsequent callbacks are not called if an earlier callback terminates
+the optimization: the optimizer terminates immediately.
 
-{\tt ensmallen} implements a number of callbacks that can be used without
+There are several pre-built callbacks that can be used without
 needing any custom code:
 
 \begin{itemize}
@@ -115,24 +120,32 @@ optimization.  This process is detailed more in the following section.
 
 \subsection{Implementing custom callbacks}
 
-Implementing a custom callback is quite straightforward; a user only needs to
-create a class that has functions whose names are the same as the callback
-functions listed in Table~\ref{tab:callback_list}.  So, e.g., if a custom
-callback was desired that took some action after any call to {\tt Evaluate()}
-happened, then it would simply need a {\tt bool Evaluate(...)} method that
-performed the desired action.  An example of a custom callback that simply
-prints a line to {\tt std::cout} every time the optimization calls {\tt
-Evaluate()} is shown in Figure~\ref{fig:example_prog_callbacks_2}.  The {\tt
-CustomCallback} class could simply be used exactly like {\tt
-EarlyStopAtMinLoss} in Figure~\ref{fig:example_prog_callbacks}---the only change
-needed is to add {\tt CustomCallback()} to the list of arguments passed to {\tt
-optimizer.Optimize()}.
-
+Implementing a custom callback is straightforward:
+the only requirement is a class that has functions whose names are the same as the callback
+functions listed in Table~\ref{tab:callback_list}.
 Comprehensive documentation on the required signatures for each callback can be
 found in the {\tt ensmallen} documentation at
 \url{http://ensmallen.org/docs.html#callback-states}.
 
-\begin{figure}[H]
+If a custom callback is desired to take an action after any call
+to {\tt Evaluate()}, then only a {\tt bool Evaluate(...)} method is required
+to perform the desired action.
+\TODO{The name clash with two {\tt Evaluate()} functions
+  is potentially confusing,
+  especially to people not familiar with the codebase.
+  Need to better differentiate the two functions,
+  possibly via qualifiers.
+  Need to explicit state which one is used by specific parts of ensmallen}
+An example of a custom callback that 
+prints a line to {\tt std::cout} every time the optimization calls
+{\tt Evaluate()} is shown in Figure~\ref{fig:example_prog_callbacks_2}.
+The {\tt CustomCallback} class can be used exactly like {\tt EarlyStopAtMinLoss}
+in Figure~\ref{fig:example_prog_callbacks}---the only change
+needed is to add {\tt CustomCallback()} to the list of arguments passed to
+{\tt optimizer.Optimize()}.
+
+
+\begin{figure}[!tb]
 \centering
 \hrule
 \vspace{1ex}
@@ -164,14 +177,6 @@ terminated on behalf of the callback.
   }
 \label{fig:example_prog_callbacks_2}
 \end{figure}
-
-If a callback class requires additional parameters or state beyond what is
-passed through the predefined arguments to functions in
-Table~\ref{tab:callback_list}, a user should manually create an instance of the
-callback class with those additional parameters, and then pass the object to the
-optimizer as a callback when {\tt Optimize()} is called.  {\tt ensmallen} does
-not modify or dereference the object, so it is safe to use for this purpose.
-Figure~\ref{fig:example_prog_callbacks_parameter} provides an example of this.
 
 \begin{figure}[t!]
 \centering
@@ -213,21 +218,32 @@ callback and accessing optimizer-specific parameters.
 \label{fig:example_prog_callbacks_parameter}
 \end{figure}
 
-In the example of Figure~\ref{fig:example_prog_callbacks_parameter}, we pass an
-instantiated custom callback that takes an additional step-size decay parameter
-as input.  In addition, inside the {\tt StepTaken()} callback, we use the
-optimizer's interface function ({\tt StepSize()}) to update the step size.  (Of
-course, if this callback were ever used with an optimizer that did not have a
-{\tt StepSize()} function, compilation would fail, so some care is necessary
-when implementing custom callbacks.)
+If a callback class requires additional parameters or state beyond what is
+passed through the predefined arguments to functions in
+Table~\ref{tab:callback_list}, a user should manually create an instance of the
+callback class with those additional parameters, and then pass the object to the
+optimizer as a callback when {\tt Optimize()} is called.  {\tt ensmallen} does
+not modify or dereference the object, so it is safe to use for this purpose.
+Figure~\ref{fig:example_prog_callbacks_parameter} provides an example,
+where we pass an instantiated custom callback that takes an additional
+step-size decay parameter as input.
+In addition, inside the {\tt StepTaken()} callback, we use the
+optimizer's interface function ({\tt StepSize()}) to update the step size.
+Note that  if this callback is attempted to be used with an optimizer that
+did not have a {\tt StepSize()} function, compilation would fail.
+As such, some care is necessary when implementing custom callbacks.
 
-To demonstrate the advantages of our callback implementation, which is done via
-template-based mechanisms, we performed a set of
-experiments (Figure~\ref{fig:callback_compilter_opt}) that compared the machine
-code of an optimizer with callback support and without. In all cases, a modern
-C++ compiler optimized away the unused code; the resultant machine code appears
-as if the callback code never existed in the first place.  This experiment was
-performed with both {\tt clang-1100.0.33.16} and {\tt g++} 9.2.1.
+There is no performance penalty if no callbacks are used.
+Figure~\ref{fig:callback_compilter_opt} shows two programs;
+one explicitly without callbacks, and one with an empty callback.
+The implementation of callback facility within ensmallen is done via
+template-based mechanisms.
+In all cases, modern C++ compilers ({\tt clang-1100.0.33.16} and {\tt g++} 9.2.1)
+optimized away the unused code;
+the resultant machine code appears as if the callback code never existed
+in the first place.
+Both programs produce the exact same machine code,
+indicating that there is no performance penalty if no callbacks are used.
 
 \begin{figure}[t!]
 \centering
