@@ -1,30 +1,5 @@
-% TODO: this section name isn't particularly great...
-\section{Implementation Details: Automatic Function Generation}
+\section{Inferring Missing Methods}
 \label{sec:automatic}
-
-\TODO{CS: my impression is that this section is too heavy
-with fine-grained details of the underlying C++ implementation.
-These kind of details may be better placed either in
-an appendix or as part of the online documentation.
-The latter would also sidestep the issue of
-the information becoming out of date (in this paper)
-each time ensmallen's internals are improved / refactored, etc.
-More details in the TODO below.
-}
-
-\TODO{CS: We may need to refocus and streamline the content of this paper for the expected main use cases.
-I think there are 3 types of users of ensmallen:
-Type~1: users of existing optimisers who don't want to muck around and simply get a result for their problem at hand.
-Type~2: users which want to add a new optimiser (or adapt an existing one) but don't want to fluff around with the internal details (ie. metaprogramming voodoo).
-Type~3: users which may want to improve the internals (eg. use of OpenMP for explicit parallelisation or GPU offloading, etc).
-Out of these, I suspect that Type 1 would be the vast majority (ML practitioners/researchers, not interested in improving optimizers).
-Type 2 users are more adventurous or skilled, or want to experiment with new optimizers (optimization researchers).
-Type 3 users are heavy duty C++ coders and optimization researchers, and are likely to be in a tiny minority.
-Right now the content in this section seems to be aimed at Type~3, without providing an easily digestible form for Type~1 and Type~2.
-I suggest to move all the Type~3 content to an appendix (or to the ensmallen website),
-and streamline this section to target Type~1 and Type~2 users.
-}
-
 
 In the preceding section, we saw an example of how a user might implement {\tt
 Evaluate()} and {\tt Gradient()} for the linear regression objective function
@@ -37,14 +12,14 @@ term $(\bm X \bm \theta - \bm y)$.
 If $f(\bm \theta)$ and $f'(\bm \theta)$ are implemented as separate functions,
 there is no easy way to exploit this shared computation:
 {\tt ensmallen}'s differentiable optimizers treat the functions they are given as oracular,
-and cdo not know anything about the internal computations of those functions.
+and do not know anything about the internal computations of those functions.
 This inefficiency%
 \footnote
   {It may be possible to use auto-differentiation to avoid this efficiency,
-  or a programming language with introspection to operate directly on the AST of the
-  given objective and gradient computations to successfully share the computation.
-  However, at the time of this writing, we are not aware of any that do this.
-  \TODO{acronym ``AST'' not defined and not explained; need to add a reference for the explanation}
+  or a programming language with introspection to operate directly on the
+  abstract syntax tree~\cite{TODO} of the given objective and gradient
+  computations to successfully share the computation.  However, at the time of
+  this writing, we are not aware of any that do this.
   }
 can apply to any optimization package that accepts an objective
 function and its gradient as separate parameters, including SciPy, {\tt bfgsmin()},
@@ -65,349 +40,14 @@ we empirically show (Section~\ref{sec:experiments}) that the ability to provide
 Similarly, when implementing a differentiable optimizer in {\tt ensmallen},
 it is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()},
 {\it or} {\tt EvaluateWithGradient()} during optimization.
-The same technique can be used to infer and provide missing methods
-for separable functions, differentiable separable functions, constrained
-functions, categorical functions, and others.  Not all of these possibilities
-are currently implemented in {\tt ensmallen}, but the framework described below
-makes it straightforward to add more.  We describe the framework in a
-simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
-Evaluate()}/{\tt Gradient()} example described above.
 
-\begin{figure}[t]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-// FunctionType is the user-supplied function type to optimize.
-// MatType is the user-supplied type of the initial coordinates.
-// GradType is the user-specified type of the gradient.
-// typename MatType::elem_type represents the internal type held by MatType
-//     (e.g., if MatType is `arma::mat`, then this is `double`)
-template<typename FunctionType, typename MatType, typename GradType>
-typename MatType::elem_type Optimize(FunctionType& function,
-                                     MatType& coordinates)
-{
-  // The Function<> mix-in class adds all inferrable methods to `function`
-  // So, if `function` has `function.Evaluate()` and `function.Gradient()`, then
-  // `fullFunction` will have `fullFunction.EvaluateWithGradient()`.
-  typename Function<FunctionType, MatType, GradType> fullFunction(function);
-
-  // The rest of the optimizer's code should use `fullFunction`, not `function`.
-  ...
-}
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{An example implementation of an {\tt ensmallen} optimizer's
-{\tt Optimize()} method.
-The use of the {\tt Function<>} mix-in class~\cite{smaragdakis2000mixin}
-will provide methods that the original {\tt FunctionType} may not have.
-}
-\label{fig:ex_optimize}
-\end{figure}
-
-\begin{figure}[t!]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-template<typename FunctionType, typename MatType, typename GradType>
-class Function :
-    public AddEvaluateWithGradient<FunctionType, MatType, GradType>,
-    public FunctionType
-    ... // many other mixin classes omitted
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Snippet of the definition of the {\tt Function} class.  The full
-implementation contains numerous other mix-in classes like {\tt
-AddEvaluateWithGradient}.}
-\label{fig:function_snippet}
-\end{figure}
-
-Using our framework for function inference is straightforward;
-an example differentiable optimizer may resemble the code in Figure~\ref{fig:ex_optimize}.
-Code for a new optimizer only needs to define a {\tt Function<FunctionType, ...>} wrapper at the
-beginning of optimization, and can then expect all three of {\tt Evaluate()},
-{\tt Gradient()}, and {\tt EvaluateWithGradient()} to be available.
-The class {\tt Function<...>} is like a {\it mix-in} class~\cite{smaragdakis2000mixin};
-more accurately, it is a {\it collection} of mix-in classes.
-
-% Note that this is only required when defining new optimizers.
-% Users who want to optimize objective functions with {\tt ensmallen}
-% do not need to be aware of these details.
-
-Figure~\ref{fig:function_snippet} shows a shortened snippet of the definition
-of the {\tt Function} class.
-We can see that {\tt Function} inherits methods from the given {\tt
-FunctionType} (which is the user-supplied objective function class that is to be
-optimized), and also from the {\tt AddEvaluateWithGradient<...>} mixin class.
-The key to our approach is that if {\tt FunctionType} class has an {\tt
-EvaluateWithGradient()} method, then {\tt AddEvaluateWithGradient<...>} will
-provide no functions; if {\tt FunctionType} does {\em not} have an {\tt
-EvaluateWithGradient()} method, then {\tt AddEvaluateWithGradient<...>} will
-provide an {\tt EvaluateWithGradient()} function.
-
-The details of how this work depend on the SFINAE technique~\cite{TODO} and
-template specialization.  The {\tt AddEvaluateWithGradient} class has five
-template parameters, shown in Figure~\ref{fig:aewg}; the last two of these have
-default values.
-
-\begin{figure}[b!]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-template<typename FunctionType,
-         typename MatType,
-         typename GradType,
-         // Check if FunctionType has at least one non-const Evaluate() or
-         // Gradient().
-         bool HasEvaluateGradient = ...
-         // Check if FunctionType has an EvaluateWithGradient() method already.
-         bool HasEvaluateWithGradient = ...
-class AddEvaluateWithGradient
-{
- public:
-  // Provide a dummy overload so the name 'EvaluateWithGradient' exists for this
-  // object.
-  typename MatType::elem_type EvaluateWithGradient(
-      traits::UnconstructableType&);
-};
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Definition of the {\tt AddEvaluateWithGradient} mix-in class.  The
-first three template parameters are the `inputs', and the last two template
-parameters are computed quantities used for later template specialization.}
-\label{fig:aewg}
-\end{figure}
-
-For the sake of brevity we omit the expressions for the {\tt bool} parameters
-{\tt HasEvaluateGradient} and {\tt HasEvaluateWithGradient}\footnote{Interested
-readers can find that code in {\tt
-ensmallen\_bits/function/add\_evaluate\_with\_gradient.hpp}.}.  These two
-parameters are traits expressions~\cite{TODO} that depend heavily on SFINAE
-techniques for method detection; {\tt HasEvaluateGradient} will evaluate to {\tt
-true} if {\tt FunctionType} has {\tt Evaluate()} and {\tt Gradient()}; if only
-one (or neither) is available, the value is {\tt false}.  {\tt
-HasEvaluateWithGradient} will evaluate to {\tt true} if {\tt FunctionType} has
-an overload of {\tt EvaluateWithGradient()}, and {\tt false} otherwise.
-
-Using these two boolean template variables, we can then use template
-specialization to control the behavior of \linebreak {\tt
-AddEvaluateWithGradient} as a function of what is provided by {\tt
-FunctionType}.  Specifically, we make two specializations: one for when {\tt
-EvaluateWithGradient()} exists, and one for when both {\tt Evaluate()} and {\tt
-Gradient()} exist but \linebreak {\tt EvaluateWithGradient()} does not.
-
-\begin{figure}[t!]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-template<typename FunctionType,
-         typename MatType,
-         typename GradType,
-         bool HasEvaluateGradient>
-class AddEvaluateWithGradient<FunctionType,
-                              MatType,
-                              GradType,
-                              HasEvaluateGradient,
-                              true>
-{
- public:
-  // Reflect the existing EvaluateWithGradient().
-  typename MatType::elem_type EvaluateWithGradient(
-      const MatType& coordinates, GradType& gradient)
-  {
-    return static_cast<FunctionType*>(
-        static_cast<Function<FunctionType,
-                             MatType,
-                             GradType>*>(this))->EvaluateWithGradient(
-        coordinates, gradient);
-  }
-};
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Partial template specialization of {\tt AddEvaluateWithGradient} for
-when the given {\tt FunctionType} does have an {\tt EvaluateWithGradient()}
-method available already.}
-\label{fig:aewg-s1}
-\end{figure}
-
-The first specialization, shown in Figure~\ref{fig:aewg-s1} is for when {\tt
-HasEvaluateWithGradient} is {\tt true}---meaning that {\tt FunctionType} already
-has {\tt EvaluateWithGradient()}.  In this situation, the implementation of {\tt
-AddEvaluateWithGradient::}\linebreak{\tt EvaluateWithGradient()} simply calls
-out to {\tt FunctionType::EvaluateWithGradient()}.  However, there is some
-complexity here, as to successfully call {\tt
-FunctionType::EvaluateWithGradient()}, we must first cast the {\tt this} pointer
-to have type {\tt FunctionType}---which can only be done by first casting {\tt
-this} to the derived class {\tt Function<...>}.  (This cast is only safe because
-we know that we will never create an {\tt AddEvaluateWithGradient} outside of
-the context of the {\tt Function<>} class.)
-
-Next, we specialize for the case where {\tt HasEvaluateGradient} is {\tt true}
-(i.e., {\tt FunctionType} has both {\tt Evaluate()} and {\tt Gradient()}
-methods), and {\tt HasEvaluateWithGradient} is {\tt false} (i.e., there is no
-{\tt EvaluateWithGradient()} provided by {\tt FunctionType}).  In this
-situation, we intend to synthesize an implementation for {\tt
-EvaluateWithGradient()} by using both of the provided {\tt Evaluate()} and {\tt
-Gradient()} methods sequentially.  Figure~\ref{fig:aewg-s2} shows this
-specialization.
-
-\begin{figure}[t!]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-template<typename FunctionType, typename MatType, typename GradType>
-class AddEvaluateWithGradient<FunctionType, MatType, GradType, true, false>
-{
- public:
-  // Use FunctionType's Evaluate() and Gradient().
-  typename MatType::elem_type EvaluateWithGradient(const MatType& coordinates,
-                                                   GradType& gradient)
-  {
-    const typename MatType::elem_type objective =
-        static_cast<Function<FunctionType,
-                             MatType, GradType>*>(this)->Evaluate(coordinates);
-    static_cast<Function<FunctionType,
-                         MatType,
-                         GradType>*>(this)->Gradient(coordinates, gradient);
-    return objective;
-  }
-};
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Partial template specialization of {\tt AddEvaluateWithGradient} for
-when {\tt EvaluateWithGradient()} is not available, but {\tt Evaluate()} and
-{\tt Gradient()} are.}
-\label{fig:aewg-s2}
-\end{figure}
-
-The same complexity with casting is necessary in this specialization too.  The
-last specialization is the general case: where there is neither {\tt Evaluate()}
-and {\tt Gradient()} nor {\tt EvaluateWithGradient()} provided by {\tt
-FunctionType}.  That case is covered by the initial shown implementation of {\tt
-AddEvaluateWithGradient}: {\tt EvaluateWithGradient()} is provided with an
-argument of type {\tt traits::UnconstructableType}---which is just a class with
-a non-public constructor, that cannot be created; and thus, this function cannot
-be called.  It is necessary to have this unusable version of {\tt
-EvaluateWithGradient()}, though, because the design pattern requires that {\tt
-AddEvaluateWithGradient} {\em always} provides a method with the name {\tt
-EvaluateWithGradient()}.
-
-This does, however, mean that users can get long and confusing error messages if
-the optimizer attempts to instantiate the overload of {\tt
-EvaluateWithGradient()} with {\tt traits::UnconstructableType}.  But, remember
-that this situation can only happen when using a differentiable optimizer if
-the user provided a {\tt FunctionType} that {\it (a)} does not have both {\tt
-Evaluate()} or {\tt Gradient()}, or {\it (b)} does not have {\tt
-EvaluateWithGradient()}.  This is something that we already have code to
-detect---that is the code that computes the values of the boolean template
-parameters {\tt HasEvaluateGradient} and {\tt HasEvaluateWithGradient}.
-Therefore, we simply use a {\tt static\_assert()} to provide a clear and
-understandable error message at compile time when neither of those values are
-{\tt true}.  We encapsulate this in a convenient function that can be added at
-the beginning of the {\tt Optimize()} method:
-
-\begin{minted}{c++}
-  CheckFunctionTypeAPI<FunctionType, MatType, GradType>();
-\end{minted}
-
-This technique is adapted to each objective function type that {\tt ensmallen}
-supports, in order to provide straightforward error messages of the form shown in Figure~\ref{fig:example_error_message_1}.
-This {\tt static\_assert()} failure output appears typically at the end of the
-error output, which is far preferable to the output without {\tt
-CheckFunctionTypeAPI}.  Example output produced by {\tt clang++} is shown in
-Figure~\ref{fig:example_error_message_2}.
-
-\begin{figure}[!tb]
-\hrule
-\vspace{1ex}
-\begin{verbatim}
-    ...
-    include/ensmallen_bits/function/static_checks.hpp:292:3: error: static_assert
-          failed due to requirement
-          'CheckEvaluateWithGradient<ens::Function<TestFunction, arma::Mat<double>,
-          arma::Mat<double> >, arma::Mat<double>, arma::Mat<double> >::value' "The
-          FunctionType does not have a correct definition of EvaluateWithGradient().
-          Please check that the FunctionType fully satisfies the requirements of the
-          FunctionType API; see the optimizer tutorial for more details."
-      static_assert(
-      ^
-    ...
-\end{verbatim}
-\hrule
-\caption{\TODO{caption}}
-\label{fig:example_error_message_1}
-\end{figure}
-
-\begin{figure}[!tb]
-\hrule
-\vspace{1ex}
-\begin{verbatim}
-    ...
-    include/ensmallen_bits/lbfgs/lbfgs_impl.hpp:376:30: error: no matching member
-          function for call to 'EvaluateWithGradient'
-      ElemType functionValue = f.EvaluateWithGradient(iterate, gradient);
-                               ~~^~~~~~~~~~~~~~~~~~~~
-    include/ensmallen_bits/lbfgs/lbfgs.hpp:97:12: note: in instantiation of function
-          template specialization 'ens::L_BFGS::Optimize<TestFunction,
-          arma::Mat<double>, arma::Mat<double>>' requested here
-        return Optimize<SeparableFunctionType, MatType, MatType,
-               ^
-    test.cpp:19:31: note: in instantiation of function template specialization
-          'ens::L_BFGS::Optimize<TestFunction, arma::Mat<double>>' requested here
-      const double result = lbfgs.Optimize(f, parameters);
-                                  ^
-    include/ensmallen_bits/function/add_evaluate_with_gradient.hpp:225:38: note: 
-          candidate function not viable: requires 1 argument, but 2 were provided
-      static typename MatType::elem_type EvaluateWithGradient(
-    ...
-\end{verbatim}
-\hrule
-\caption{\TODO{caption}}
-\label{fig:example_error_message_2}
-\end{figure}
-
-Note that the error message above can be highly misleading: it's not actually a
-requirement that {\tt EvaluateWithGradient()} be supplied by the objective
-function class!  That can be automatically inferred, just like discussed above,
-but only if {\tt Evaluate()} and {\tt Gradient()} are both available.  In the
-case of the example code that generated the errors above, {\tt Gradient()} was
-not implemented---thus, the given error message is actually somewhat inaccurate
-and confusing!
-
-The last piece of the puzzle is making sure that when {\tt
-Function<...>::EvaluateWithGradient()} is called, that this always calls {\tt
-AddEvaluateWithGradient::EvaluateWithGradient()}.  This can be done by a simple
-{\tt using} declaration in the body of the {\tt Function} class:
-
-\begin{minted}{c++}
-    using AddEvaluateWithGradient<FunctionType,
-                                  MatType,
-                                  GradType>::EvaluateWithGradient;
-\end{minted}
-
-This is all that is needed to infer and synthesize an {\tt
-EvaluateWithGradient()} method when the user provided an objective function that
-only has {\tt Evaluate()} and {\tt Gradient()}.  There is one detail we have
-omitted, though---the code that we have shown here handles non-{\tt const}
-and non-{\tt static} versions of methods provided by the user.  Separate
-auxiliary structures like {\tt AddEvaluateWithGradientConst}
-and {\tt AddEvaluateWithGradientStatic}
-are used for function inference in those cases; the general design is identical.
-
-All of these pieces put together result in a clean interface that inference of
-methods that users did not provide in their objective function.  Further, this
-all happens at {\it compile time} and thus there is no runtime penalty.
-Auxiliary structures like {\tt AddEvaluateWithGradient} should be optimized out
-by the compiler.
-
-There are more methods than just {\tt EvaluateWithGradient()} that can be
-inferred.  We can use the same design strategy to infer numerous other methods.
-Below are a few examples that are currently implemented in the {\tt ensmallen}
-codebase.
+The same technique can be used to infer and provide more missing methods than
+just {\tt EvaluateWithGradient()} or {\tt Evaluate()} and {\tt Gradient()}.  FOr
+instance, separable functions, differentiable separable functions, constrained
+functions, and categorical functions each have inferrable methods.  Not all of
+these possibilities are currently implemented in {\tt ensmallen}, but the
+framework we have implemented makes it straightforward to add more.  Below are a
+few examples that {\tt ensmallen} currently implements:
 
 \begin{itemize}
   \item {\it (Differentiable functions.)}  If the user provides an objective
@@ -431,6 +71,7 @@ function with {\tt EvaluateWithGradient()} and {\tt NumFunctions()}, we can
 synthesize a non-separable version of {\tt Gradient()}.
 \end{itemize}
 
-All of the code involved with automatic generation of functions can be found in
-the {\tt ensmallen} source code in the directory {\tt
-include/ensmallen\_bits/function/}.
+For more precise details on exactly how the method generation works, see
+Section~\ref{sec:automatic_details}, where we describe the framework in a
+simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
+Evaluate()}/{\tt Gradient()} example described above.

@@ -4,42 +4,7 @@
 % We can start by expanding on the linear regression function example to point
 % out that we may want different types.
 
-In the example shown in Section~\ref{sec:linreg_example},
-where we introduced the class {\tt LinearRegressionFunction},
-the matrix and vector objects are hardcoded as {\tt arma::mat} and {\tt arma::vec}.
-These objects hold elements with the C++ type {\tt double},
-representing double precision floating point.
-However, in many applications it can be very important to specify a different
-underlying element type.  For instance, in the field of machine learning, neural
-networks have been shown to be effective with low-precision floating point
-representations for weights~\cite{vanhoucke2011improving}.
-%% low-precision integers~\cite{courbariaux2015training},
-%% or even single bits~\cite{courbariaux2015binaryconnect}.
-Furthermore, many optimization problems have parameters
-that are best represented as sparse data~\cite{van2011sparse, recht2011hogwild},
-which is represented in Armadillo as the {\tt sp\_mat} class~\cite{sanderson2018user, mca24030070}.
-Even alternate representations such as data held on the GPU can be quite
-important: the use of GPUs can often result in significant
-speedups~\cite{oh2004gpu, athanasopoulos2011gpu}.
-
-In order to handle this diverse set of needs, {\tt ensmallen} has been built in
-such a way that any underlying storage type can be used to represent the
-coordinates to be optimized---so long as it matches the Armadillo API.
-This means that the Bandicoot GPU matrix library\footnote{\url{https://gitlab.com/conradsnicta/bandicoot-code}}
-can be used as a drop-in replacement once it is stable.
-
-Many other approaches, such as the optimization functionality provided by SciPy and Octave,
-also offer functionality that is quite generic.  However, this genericity often
-comes at a runtime cost in languages like Python, since the code is not compiled
-for a specific type.  In C++, we can use templates to generate code {\it
-specific to the underlying matrix representation} that will have no runtime
-overhead despite its flexibility.
-\TODO{This is a weak argument. It basically boils down to ``Python vs C++''
-and ``Octave vs C++''.
-which is not the main scope of this paper.
-See the related TODO in the Introduction section.}
-
-\begin{figure}[t]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \begin{minted}{c++}
@@ -74,39 +39,43 @@ The actual {\tt GradientDescent} optimizer {\tt ensmallen} provides more functio
 \label{fig:gd}
 \end{figure}
 
+In the example shown in Section~\ref{sec:linreg_example},
+where we introduced the class {\tt LinearRegressionFunction},
+the matrix and vector objects are hardcoded as {\tt arma::mat} and {\tt arma::vec}.
+These objects hold elements with the C++ type {\tt double},
+representing double precision floating point.
+However, in many applications it can be very important to specify a different
+underlying element type.  For instance, in the field of machine learning, neural
+networks have been shown to be effective with low-precision floating point
+representations for weights~\cite{vanhoucke2011improving}.
+%% low-precision integers~\cite{courbariaux2015training},
+%% or even single bits~\cite{courbariaux2015binaryconnect}.
+Furthermore, many optimization problems have parameters
+that are best represented as sparse data~\cite{van2011sparse, recht2011hogwild},
+which is represented in Armadillo as the {\tt sp\_mat} class~\cite{sanderson2018user, mca24030070}.
+Even alternate representations such as data held on the GPU can be quite
+important: the use of GPUs can often result in significant
+speedups~\cite{oh2004gpu, athanasopoulos2011gpu}.
+
+In order to handle this diverse set of needs, {\tt ensmallen} has been built in
+such a way that any underlying storage type can be used to represent the
+coordinates to be optimized---so long as it matches the Armadillo API.
+This means that the Bandicoot GPU matrix library\footnote{\url{https://gitlab.com/conradsnicta/bandicoot-code}}
+can be used as a drop-in replacement once it is stable.
+
 Consider the simplified gradient descent optimizer shown in Figure~\ref{fig:gd}.
-The use of the template types {\tt FunctionType}, {\tt
-MatType}, and {\tt GradType} means that at compilation time, the correct types are
-substituted in for {\tt FunctionType}, {\tt MatType}, and {\tt GradType} (which
-by default is set to be the same as {\tt MatType} in this code).  So long as
-each type has all the methods that are used inside of {\tt Optimize()}, there
-will be no compilation issue.  In addition, the code generated will be exactly
-the same as if {\tt Optimize()} was written with the types specified in those
-template parameters.  This means that there is no additional runtime overhead
-when a different {\tt MatType} is used.  This is in contrast with languages like
-Python, where any ducktyping is resolved at runtime dynamically\footnote{The
-same would happen if we used C++'s {\tt virtual} keyword for virtual
-inheritance. \TODO{I don't think it's the same thing -- see the TODO above}}.
-In fact, for heavily-called functions, the overhead of runtime
-resolution can be a noticeable and non-negligible slowdown~\cite{TODO}.
-\TODO{IIRC, virtual functions end up as just function pointers.
-This is different to the overhead in Python, which needs to determine 
-what an object is each time it is used. Function pointers do not have
-much overhead compared to type determination in Python.
-Most of the computation during optimization 
-is likely to be in matrix multiplication within the objective function,
-so the overhead of function pointers is bugger all in comparison.
-I suggest to de-emphasize the importance of the type optimization,
-as it has too many potential holes.
-The only good arguable feature of using {\tt MatType} template
-is the ability to change the type (eg. {\tt mat} to {\tt sp\_mat}).}
+The use of the template types {\tt FunctionType}, {\tt MatType}, and {\tt
+GradType} means that at compilation time, the correct types are substituted in
+for {\tt FunctionType}, {\tt MatType}, and {\tt GradType} (which by default is
+set to be the same as {\tt MatType} in this code).  So long as each type has all
+the methods that are used inside of {\tt Optimize()}, there will be no
+compilation problems.  Templates are a technique for code generation; in this
+case, that means the code generated will be exactly the same as if {\tt
+Optimize()} was written with the types specified in those template parameters.
+This means that there is no additional runtime overhead when a different {\tt
+MatType} is used.
 
-
-% For this citation see the "future of mlpack" document, it's some C++ TR
-Thus, the ability to avoid this overhead at runtime and instead resolve at
-compile time is a unique benefit to languages that have good compile-time
-support for generic programming.  In Section~\ref{sec:experiments}, we will see
-that this helps {\tt ensmallen} outperform other optimization toolkits.
+% TODO: this to a later details section?
 
 However, there is one important drawback of C++ that we must work around when
 providing support for any {\tt MatType}, and that is the issue of compiler
@@ -118,67 +87,14 @@ When this happens, most current C++ compilers will emit a very long list
 of error messages, with all relevant information about the attempted
 template instantions.
 This onslaught of error messages can be confusing and discouraging to users.
-We endeavor to avoid it via the use of C++ compile-time static assertions
-({\tt static\_assert()}).  Specifically for checking {\tt MatType} and {\tt
-GradType}, we have built utility functions that can be used inside of any
-{\tt Optimize()} method:
+{\tt ensmallen} avoids this issue via the use of C++ compile-time static
+assertions ({\tt static\_assert()}).
+Users who are interested in the details of how these assertions work should
+refer to Section~\ref{sec:templated_optimize_details}.
 
-\begin{itemize}
-  \item {\tt RequireFloatingPointType<MatType>()}: this requires that the
-element type held by {\tt MatType} is either {\tt float} or {\tt double}.
-This is generally needed by optimizers that use LAPACK or BLAS functionality.
-
-  \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
-{\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
-be useful for differentiable optimizers, where we want to ensure, for example,
-that a user can't pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
-holds {\tt unsigned int}s.
-
-  \item {\tt RequireDenseFloatingPointType<MatType>()}: this requires that the
-element type held by {\tt MatType} is either {\tt float} or {\tt double}, and
-that the representation used for storage by {\tt MatType} is dense.
-\end{itemize}
-
-At the time of writing, these are the only three checks that have
-been needed, but it is easy to add more.  The implementation of these functions
-is just a {\tt static\_assert()} that uses some underlying traits of the given
-template parameters.  For example, Figure~\ref{fig:rsit} is the implementation
-of {\tt RequireSameInternalTypes<...>()}.
-
-\begin{figure}[t]
-\hrule
-\vspace{1ex}
-\begin{minted}{c++}
-/**
- * Require that the internal element type of the matrix type and gradient type
- * are the same.  A static_assert() will fail if not.
- */
-template<typename MatType, typename GradType>
-void RequireSameInternalTypes()
-{
-#ifndef ENS_DISABLE_TYPE_CHECKS
-  static_assert(std::is_same<typename MatType::elem_type,
-                             typename GradType::elem_type>::value,
-      "The internal element types of the given MatType and GradType must be "
-      "identical, or it is not known to work!  If you would like to try "
-      "anyway, set the preprocessor macro ENS_DISABLE_TYPE_CHECKS before "
-      "including ensmallen.hpp.  However, you get to pick up all the pieces if "
-      "there is a failure!");
-#endif
-}
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Implementation of {\tt RequireSameInternalTypes()} from internal
-{\tt ensmallen} code.
-\TODO{This figure is probably not be necessary: it's trivial stuff. The descriptions in the preceding bullet points are sufficient.}
-}
-\label{fig:rsit}
-\end{figure}
-
-Note that for users who would like to continue despite the checks failing, they
-simply need to define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in their code
-before the line {\tt \#include <ensmallen.hpp>}.
+Note that users who would like to continue despite these {\tt static\_assert()}
+checks failing may simply define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in
+their code before the line {\tt \#include <ensmallen.hpp>}.
 \TODO{{\tt ensmallen.hpp} comes out of the blue here.
 Need to explain and/oor show beforehand that {\tt \#include <ensmallen.hpp>}
 is required to use ensmallen.

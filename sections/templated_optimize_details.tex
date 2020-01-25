@@ -1,0 +1,76 @@
+\section{Static assertions to check matrix traits}
+\label{sec:templated_optimize_details}
+
+In Section~\ref{sec:templated_optimize}, we showed that {\tt ensmallen} uses
+templates to allow arbitrary types to be used for the matrix type or gradient
+type.  However, this requires some amount of special handling to ensure that the
+user encounters a reasonable, comprehensible error message if the given matrix
+or gradient type does not have the required methods.  Here, we discuss the
+details of how we provide better error messages than the default onslaught of
+compiler error messages via the use of {\tt static\_assert()}.
+
+{\tt ensmallen} provides a few utility methods for checking traits of {\tt
+MatType} and {\tt GradType} (for differentiable objective functions) inside of
+an optimizer's {\tt Optimize()} method:
+
+\begin{itemize}
+  \item {\tt RequireFloatingPointType<MatType>()}: this requires that the
+element type held by {\tt MatType} is either {\tt float} or {\tt double}.
+This is generally needed by optimizers that use LAPACK or BLAS functionality.
+
+  \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
+{\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
+be useful for differentiable optimizers, where we want to ensure, for example,
+that a user can't pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
+holds {\tt unsigned int}s.
+
+  \item {\tt RequireDenseFloatingPointType<MatType>()}: this requires that the
+element type held by {\tt MatType} is either {\tt float} or {\tt double}, and
+that the representation used for storage by {\tt MatType} is dense.
+\end{itemize}
+
+These methods would typically be called at the top of the implementation of an
+optimizer's {\tt Optimize()} method.
+
+At the time of writing, these are the only three checks that have
+been needed, but it is easy to add more.  The implementation of these functions
+is just a {\tt static\_assert()} that uses some underlying traits of the given
+template parameters.  For example, Figure~\ref{fig:rsit} is the implementation
+of {\tt RequireSameInternalTypes<...>()}.
+
+\begin{figure}[t]
+\hrule
+\vspace{1ex}
+\begin{minted}{c++}
+/**
+ * Require that the internal element type of the matrix type and gradient type
+ * are the same.  A static_assert() will fail if not.
+ */
+template<typename MatType, typename GradType>
+void RequireSameInternalTypes()
+{
+#ifndef ENS_DISABLE_TYPE_CHECKS
+  static_assert(std::is_same<typename MatType::elem_type,
+                             typename GradType::elem_type>::value,
+      "The internal element types of the given MatType and GradType must be "
+      "identical, or it is not known to work!  If you would like to try "
+      "anyway, set the preprocessor macro ENS_DISABLE_TYPE_CHECKS before "
+      "including ensmallen.hpp.  However, you get to pick up all the pieces if "
+      "there is a failure!");
+#endif
+}
+\end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Implementation of {\tt RequireSameInternalTypes()} from internal
+{\tt ensmallen} code.
+\TODO{This figure is probably not be necessary: it's trivial stuff. The
+descriptions in the preceding bullet points are sufficient.  (Response from
+Ryan: I agree, but I find that people new to mlpack are really scared of
+actually *looking* at code and figuring out what it does.  This gives a direct
+reference to code that's there, which is an entrypoint someone can use to then
+learn more.  Anyway, it's in the back now, so maybe it's not a problem to leave
+it in.  Let me know what you think.)}
+}
+\label{fig:rsit}
+\end{figure}

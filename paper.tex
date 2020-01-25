@@ -66,6 +66,8 @@
 {\docauthor}
 \end{center}
 
+\vspace{5ex} % space for authors/affiliations
+
 \section*{Abstract}
 The {\tt ensmallen} library provides a fast and flexible C++ framework
 for mathematical optimization of arbitrary user-supplied functions.
@@ -94,12 +96,16 @@ as a deep dive into the technical details of how it works.
 \input{sections/templated_optimize.tex}
 \input{sections/functions.tex}
 \input{sections/callbacks.tex}
-\input{sections/callbacks_internals.tex}
 \input{sections/experiments.tex}
 \input{sections/conclusion.tex}
 
-\clearpage
 \bibliographystyle{ieee}
 \bibliography{refs}
+
+\clearpage
+% Could use \appendix here if we wanted, but I figured a \clearpage was enough.
+\input{sections/templated_optimize_details.tex}
+\input{sections/automatic_details.tex}
+\input{sections/callbacks_internals.tex}
 
 \end{document}

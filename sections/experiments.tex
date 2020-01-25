@@ -1,12 +1,11 @@
 \section{Experiments}
 \label{sec:experiments}
 
-To demonstrate the benefits of the metaprogramming based code optimizations
-that {\tt ensmallen} can exploit, we compare the performance of {\tt ensmallen}
-with several other optimization frameworks, including some that use automatic
-differentiation.
+To show the efficiency of mathematical optimization with {\tt ensmallen}, we
+compare its performance with several other commonly used optimization
+frameworks, including some that use automatic differentiation.
 
-\begin{figure}[b!]
+\begin{figure}[t!]
 \hrule
 \vspace{1ex}
 \begin{minted}{c++}
@@ -72,25 +71,6 @@ Figure~\ref{fig:rosenbrock_run}.  Note that the {\tt RosenbrockFunction} is
 actually implemented in {\tt ensmallen}'s source code, in the directory {\tt
 include/ensmallen\_bits/problems/}.
 
-\begin{table}[t]
-\begin{center}
-\begin{tabular}{lcccc}
-\toprule
- & {\tt ensmallen} & {\tt scipy} & {\tt Optim.jl} & {\tt samin} \\
-\midrule
-default & {\bf 0.004s} & 1.069s & 0.021s & 3.173s \\
-tuned & & 0.574s & & 3.122s \\
-\bottomrule
-\end{tabular}
-\end{center}
-\vspace*{-0.5em}
-\caption{Runtimes for $100$K iterations of simulated annealing with various
-frameworks on the simple Rosenbrock function.  Julia code runs do not count
-compilation time.  The {\it tuned} row indicates that the code was manually
-modified for speed.}
-\label{tab:rosenbrock_results}
-\end{table}
-
 % TODO: code snippet comparison for each language?
 
 We compare four frameworks for this task:
@@ -118,7 +98,24 @@ optimizations.  The overhead of both {\tt scipy} and {\tt samin} are quite
 large---{\tt ensmallen} is nearly three orders of magnitude faster for the same
 task.
 
-% TODO: keep removing \small from here
+\begin{table}[t!]
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+ & {\tt ensmallen} & {\tt scipy} & {\tt Optim.jl} & {\tt samin} \\
+\midrule
+default & {\bf 0.004s} & 1.069s & 0.021s & 3.173s \\
+tuned & & 0.574s & & 3.122s \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace*{-0.5em}
+\caption{Runtimes for $100$K iterations of simulated annealing with various
+frameworks on the simple Rosenbrock function.  Julia code runs do not count
+compilation time.  The {\it tuned} row indicates that the code was manually
+modified for speed.}
+\label{tab:rosenbrock_results}
+\end{table}
 
 % Actually Octave's JIT is apparently some kind of prototype joke and it doesn't
 % even compile anymore.  So MEX was the only way...
@@ -126,17 +123,17 @@ However, both Python and Octave have routes for acceleration,
 such as Numba~\cite{lam2015numba}, MEX bindings and JIT compilation.
 We hand-optimized the Rosenbrock implementation using Numba,
 which required significant modification of the
-underlying \texttt{\small anneal.anneal()} function.
+underlying \texttt{anneal.anneal()} function.
 These techniques did produce some speedup,
 as shown in the second row of Table~\ref{tab:rosenbrock_results}.
 For Octave, a MEX binding did not produce a noticeable difference.
-We were unable to tune either \texttt{\small ensmallen} or \texttt{\small
+We were unable to tune either \texttt{ensmallen} or \texttt{
 Optim.jl} to get any speedup, suggesting that novice users will easily be able
 to write efficient code in these cases.
 
 \subsection{Large-scale linear regression problems}
 
-\begin{table}[b!]
+\begin{table}[t!]
 \centering
 %\begin{adjustbox}{scale={0.90}{0.90}}
 \begin{tabular}{lccccc}
@@ -144,17 +141,17 @@ to write efficient code in these cases.
 {\em algorithm} & $d$: 100, $n$: 1k & $d$: 100, $n$: 10k & $d$: 100, $n$:
 100k & $d$: 1k, $n$: 100k \\
 \midrule
-\texttt{\small ensmallen}-1 & {\bf 0.001s} & {\bf 0.009s} & {\bf 0.154s} & {\bf 2.215s} \\
-\texttt{\small ensmallen}-2 & 0.002s & 0.016s & 0.182s & 2.522s \\
+\texttt{ensmallen}-1 & {\bf 0.001s} & {\bf 0.009s} & {\bf 0.154s} & {\bf 2.215s} \\
+\texttt{ensmallen}-2 & 0.002s & 0.016s & 0.182s & 2.522s \\
 % Dropped for space and awful performance
-%\texttt{\small Calculus.jl} & 0.172s & 0.960s & 27.428s & 2535.507s \\
-\texttt{\small Optim.jl} & 0.006s & 0.030s & 0.337s & 4.271s \\
-\texttt{\small scipy} & 0.003s & 0.017s & 0.202s & 2.729s \\
-\texttt{\small bfgsmin} & 0.071s & 0.859s & 23.220s & 2859.81s\\
+%\texttt{Calculus.jl} & 0.172s & 0.960s & 27.428s & 2535.507s \\
+\texttt{Optim.jl} & 0.006s & 0.030s & 0.337s & 4.271s \\
+\texttt{scipy} & 0.003s & 0.017s & 0.202s & 2.729s \\
+\texttt{bfgsmin} & 0.071s & 0.859s & 23.220s & 2859.81s\\
 % It's possible to tune ForwardDiff.jl a bit, but it doesn't give significant
 % speedups to make it competitive and it really makes the code ugly.
-\texttt{\small ForwardDiff.jl} & 0.497s & 1.159s & 4.996s & 603.106s \\
-\texttt{\small autograd} & 0.007s & 0.026s & 0.210s & 2.673s \\
+\texttt{ForwardDiff.jl} & 0.497s & 1.159s & 4.996s & 603.106s \\
+\texttt{autograd} & 0.007s & 0.026s & 0.210s & 2.673s \\
 \bottomrule
 \end{tabular}
 %\end{adjustbox}
@@ -175,12 +172,12 @@ the linear regression objective and gradient.  Remembering that {\tt ensmallen}
 allows us to share work across the objective function and gradient
 implementations (Section~\ref{sec:automatic}), for {\tt ensmallen} we implement
 a version with only {\tt EvaluateWithGradient()}, denoted as {\tt ensmallen-1}.
-We also implement a version with both \texttt{\small Evaluate()} and
-\texttt{\small Gradient()}: \texttt{\small ensmallen-2}.  We also use automatic
-differentiation for Julia via the \texttt{\small
+We also implement a version with both \texttt{Evaluate()} and
+\texttt{Gradient()}: \texttt{ensmallen-2}.  We also use automatic
+differentiation for Julia via the \texttt{
 ForwardDiff.jl}~\cite{RevelsLubinPapamarkou2016} package and for Python via the
-\texttt{\small Autograd}~\cite{maclaurin2015autograd} package.  For GNU Octave
-we use the \texttt{\small bfgsmin()} function.
+\texttt{Autograd}~\cite{maclaurin2015autograd} package.  For GNU Octave
+we use the \texttt{bfgsmin()} function.
 
 Results for various data sizes are shown in Table~\ref{tab:lbfgs}.  For each
 implementation, L-BFGS was allowed to run for only $10$ iterations and never
@@ -189,30 +186,30 @@ data with a slight linear pattern. Note that the exact data is not relevant
 for the experiments here, only its size.  Runtimes are reported as the
 average across 10 runs.
 
-The results indicate that \texttt{\small ensmallen} with \texttt{\small
-EvaluateWithGradient()} is the fastest approach.
-Furthermore, the use of \texttt{\small EvaluateWithGradient()} yields
-non-negligible speedup over the \texttt{\small ensmallen-2} implementation with
+The results indicate that \texttt{ensmallen} with
+\texttt{EvaluateWithGradient()} is the fastest approach.
+Furthermore, the use of \texttt{EvaluateWithGradient()} yields
+non-negligible speedup over the \texttt{ensmallen-2} implementation with
 both the objective and gradient implemented separately.  In addition, although
 the automatic differentiation support makes it easier for users to write their
 code (since they do not have to write an implementation of the gradient), we
 observe that the output of automatic differentiators is not as efficient,
-especially with \texttt{\small ForwardDiff.jl}.  We expect this effect to be
+especially with \texttt{ForwardDiff.jl}.  We expect this effect to be
 more pronounced with increasingly complex objective functions.
 
 \subsection{Easy pluggability of various optimizers}
 
-Lastly, we demonstrate the easy pluggability in \texttt{\small ensmallen}
+Lastly, we demonstrate the easy pluggability in \texttt{ensmallen}
 for using various optimizers on the same task.
 Using a version of {\tt LinearRegressionFunction} from
 Section~\ref{sec:linreg_example} adapted for separable differentiable
 optimizers, we run six optimizers with default parameters in just 8 lines of
 code, as shown in Fig.~\ref{fig:learning_curve_code}.
-Applying these optimizers to the \texttt{\small YearPredictionMSD}
+Applying these optimizers to the \texttt{YearPredictionMSD}
 dataset from the UCI repository~\cite{ucimlrepository}
 yields the learning curves shown in Fig.~\ref{fig:learning_curve}(b).
 
-\begin{figure}[b!]
+\begin{figure}[t!]
 \hrule
 \vspace{1ex}
 \begin{minted}{c++}
@@ -242,6 +239,7 @@ optimizer visualization tool found at \url{https://vis.ensmallen.org}.
 Figure~\ref{fig:visualization} shows an example visualization from that page.
 
 \begin{figure}[t!]
+  \vspace*{-1em}
   \centering
   % \includegraphics[width=\textwidth,height=0.45\textwidth]{experiments/learning_curves_crop.png}
   \includegraphics[width=\textwidth,height=0.5\textwidth]{experiments/learning_curves_crop.eps}
@@ -255,7 +253,7 @@ epochs of training.  The optimizers can be tuned for better performance.}
 \label{fig:learning_curve}
 \end{figure}
 
-\begin{figure}[b!]
+\begin{figure}[t!]
   \centering
   \includegraphics[width=\textwidth]{experiments/visualization.eps}
   \vspace*{-2em}
