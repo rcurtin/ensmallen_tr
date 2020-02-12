@@ -1,7 +1,7 @@
-\section{API Overview and Examples}
+\section{Interface Overview and Examples}
 \label{sec:api}
 
-\begin{table}[t!]
+\begin{table}[!b]
 \centering
     \begin{tabular}{@{} cl*{9}c @{}}
 %  \begin{tabular}{ccccccc}
@@ -99,8 +99,8 @@ applications.  Table~\ref{tab:comparison} compares the functionality supported
 by {\tt ensmallen} and other optimization toolkits.  In addition, {\tt
 ensmallen} is sometimes able to infer methods that the optimizer can use beyond
 what the user has provided.  Since this support is provided via template
-metaprogramming, it comes without runtime costs---all of this work is done at
-compile time.
+metaprogramming, it comes without runtime costs---all of this work is done
+automatically at compile time.
 
 In addition to allowing users to easily define and optimize their own objective
 functions, {\tt ensmallen} also makes it easy to implement new optimizers, which
