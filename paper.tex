@@ -9,6 +9,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage[english]{babel}
 \usepackage[none]{hyphenat}
+\sloppy  %% this actually gives better linebreaks, minimising overhanging text
 \usepackage[T1]{fontenc}
 %\usepackage{url}
 \usepackage[includefoot,includehead,left=2cm,right=2cm,top=1cm,bottom=2cm]{geometry}
@@ -85,9 +86,19 @@ any runtime overhead.
 Empirical comparisons show that {\tt ensmallen}
 outperforms other optimization frameworks (such as Julia and SciPy), sometimes
 by large margins.  The library is available at \url{https://ensmallen.org}
-and is distributed under the BSD license.
+and is distributed under the permissive BSD license.
+
 
 % and is ready for use in productions environments.  
+%% Commented out, as it's a subjective statement;
+%% whether it's "ready" for a specific "production environment"
+%% is up to the user.
+%% Stating the BSD license is already a big hint that
+%% people can do whatever they want with it,
+%% and that there are no guarantees of fitness
+%% for a particular purpose.
+%% https://tldrlegal.com/license/bsd-3-clause-license-(revised)#fulltext
+
 
 \vspace{4ex}
 \hrule
