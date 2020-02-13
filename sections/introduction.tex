@@ -5,7 +5,7 @@ The problem of mathematical optimization is fundamental in the computational
 sciences.  In short, this problem is expressed as
 %
 \begin{equation}
-\operatorname{argmin}_x f(x)
+\operatornamewithlimits{argmin}_x f(x)
 \end{equation}
 
 \noindent
@@ -15,6 +15,7 @@ optimization toolkits, such as SciPy~\cite{2019arXiv190710121V},
 opt++~\cite{meza1994opt++},
 OR-Tools~\cite{ortools}, CVXOPT~\cite{vandenberghe2010cvxopt},
 NLopt~\cite{johnson2014nlopt}, Ceres~\cite{ceres-solver},
+%% {\tt fminsearch()} in MATLAB~\cite{matlab_fminsearch},
 and RBFOpt~\cite{costa2018rbfopt}.
 Furthermore, in the field of machine learning, many
 deep learning frameworks have integrated optimization
@@ -39,33 +40,19 @@ The {\tt ensmallen} library provides a large {set of pre-built optimizers} for o
 {user-defined objective functions} in C++;
 at the time of writing, 46 optimizers are available.  
 The external interface to the optimizers is intuitive and matches the ease of use of popular
-optimization toolkits like SciPy, OR-Tools,
-and {\tt fminsearch()} function in MATLAB~\cite{matlab_fminsearch}.
+optimization toolkits mentioned above.
 
 However, unlike many of the existing optimization toolkits,
-the optimizers in {\tt ensmallen} are generic and flexible,
-meaning that they can support a wide range of use cases and applications.
-Users may also specify custom behavior during optimization via customizable {\it callbacks}.
+the optimization framework in {\tt ensmallen} is generic and flexible.
+Numerous function types are supported:
+arbitrary, differentiable, separable, categorical, constrained, and semidefinite.
+Furthermore, custom behavior during optimization can be specified via {\it callbacks}.
+Lastly, the framework facilitates the implementation of new optimization techniques.
+As such, the framework supports a wide range of use cases and applications.
 Table~\ref{tab:comparison} contrasts the functionality supported
 by {\tt ensmallen} and other optimization toolkits.
 
-Lastly, the overall framework facilitates the implementation of new optimization techniques.
 %which can be contributed upstream and incorporated into the library.
-
-% C++ template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001modern,
-% veldhuizen1998c++} are internally used to produce efficient code during compilation,
-% while at the same time providing 
-
-Many of these optimizers operate on
-specific {\it classes} of objective functions---for instance, {\tt ensmallen}
-provides many optimizers that work on differentiable functions, and so a user
-must provide both~$f(x)$ and~$f'(x)$ in such cases.
-The library allows the user to select an arbitrary type for~$x$
-(e.g., dense floating-point matrix, sparse integer matrix, etc.).
-
-
-
-
 
 The paper is continued as follows.
 We introduce the functionality and interface for {\tt ensmallen} in Section~\ref{sec:api}.
@@ -164,7 +151,7 @@ to contribute to the library or get involved with its development.
 \caption{
 Feature comparison: \CIRCLE~= provides feature,
 \LEFTcircle~= partially provides feature, -~= does not provide feature.
-{\it unified framework} indicates if there is some kind of generic/unified
+{\it unified framework} indicates if there is a form of generic/unified
 optimization framework; {\it constraints} and {\it separable functions /
 batches} indicate support for constrained functions and separable functions;
 {\it arbitrary functions} means arbitrary objective functions are easily

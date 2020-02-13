@@ -1,13 +1,7 @@
 
-%\def\doctitle{{\tt ensmallen}: accelerating mathematical optimization via template metaprogramming}
-\def\doctitle{The {\tt ensmallen} library for efficient mathematical optimization}
-%% CS: simpler title to avoid frightening people away by the scary words "template" and "metaprogramming"
-
-
-\def\docauthor{AuthorA, Author B, Author C, ...}
-
-%% document title and authors are defined above,
-%% in order to embed this info into PDF metadata via the hyperref package
+%% for embedding info into PDF metadata via the hyperref package
+%\def\doctitle{}
+%\def\docauthor{}
 
 \documentclass[10pt]{article}
 \usepackage[latin1]{inputenc}
@@ -18,7 +12,8 @@
 %\usepackage{url}
 \usepackage[includefoot,includehead,left=2cm,right=2cm,top=1cm,bottom=2cm]{geometry}
 \usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
-\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+%\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
+\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true]{hyperref}
 \usepackage[numbers]{natbib}
 \usepackage{graphicx}
 %\usepackage[draft]{minted}
@@ -60,18 +55,25 @@
 
 \begin{document}
 
-%% see the \doctitle  definition at the top
-%% see the \docauthor definition at the top
-
 \begin{center}
-{\Large\doctitle}
-\end{center}
-\vspace{1ex}
-\begin{center}
-{\docauthor}
+
+%{\Large {\tt ensmallen}: accelerating mathematical optimization via template metaprogramming}
+{\Large\bf The ensmallen library for efficient mathematical optimization}
+%% CS: simpler title to avoid frightening people away by the scary words "template" and "metaprogramming"
+
+\vspace{1.5ex}
+{Ryan Curtin~{$^1$}, Marcus Edel~{$^2$}, Conrad Sanderson~{$^{3,4}$}, ...}
+\vspace{1.5ex}
+
+\begin{tabular}{l}
+$^1$~RelationalAI, Atlanta, USA\\
+$^2$~Free University of Berlin, Germany\\
+$^3$~Data61~/~CSIRO, Australia\\
+$^4$~Griffith University, Australia
+\end{tabular}
+
 \end{center}
 
-\vspace{5ex} % reserved space for authors/affiliations
 
 \input{sections/abstract.tex}
 

@@ -10,6 +10,13 @@
 % applications.  Table~\ref{tab:comparison} contrasts the functionality supported
 % by {\tt ensmallen} and other optimization toolkits.
 
+% Many of these optimizers operate on
+% specific {\it classes} of objective functions---for instance, {\tt ensmallen}
+% provides many optimizers that work on differentiable functions, and so a user
+% must provide both~$f(x)$ and~$f'(x)$ in such cases.
+% The library allows the user to select an arbitrary type for~$x$
+% (e.g., dense floating-point matrix, sparse integer matrix, etc.).
+
 % Furthermore, in certain cases
 % {\tt ensmallen} is able to infer methods that the optimizer can use beyond
 % what the user has provided.  This support is internally accomplished via template
@@ -19,7 +26,6 @@
 % In addition to allowing users to easily define and optimize their own objective
 % functions, {\tt ensmallen} also makes it easy to implement new optimizers, which
 % can then be contributed upstream and incorporated into the library.
-
 
 The task of optimizing an objective function with {\tt ensmallen} is
 straightforward.  The class of objective function (e.g., arbitrary, constrained,
@@ -37,6 +43,8 @@ implementation of $f_i(x)$ is provided (as well as the number of such separable
 objectives), an implementation of $f(x)$ can be automatically inferred.
 This is done at compile-time, and so there is no additional runtime overhead
 compared to a manual implementation.
+C++ template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001modern,
+veldhuizen1998c++} are internally used to produce efficient code during compilation.
 
 Not every type of objective function can be used with every type of optimizer.
 For instance, L-BFGS is a differentiable optimizer~\cite{liu1989limited},
@@ -45,6 +53,8 @@ and so it cannot be used with any non-differentiable object function type
 When an optimizer is used with a user-provided objective function,
 an internal mechanism automatically checks the requirements,
 resulting in user-friendly error messages if any required methods are not detected.
+
+
 
 
 \subsection{Types of Objective Functions}
