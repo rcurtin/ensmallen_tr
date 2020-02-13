@@ -5,9 +5,11 @@ The problem of mathematical optimization is fundamental in the computational
 sciences.  In short, this problem is expressed as
 %
 \begin{equation}
-\operatorname{argmin}_x f(x).
+\operatorname{argmin}_x f(x)
 \end{equation}
 
+\noindent
+where $f(x)$ is a given objective function and $x$ is typically a vector or matrix.
 The ubiquity of this problem gives rise to the proliferation of mathematical
 optimization toolkits, such as SciPy~\cite{2019arXiv190710121V},
 opt++~\cite{meza1994opt++},
@@ -16,7 +18,7 @@ NLopt~\cite{johnson2014nlopt}, Ceres~\cite{ceres-solver},
 and RBFOpt~\cite{costa2018rbfopt}.
 Furthermore, in the field of machine learning, many
 deep learning frameworks have integrated optimization
-components.  Examples inclulde Theano~\cite{2016arXiv160502688},
+components.  Examples include Theano~\cite{2016arXiv160502688},
 TensorFlow~\cite{tensorflow2015-whitepaper}, PyTorch~\cite{NEURIPS2019_9015},
 and Caffe~\cite{jia2014caffe}.
 
@@ -30,32 +32,42 @@ manogaran2018health}.  Computational bottlenecks occur even in fields as
 wide-ranging as rocket landing guidance systems~\cite{dueri2016customized},
 motivating the development and implementation of specialized solvers.
 
-The necessity of efficient and specializable function optimization motivated us
-to implement the {\tt ensmallen} C++ library, originally as a part of the {\tt
-mlpack} machine learning library~\cite{mlpack2018}.
-Template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001modern,
-veldhuizen1998c++} are used to produce efficient code during compilation,
-while simultaneously providing a friendly and intuitive interface
-that matches the ease of use of popular optimization toolkits like SciPy,
-OR-Tools, and MATLAB's {\tt fminsearch()} function~\cite{matlab_fminsearch}.
+The necessity for both efficient and specializable function optimization motivated us
+to implement the {\tt ensmallen} library, originally as part of the {\tt mlpack}
+machine learning library~\cite{mlpack2018}.
+The {\tt ensmallen} library provides a large {set of pre-built optimizers} for optimizing
+{user-defined objective functions} in C++;
+at the time of writing, 46 optimizers are available.  
+The external interface to the optimizers is intuitive and matches the ease of use of popular
+optimization toolkits like SciPy, OR-Tools,
+and {\tt fminsearch()} function in MATLAB~\cite{matlab_fminsearch}.
 
-% taking advantage of special structures in the objective function,
-%% CS: took out the above part, as it's unwieldy in the context
-%% CS: and it's not clear what "special structures" is referring to.
-
-% the 46 optimizers are as of 2.11.0
-The library allows the user to define a function $f(x)$ to be optimized with
-a wide variety of optimization techniques; at the time of this writing, 46
-optimizers are available.  Many of these optimization techniques operate on
-specific {\it classes} of objective functions---for instance, {\tt ensmallen}
-contains many optimizers that work on differentiable functions, and so a user
-must provide both $f(x)$ and $f'(x)$ in this case.
-Through template metaprogramming, {\tt ensmallen} allows the user to select
-an arbitrary type for $x$ (e.g., dense floating-point matrix, sparse integer matrix, etc.).
+However, unlike many of the existing optimization toolkits,
+the optimizers in {\tt ensmallen} are generic and flexible,
+meaning that they can support a wide range of use cases and applications.
 Users may also specify custom behavior during optimization via customizable {\it callbacks}.
-The framework also facilitates the implementation of new optimization techniques.
+Table~\ref{tab:comparison} contrasts the functionality supported
+by {\tt ensmallen} and other optimization toolkits.
+
+Lastly, the overall framework facilitates the implementation of new optimization techniques.
+%which can be contributed upstream and incorporated into the library.
+
+% C++ template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001modern,
+% veldhuizen1998c++} are internally used to produce efficient code during compilation,
+% while at the same time providing 
+
+Many of these optimizers operate on
+specific {\it classes} of objective functions---for instance, {\tt ensmallen}
+provides many optimizers that work on differentiable functions, and so a user
+must provide both~$f(x)$ and~$f'(x)$ in such cases.
+The library allows the user to select an arbitrary type for~$x$
+(e.g., dense floating-point matrix, sparse integer matrix, etc.).
 
 
+
+
+
+The paper is continued as follows.
 We introduce the functionality and interface for {\tt ensmallen} in Section~\ref{sec:api}.
 Section~\ref{sec:templated_optimize} shows how {\tt ensmallen} can optimize objective functions
 $f(x)$ for various types of $x$ without any extra runtime overhead.
@@ -73,5 +85,99 @@ Section~\ref{sec:experiments} and conclude in Section~\ref{sec:conclusion}.
 This paper is a revised and expanded description of our initial overview
 of {\tt ensmallen}~\cite{ensmallen2018}. 
 It also provides a deep dive into the internals
-of how the library works, which can be a very useful resource for anyone looking
+of how the library works, which can be a useful resource for anyone looking
 to contribute to the library or get involved with its development.
+
+\begin{table}[!t]
+\centering
+    \begin{tabular}{@{} cl*{9}c @{}}
+%  \begin{tabular}{ccccccc}
+        & & \multicolumn{7}{c}{} \\[0.6ex]
+            % If there is any coherent framework at all, this is true.
+        & & \rot{unified framework}
+            % If there is any support for constrained optimization, this is
+            % true.
+          & \rot{constraints}
+            % If the optimization framework can do mini-batch, this is true.
+          & \rot{separable functions / batches}
+            % If I can implement any arbitrary function to be optimized, this is
+            % true.
+          & \rot{arbitrary functions}
+            % If I can implement any new optimization technique to use, this is
+            % true.
+          & \rot{arbitrary optimizers}
+            % If the framework could take advantage of when the gradient is
+            % sparse, this is true.
+          & \rot{sparse gradients}
+            % If the framework can handle categorical/discrete variables for
+            % optimization, this is true.
+          & \rot{categorical}
+            % If any type can be optimized, this is true.mention
+          & \rot{arbitrary types}
+            % If callback support is available.
+          & \rot{callbacks} \\
+        \cmidrule[1pt]{2-11}
+        % It might be reasonable to say mlpack categorical support is only
+        % partial, but I am not sure exactly where we draw the line.
+        & \texttt{ensmallen}            & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE & \CIRCLE\\
+        % The Shogun toolbox has a fairly nice framework, but it doesn't support
+        % sparse gradients or categorical features.  It also does not appear to
+        % support constraints, arbitrary types, or callbacks.
+        & Shogun \cite{sonnenburg2010shogun}             & \CIRCLE & - & \CIRCLE
+& \CIRCLE & \CIRCLE & - & - & - & - \\
+        % VW doesn't appear to have any framework whatsoever and the code is
+        % awful, but it does support batches and categorical features.
+        & Vowpal Wabbit \cite{Langford2007VW}      & - & - & \CIRCLE  & - & - & - &
+\CIRCLE & - & - \\
+        % TensorFlow has a few optimizers, but they are all SGD-related.  You
+        % can write most objectives easily (but some very hard), and categorical
+        % support might be possible but would not be easy.
+        & TensorFlow \cite{tensorflow2015-whitepaper}        & \CIRCLE & -  & \CIRCLE  & \LEFTcircle & - &
+\LEFTcircle & - & \LEFTcircle & - \\
+        % Caffe has a nice framework, but it's only for SGD-related optimizers.
+        % I think I could write a new one, but it is not the easiest thing in
+        % the world.
+        & Caffe \cite{jia2014caffe}           & \CIRCLE & -  & \CIRCLE & \LEFTcircle & \LEFTcircle
+& - & - & \LEFTcircle & \CIRCLE \\
+        % Keras is restricted to neural networks and SGD-like optimizers.  I
+        % don't know that it is possible to easily write a new optimizer.
+        & Keras \cite{chollet2015keras}            & \CIRCLE & -  & \CIRCLE & \LEFTcircle & \LEFTcircle
+& - & - & \LEFTcircle & \CIRCLE \\
+        % sklearn has a few optimizer frameworks, but they are all in different
+        % places and have somewhat different support.
+        & scikit-learn \cite{pedregosa2011scikit}       & \LEFTcircle & - & \LEFTcircle  & \LEFTcircle & -
+& - & - & \LEFTcircle & - \\
+        % scipy has some nice optimizer framework but it does not support
+        % batches or some of the more complex functionality.  And you can't
+        % write your own.
+        & SciPy \cite{jones2014scipy}             & \CIRCLE & \CIRCLE  & -  &
+\CIRCLE & - & - & - & \LEFTcircle & \CIRCLE \\
+        % MATLAB is very similar to scipy.
+        & MATLAB \cite{matlab_fminsearch}            & \CIRCLE & \CIRCLE & - &
+\CIRCLE & - & - & - & \LEFTcircle & - \\
+        % Optim.jl isn't the only Julia package for optimization, but it's the
+        % one we compare against.
+        & Julia (\texttt{Optim.jl}) \cite{mogensen2018optim}         &
+\CIRCLE & - & - & \CIRCLE & - & - & - & \CIRCLE & - \\
+        \cmidrule[1pt]{2-11}
+    \end{tabular}
+\caption{
+Feature comparison: \CIRCLE~= provides feature,
+\LEFTcircle~= partially provides feature, -~= does not provide feature.
+{\it unified framework} indicates if there is some kind of generic/unified
+optimization framework; {\it constraints} and {\it separable functions /
+batches} indicate support for constrained functions and separable functions;
+{\it arbitrary functions} means arbitrary objective functions are easily
+implemented; {\it arbitrary optimizers} means arbitrary optimizers are easily
+implemented; {\it sparse gradient} indicates that the framework can natively
+take advantage of sparse gradients; {\it categorical} refers to if support
+for categorical features exists; {\it arbitrary types} mean that arbitrary types
+can be used for the parameters $x$;
+{\it callbacks} indicates that user-implementable callback support is available.
+%\TODO{may want to add a comparison with PyTorch, as that's getting popular these days}
+}
+\label{tab:comparison}
+\vspace{1ex}
+\hrule
+\end{table}
+
