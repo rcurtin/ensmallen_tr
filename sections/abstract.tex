@@ -1,0 +1,30 @@
+\section*{Abstract}
+This paper provides an introduction to the {\tt ensmallen} numerical optimization library,
+as well as a deep dive into the technical details of how it works.
+The library provides a fast and flexible C++ framework
+for mathematical optimization of arbitrary user-supplied functions.
+A large set of pre-built optimizers is provided,
+including many variants of SGD and Quasi-Newton optimizers.
+Several types of objective functions are supported, including differentiable,
+separable, constrained, and categorical objective functions.
+Implementation of a new optimizer requires only one method,
+while a new objective function requires typically only one or two C++ methods.
+Through internal use of C++ template metaprogramming, {\tt ensmallen} provides support for arbitrary
+user-supplied callbacks and automatic inference of unsupplied methods without
+any runtime overhead.
+Empirical comparisons show that {\tt ensmallen}
+outperforms other optimization frameworks (such as Julia and SciPy), sometimes
+by large margins.  The library is available at \url{https://ensmallen.org}
+and is distributed under the permissive BSD license.
+
+% and is ready for use in productions environments.  
+%% Commented out, as it's a subjective statement;
+%% whether it's "ready" for a specific "production environment"
+%% is up to the user.
+%% Stating the BSD license is already a big hint that
+%% people can do whatever they want with it,
+%% and that there are no guarantees of fitness
+%% for a particular purpose.
+%% https://tldrlegal.com/license/bsd-3-clause-license-(revised)#fulltext
+
+
