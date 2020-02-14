@@ -1,4 +1,4 @@
-\section{Callbacks}
+\subsection{Callbacks}
 \label{sec:callbacks}
 
 Many of the optimizers in {\tt ensmallen} offer the ability to monitor
@@ -17,7 +17,7 @@ optimization.  In particular, the callbacks allow code to be
 executed regularly during an optimization session.
 
 
-\subsection{Using callbacks}
+\subsubsection{Using Callbacks}
 
 To use callbacks, either for optimization, tuning or logging, 
 arbitrary callbacks to any optimizer can be optionally provided
@@ -118,7 +118,7 @@ instantiate a {\tt StoreBestCoordinates} object, and then call {\tt
 BestCoordinates()} in order to recover the best coordinates found during the
 optimization.  This process is detailed more in the following section.
 
-\subsection{Custom callbacks}
+\subsubsection{Custom Callbacks}
 
 Implementing a custom callback is straightforward:
 the only requirement is a class that has functions whose names are the same as the callback
@@ -312,4 +312,4 @@ void main()
 \end{figure}
 
 Details on the internal implementation of the callback system can be found in
-Section~\ref{sec:callback_internals}.
+Appendix~\ref{sec:callback_details}.
