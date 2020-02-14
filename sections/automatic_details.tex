@@ -16,7 +16,7 @@ methods that {\tt ensmallen} infers.
 \begin{figure}[t]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 // FunctionType is the user-supplied function type to optimize.
 // MatType is the user-supplied type of the initial coordinates.
 // GradType is the user-specified type of the gradient.
@@ -56,7 +56,7 @@ more accurately, it is a {\it collection} of mix-in classes.
 \begin{figure}[t!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename FunctionType, typename MatType, typename GradType>
 class Function :
     public AddEvaluateWithGradient<FunctionType, MatType, GradType>,
@@ -94,7 +94,7 @@ default values.
 \begin{figure}[b!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename FunctionType,
          typename MatType,
          typename GradType,
@@ -141,7 +141,7 @@ Gradient()} exist but \linebreak {\tt EvaluateWithGradient()} does not.
 \begin{figure}[t!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename FunctionType,
          typename MatType,
          typename GradType,
@@ -197,7 +197,7 @@ specialization.
 \begin{figure}[t!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename FunctionType, typename MatType, typename GradType>
 class AddEvaluateWithGradient<FunctionType, MatType, GradType, true, false>
 {
@@ -250,7 +250,7 @@ understandable error message at compile time when neither of those values are
 {\tt true}.  We encapsulate this in a convenient function that can be added at
 the beginning of the {\tt Optimize()} method:
 
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
   CheckFunctionTypeAPI<FunctionType, MatType, GradType>();
 \end{minted}
 
@@ -264,7 +264,7 @@ Figure~\ref{fig:example_error_message_2}.
 \begin{figure}[!tb]
 \hrule
 \vspace{1ex}
-\begin{verbatim}
+\begin{minted}[fontsize=\small]{text}
     ...
     include/ensmallen_bits/function/static_checks.hpp:292:3: error: static_assert
           failed due to requirement
@@ -276,7 +276,7 @@ Figure~\ref{fig:example_error_message_2}.
       static_assert(
       ^
     ...
-\end{verbatim}
+\end{minted}
 \hrule
 \caption{\TODO{caption}}
 \label{fig:example_error_message_1}
@@ -285,7 +285,7 @@ Figure~\ref{fig:example_error_message_2}.
 \begin{figure}[!tb]
 \hrule
 \vspace{1ex}
-\begin{verbatim}
+\begin{minted}[fontsize=\small]{text}
     ...
     include/ensmallen_bits/lbfgs/lbfgs_impl.hpp:376:30: error: no matching member
           function for call to 'EvaluateWithGradient'
@@ -304,7 +304,7 @@ Figure~\ref{fig:example_error_message_2}.
           candidate function not viable: requires 1 argument, but 2 were provided
       static typename MatType::elem_type EvaluateWithGradient(
     ...
-\end{verbatim}
+\end{minted}
 \hrule
 \caption{\TODO{caption}}
 \label{fig:example_error_message_2}
@@ -323,7 +323,7 @@ Function<...>::EvaluateWithGradient()} is called, that this always calls {\tt
 AddEvaluateWithGradient::EvaluateWithGradient()}.  This can be done by a simple
 {\tt using} declaration in the body of the {\tt Function} class:
 
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
     using AddEvaluateWithGradient<FunctionType,
                                   MatType,
                                   GradType>::EvaluateWithGradient;

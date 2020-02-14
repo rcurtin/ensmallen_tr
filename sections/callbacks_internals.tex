@@ -14,7 +14,7 @@ implement optimizers that are capable of handling these callbacks.
 An optimizer that supports callbacks should call out to the static methods in
 the {\tt Callback} class inside of its {\tt Optimize()} method, as below:
 %
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
     double functionValue = function.Evaluate(coordinates);
     bool terminate = Callback::Evaluate(*this, function, coordinates, functionValue, callbacks...);
 \end{minted}
@@ -33,7 +33,7 @@ There is a {\tt Callback::Gradient()} method, {\tt Callback::EvaluateConstraint(
 \begin{figure}[b!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename OptimizerType, typename FunctionType, typename MatType, typename... CallbackTypes>
 static bool Callback::Evaluate(OptimizerType& optimizer,
                                FunctionType& function,
@@ -95,7 +95,7 @@ Figure~\ref{fig:callback_evaluate_function} shows the two overloads of
 \begin{figure}[t!]
 \hrule
 \vspace{1ex}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 template<typename CallbackType, typename OptimizerType, typename FunctionType, typename MatType>
 static typename std::enable_if<callbacks::traits::HasEvaluateSignature<
     CallbackType, OptimizerType, FunctionType, MatType>::value, bool>::type
@@ -177,7 +177,7 @@ examples are provided in the code repository in the directory
 %\hrule
 %\vspace{1ex}
 %\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
-%\begin{minted}{c++}
+%\begin{minted}[fontsize=\small]{c++}
 %class EarlyStoppingAtMinLoss
 %{
 % public:
@@ -206,7 +206,7 @@ examples are provided in the code repository in the directory
 %\end{minted}
 
 
-%\begin{minted}{c++}
+%\begin{minted}[fontsize=\small]{c++}
 %// We assume that "X" and "y" are given.
 %LinearRegressionFunction f(X, y);
 %

@@ -10,8 +10,8 @@ or providing custom heuristics to find and investigate feasible solutions.
 In many existing toolkits, this type of functionality is provided only via
 solver-specific interfaces.  For instance, the {\tt tick} statistical learning
 toolkit~\cite{bacry2017tick} requires the use of a solver-specific {\tt History}
-class to inspect and work with internal parts of the optimization process.  In
 contrast, {\tt ensmallen} provides optimizer-independent callbacks to allow
+class to inspect and work with internal parts of the optimization process.  In
 guidance of the optimization process and to monitor the behavior of
 optimization.  In particular, the callbacks allow code to be
 executed regularly during an optimization session.
@@ -34,7 +34,7 @@ optimization.
 \hrule
 \vspace{1ex}
 %\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 RosenbrockFunction f;
 arma::mat coordinates = f.GetInitialPoint();
 
@@ -151,7 +151,7 @@ needed is to add {\tt CustomCallback()} to the list of arguments passed to
 \hrule
 \vspace{1ex}
 %\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 class CustomCallback
 {
  public:
@@ -184,7 +184,7 @@ terminated on behalf of the callback.
 \hrule
 \vspace{1ex}
 %\begin{adjustbox}{minipage=\columnwidth,scale={0.90}{0.85}}
-\begin{minted}{c++}
+\begin{minted}[fontsize=\small]{c++}
 struct CustomCallback
 {
   CustomCallback(double rIn) : p(rIn) {}
@@ -251,7 +251,7 @@ indicating that there is no performance penalty if no callbacks are used.
 \hrule
 \vspace{1ex}
 \begin{minipage}{0.47\textwidth}
-\begin{minted}[stripnl=false]{c++}
+\begin{minted}[fontsize=\small,stripnl=false]{c++}
 struct Optimizer
 {
   template<typename FT>
@@ -277,7 +277,7 @@ void main()
 \hfill
 %
 \begin{minipage}{0.51\textwidth}
-\begin{minted}[escapeinside=||]{c++}
+\begin{minted}[fontsize=\small,escapeinside=||]{c++}
 struct Optimizer
 {
   template<typename FT, |\colorbox{yellow}{typename... CallbackType}|>
