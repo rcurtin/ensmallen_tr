@@ -1,4 +1,4 @@
-\section{Interface Overview}
+\section{Overview}
 \label{sec:api}
 
 % The primary goal of the {\tt ensmallen} library is to provide an easy-to-use
@@ -35,7 +35,9 @@ Typically this is only between one and four methods.
 As an example,
 to optimize an objective function $f(x)$ that is differentiable,
 implementations of $f(x)$ and $f'(x)$ are required.
-One of the optimizers for differentiable functions can then be immediately employed.
+One of the optimizers for differentiable functions,
+such as L-BFGS~\cite{liu1989limited},
+can then be immediately employed.
 
 Whenever possible, {\tt ensmallen} will automatically infer methods that are
 not provided.  For instance, given a separable objective function where an
@@ -47,8 +49,8 @@ C++ template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001mo
 veldhuizen1998c++} are internally used to produce efficient code during compilation.
 
 Not every type of objective function can be used with every type of optimizer.
-For instance, L-BFGS is a differentiable optimizer~\cite{liu1989limited},
-and so it cannot be used with any non-differentiable object function type
+For instance, since L-BFGS is a differentiable optimizer,
+it cannot be used with a non-differentiable object function type
 (e.g. an arbitrary function).
 When an optimizer is used with a user-provided objective function,
 an internal mechanism automatically checks the requirements,
@@ -59,15 +61,14 @@ resulting in user-friendly error messages if any required methods are not detect
 
 \subsection{Types of Objective Functions}
 
-In most cases, $f(x)$ will have
-some structure; one example might be that $f(x)$ is differentiable.
-The internal framework in {\tt ensmallen} can optionally take advantage of this structure.
+In most cases, the objective function $f(x)$ has inherent attributes;
+for example, $f(x)$ might be differentiable.
+The internal framework in {\tt ensmallen} can optionally take advantage of such attributes.
 In the example of a differentiable function $f(x)$,
 the user can provide an implementation of the gradient $f'(x)$,
 which in turn allows a first-order optimizer to be used.  This generally leads
 to significant speedups when compared to using only $f(x)$.
-
-To capture this structure, the optimizers are built to work with
+To allow exploitation of such attributes, the optimizers are built to work with
 many types of objective functions.  The classes of objective functions
 are listed below.
 
@@ -103,7 +104,7 @@ dimensions of $x$ take discrete values from a set.
 
 \item {\bf Constrained functions} ({\tt ConstrainedFunctionType}).
 A constrained function $f(x)$ is a differentiable function%
-\footnote{Generally, constrained functions  do not need to differentiable.
+\footnote{Generally, constrained functions  do not need to be differentiable.
 However, this is a requirement here, as all of the current optimizers in {\tt ensmallen}
 for constrained functions require a gradient to be available.}
 subject to constraints of the form $c_i(x)$; when the constraints are satisfied, $c_i(x) = 0\; \forall \; i$.
@@ -114,6 +115,10 @@ constrained functions.)}  {\tt ensmallen} has special
 support to make optimizing semidefinite
 programs~\cite{vandenberghe1996semidefinite} straightforward.
 \end{itemize}
+
+For details on the required signatures for each objective function type
+(such as {\tt DifferentiableFunctionType}),
+see the online documentation at \mbox{\url{https://ensmallen.org/docs.html}}.
 
 
 \subsection{Pre-Built Optimizers}
@@ -177,8 +182,8 @@ solver)~\cite{burer2003nonlinear}.
 Let us consider the problem of linear regression, where we are
 given a matrix of predictors $\bm X \in \mathcal{R}^{n \times d}$ and a vector
 of responses $\bm y \in \mathcal{R}^n$.  Our task is to find the best linear
-model $\bm \theta \in \mathcal{R}^d$; that is, we want to find $\bm \theta^* =
-\operatorname{argmin} f(\bm \theta)$ for
+model $\bm \theta \in \mathcal{R}^d$; that is, we want to find
+$\bm \theta^* = \operatornamewithlimits{argmin}_{\bm\theta} f(\bm \theta)$ for
 %
 \begin{equation}
 f(\bm \theta) = \| \bm X \bm \theta - \bm y \|^2 = (\bm X \bm \theta - \bm y)^T
@@ -206,7 +211,7 @@ The pre-built L-BFGS optimizer can be used to find $\bm \theta^*$.
 Figure~\ref{fig:lr_function} shows an example implementation.
 We hold {\tt X} and {\tt y} as members of the
 {\tt LinearRegressionFunction class},
-and {\tt coordinates} is used to represent $\bm \theta$.
+and {\tt theta} is used to represent $\bm \theta$.
 Via the use of Armadillo~\cite{sanderson2016armadillo},
 the linear algebra expressions to implement the objective function and gradient
 are readable in a way that closely matches Equations~(\ref{eqn:obj_lr}) and~(\ref{eqn:grad_lr}).
@@ -220,7 +225,7 @@ are readable in a way that closely matches Equations~(\ref{eqn:obj_lr}) and~(\re
 
 
 
-\begin{figure}[!t]
+\begin{figure}[!b]
 \hrule
 \vspace{1ex}
 \centering
@@ -230,18 +235,11 @@ are readable in a way that closely matches Equations~(\ref{eqn:obj_lr}) and~(\re
 class LinearRegressionFunction
 {
  public:
-  LinearRegressionFunction(const arma::mat& X, const arma::vec& y) : X(X), y(y)
-  { }
+  LinearRegressionFunction(const arma::mat& in_X, const arma::vec& in_y) : X(in_X), y(in_y)  { }
 
-  double Evaluate(const arma::mat& coordinates)
-  {
-    return (X * coordinates - y).t() * (X * coordinates - y);
-  }
+  double Evaluate(const arma::mat& theta)  { return (X * theta - y).t() * (X * theta - y); }
 
-  void Gradient(const arma::mat& coordinates, arma::mat& gradient)
-  {
-    gradient = 2 * X.t() * (X * coordinates - y);
-  }
+  void Gradient(const arma::mat& theta, arma::mat& gradient)  { gradient = 2 * X.t() * (X * theta - y); }
 
  private:
   const arma::mat& X;
@@ -253,17 +251,16 @@ int main()
   arma::mat X;
   arma::vec y;
   
-  // set the contents of X and y here
+  // ... set the contents of X and y here ...
   
   ens::LinearRegressionFunction f(X, y);
 
   ens::L_BFGS optimizer; // create the optimizer with default parameters
 
-  // the theta_best matrix will hold the best model that we find after we call Optimize();
-  // for now, we set it to the initial point (uniform random values)
-  arma::mat theta_best(X.n_rows, 1, arma::fill:randu);
+  arma::mat theta_best(X.n_rows, 1, arma::fill:randu);  // initial starting point (uniform random values)
 
   optimizer.Optimize(f, theta_best);
+  // at this point theta_best contains the best parameters
 
   return 0;
 }
@@ -285,15 +282,20 @@ with the corresponding online documentation at \mbox{\url{http://arma.sf.net/doc
 
 \subsection{Advanced Usage}
 
-It is possible to do more than optimize a model that's stored as an {\tt
-arma::mat} (dense matrix).  {\tt ensmallen} also supports:
+It is possible to do more than optimize a model that is stored as 
+a dense matrix ({\tt arma::mat}).  Support is also provided for:
 
 \begin{itemize}
 
 \item
-Use of types other than {\tt arma::mat} when calling {\tt Optimize()}.
-This can include integer-valued matrices, sparse matrices, or any
-type whose implementation matches the Armadillo API.
+Inference of functions not supplied by the user.
+For example, a user might supply a single function named
+{\tt EvaluateWithGradient()}
+in order to allow sharing common computation that may be 
+present in {\tt Evaluate()} and {\tt Gradient()}.
+For instance, the computation of $(\bm X \bm \theta - \bm y$)
+in Equations~(\ref{eqn:obj_lr}) and~(\ref{eqn:grad_lr}) can be reused.
+The two functions can then be automatically inferred when needed.
 
 \item
 Callbacks, which can specify custom behavior during the optimization.
@@ -302,19 +304,19 @@ terminating when a time limit is reached,
 or other custom user-supplied functionality.
 
 \item
-Inference of functions not supplied by the user.
-For example, a user might supply a single function named
-{\tt EvaluateWithGradient()}
-in order to allow sharing common computation that may be 
-present in {\tt Evaluate()} and {\tt Gradient()}.
-The two functions can then be automatically inferred when needed.
+Use of types other than {\tt arma::mat} when calling {\tt Optimize()}.
+This can include
+integer-valued matrices ({\tt arma::imat}),
+sparse matrices ({\tt arma::sp\_mat}),
+or any type whose implementation matches the Armadillo API.
+
+
 
 \end{itemize}
 
-The following sections discuss how we are able to achieve the
-functionality above---with no runtime overhead.
+Each of the above points is covered in more detail
+in the following sections.
 
-The introductory discussion here does not go into the full details of the
-signatures required for each objective function; for more details, see the
-{\tt ensmallen} documentation at \url{https://ensmallen.org/docs.html}.
+% The following sections discuss how we are able to achieve the
+% functionality above---with no runtime overhead.
 

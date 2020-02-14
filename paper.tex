@@ -15,6 +15,8 @@
 \usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
 %\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
 \usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true]{hyperref}
+\usepackage{titlesec}
+\usepackage[toc,page]{appendix}
 \usepackage[numbers]{natbib}
 \usepackage{graphicx}
 %\usepackage[draft]{minted}
@@ -86,19 +88,25 @@ $^4$~Griffith University, Australia
 
 \input{sections/introduction.tex}
 \input{sections/api.tex}
-\input{sections/templated_optimize.tex}
 \input{sections/functions.tex}
 \input{sections/callbacks.tex}
+\input{sections/templated_optimize.tex}
 \input{sections/experiments.tex}
 \input{sections/conclusion.tex}
 
+\clearpage
+\newpage
 
-%\clearpage
-% Could use \appendix here if we wanted, but I figured a \clearpage was enough.
-\input{sections/templated_optimize_details.tex}
+%\begin{appendices}
+\appendix
+\titleformat{\section}{\normalfont\Large\bfseries}{Appendix~\thesection:}{1ex}{}
 \input{sections/automatic_details.tex}
 \input{sections/callbacks_internals.tex}
+\input{sections/templated_optimize_details.tex}
+%\end{appendices}
 
+\clearpage
+\newpage
 \bibliographystyle{ieee}
 \bibliography{refs}
 

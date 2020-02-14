@@ -1,7 +1,7 @@
-\section{Inferring Missing Methods}
+\section{Automatically Inferring Missing Methods}
 \label{sec:automatic}
 
-In the preceding section, we saw an example of how a user might implement {\tt
+In Section~\ref{sec:linreg_example}, we saw an example of how a user might implement {\tt
 Evaluate()} and {\tt Gradient()} for the linear regression objective function
 and use {\tt ensmallen} to find the minimum.
 However, there is an inefficiency:
@@ -10,21 +10,21 @@ and the gradient computation is defined as $f'(\bm \theta) = 2 \bm X^T (\bm X \b
 There is a shared inner computation in $f(\bm \theta)$ and $f'(\bm \theta)$: the
 term $(\bm X \bm \theta - \bm y)$.
 If $f(\bm \theta)$ and $f'(\bm \theta)$ are implemented as separate functions,
-there is no easy way to exploit this shared computation:
-{\tt ensmallen}'s differentiable optimizers treat the functions they are given as oracular,
-and do not know anything about the internal computations of those functions.
+there is no easy way to exploit this shared computation.
+
+The differentiable optimizers in {\tt ensmallen} treat the given functions as oracular,
+and do not know anything about the internal computations of the functions.
 This inefficiency%
 \footnote
   {It may be possible to use auto-differentiation to avoid this efficiency,
   or a programming language with introspection to operate directly on the
-  abstract syntax tree~\cite{TODO} of the given objective and gradient
+  abstract syntax tree~\cite{TODO} \TODO{citation} of the given objective and gradient
   computations to successfully share the computation.  However, at the time of
   this writing, we are not aware of any that do this.
   }
 can apply to any optimization package that accepts an objective
-function and its gradient as separate parameters, including SciPy, {\tt bfgsmin()},
-and {\tt Optim.jl} among other packages.
-\TODO{{\tt bfgsmin()} not mentioned beforehand; need to explain what it is}
+function and its gradient as separate parameters,
+such as SciPy, {\tt Optim.jl} and {\tt bfgsmin()} from Octave~\cite{TODO}\TODO{citation}.
 
 To work around this issue, we use template metaprogramming techniques to allow
 the user to provide {\it either} separate implementations of the objective
@@ -42,11 +42,11 @@ it is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()},
 {\it or} {\tt EvaluateWithGradient()} during optimization.
 
 The same technique can be used to infer and provide more missing methods than
-just {\tt EvaluateWithGradient()} or {\tt Evaluate()} and {\tt Gradient()}.  FOr
-instance, separable functions, differentiable separable functions, constrained
+just {\tt EvaluateWithGradient()} or {\tt Evaluate()} and {\tt Gradient()}.  
+For instance, separable functions, differentiable separable functions, constrained
 functions, and categorical functions each have inferrable methods.  Not all of
 these possibilities are currently implemented in {\tt ensmallen}, but the
-framework we have implemented makes it straightforward to add more.  Below are a
+existing framework makes it straightforward to add more.  Below are a
 few examples that {\tt ensmallen} currently implements:
 
 \begin{itemize}
@@ -71,7 +71,8 @@ function with {\tt EvaluateWithGradient()} and {\tt NumFunctions()}, we can
 synthesize a non-separable version of {\tt Gradient()}.
 \end{itemize}
 
-For more precise details on exactly how the method generation works, see
-Section~\ref{sec:automatic_details}, where we describe the framework in a
-simplified form, focusing only the {\tt EvaluateWithGradient()}/{\tt
-Evaluate()}/{\tt Gradient()} example described above.
+For more precise details on exactly how the method generation works,
+see Appendix~\ref{sec:automatic_details},
+where we describe the framework in a simplified form,
+focusing only the {\tt EvaluateWithGradient()}/{\tt Evaluate()}/{\tt Gradient()}
+example described above.
