@@ -51,7 +51,7 @@ which can be contributed upstream and incorporated into the library.
 Table~\ref{tab:comparison} contrasts the functionality supported
 by {\tt ensmallen} and other optimization toolkits.
 
-This paper is a revised and expanded description of our initial overview
+This paper is a revised and expanded version of our initial overview
 of {\tt ensmallen}~\cite{ensmallen2018}. 
 It also provides a deep dive into the internals
 of how the library works, which can be a useful resource for anyone looking
@@ -62,16 +62,11 @@ to contribute to the library or get involved with its development.
 % techniques and how we are able to simultaneously produce efficient code and a
 % clean user interface.
 
-\TODO{update}
 The paper is continued as follows.
-We introduce the functionality and interface for {\tt ensmallen} in Section~\ref{sec:overview}.
-Section~\ref{sec:templated_optimize} shows how {\tt ensmallen} can optimize objective functions
-$f(x)$ for various types of $x$ without any extra runtime overhead.
-Section~\ref{sec:automatic} discusses the details of how {\tt ensmallen} is able
-to automatically generate methods not provided by the user.
-Section~\ref{sec:callbacks} describes {\tt ensmallen}'s callbacks.
-We demonstrate the empirical efficiency of {\tt ensmallen} in
-Section~\ref{sec:experiments} and conclude in Section~\ref{sec:conclusion}.
+We overview the available functionality and show example usage in Section~\ref{sec:overview}.
+Advanced usage such as callbacks is discussed in Section~\ref{sec:advanced}.
+We demonstrate the empirical efficiency of {\tt ensmallen} in Section~\ref{sec:experiments}.
+The salient points are summarized in Section~\ref{sec:conclusion}.
 
 
 \begin{table}[!t]

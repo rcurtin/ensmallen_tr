@@ -22,14 +22,14 @@ executed regularly during an optimization session.
 To use callbacks, either for optimization, tuning or logging, 
 arbitrary callbacks to any optimizer can be optionally provided
 to the {\tt Optimize()} function.
-Figure~\ref{fig:example_prog_callbacks} contains a simple C++ program which
+Figure~\ref{fig:example_prog_callbacks} contains a code snippet which
 briefly demonstrates usage of the callback functionality.  Given the pre-defined
 callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
 not only how the {\tt MomentumSGD} optimizer can be used to find the best
 coordinates but also how the callbacks can be used to control and monitor the
 optimization.
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \centering
 \hrule
 \vspace{1ex}
@@ -46,7 +46,7 @@ optimizer.Optimize(f, coordinates, EarlyStopAtMinLoss(), ProgressBar());
 \vspace*{-0.5em}
 \caption
   {
-  A simple C++ program to demonstrate usage of the callback functionality using
+  Code snippet to demonstrate usage of the callback functionality using
 pre-defined callbacks: \texttt{EarlyStopAtMinLoss} and \texttt{ProgressBar}.
 {\tt EarlyStopAtMinLoss} will terminate the optimization as soon as the
 objective value stars increasing, and {\tt ProgressBar} will print a progress
@@ -56,7 +56,7 @@ bar during the optimization.
 \end{figure}
 
 
-\begin{table}[!tb]
+\begin{table}[!b]
 \centering
 \small
 \begin{tabular}{lll}
@@ -146,7 +146,7 @@ needed is to add {\tt CustomCallback()} to the list of arguments passed to
 {\tt optimizer.Optimize()}.
 
 
-\begin{figure}[!tb]
+\begin{figure}[!b]
 \centering
 \hrule
 \vspace{1ex}
@@ -179,7 +179,7 @@ terminated on behalf of the callback.
 \label{fig:example_prog_callbacks_2}
 \end{figure}
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \centering
 \hrule
 \vspace{1ex}
@@ -246,7 +246,7 @@ in the first place.
 Both programs produce the exact same machine code,
 indicating that there is no performance penalty if no callbacks are used.
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \centering
 \hrule
 \vspace{1ex}

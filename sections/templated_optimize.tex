@@ -1,4 +1,4 @@
-\section{Type-Agnostic Optimization}
+\subsection{Optimization With Various Matrix Types}
 \label{sec:templated_optimize}
 
 % We can start by expanding on the linear regression function example to point
@@ -90,7 +90,7 @@ This onslaught of error messages can be confusing and discouraging to users.
 {\tt ensmallen} avoids this issue via the use of C++ compile-time static
 assertions ({\tt static\_assert()}).
 Users who are interested in the details of how these assertions work should
-refer to Section~\ref{sec:templated_optimize_details}.
+refer to Appendix~\ref{sec:templated_optimize_details}.
 
 Note that users who would like to continue despite these {\tt static\_assert()}
 checks failing may simply define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in

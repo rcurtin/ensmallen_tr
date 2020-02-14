@@ -1,4 +1,4 @@
-\section{Inferring Missing Methods: Details}
+\section{Inferring Missing Methods -- Details}
 \label{sec:automatic_details}
 
 In Section~\ref{sec:automatic}, we described that {\tt ensmallen} is able to
@@ -13,7 +13,7 @@ how {\tt EvaluateWithGradient()} can be inferred, and how this is used in {\tt
 ensmallen}'s optimizers.  The same technique is applicable to all of the other
 methods that {\tt ensmallen} infers.
 
-\begin{figure}[t]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \begin{minted}[fontsize=\small]{c++}
@@ -53,7 +53,7 @@ beginning of optimization, and can then expect all three of {\tt Evaluate()},
 The class {\tt Function<...>} is like a {\it mix-in} class~\cite{smaragdakis2000mixin};
 more accurately, it is a {\it collection} of mix-in classes.
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \begin{minted}[fontsize=\small]{c++}
@@ -138,7 +138,7 @@ FunctionType}.  Specifically, we make two specializations: one for when {\tt
 EvaluateWithGradient()} exists, and one for when both {\tt Evaluate()} and {\tt
 Gradient()} exist but \linebreak {\tt EvaluateWithGradient()} does not.
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \begin{minted}[fontsize=\small]{c++}
@@ -194,7 +194,7 @@ EvaluateWithGradient()} by using both of the provided {\tt Evaluate()} and {\tt
 Gradient()} methods sequentially.  Figure~\ref{fig:aewg-s2} shows this
 specialization.
 
-\begin{figure}[t!]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \begin{minted}[fontsize=\small]{c++}

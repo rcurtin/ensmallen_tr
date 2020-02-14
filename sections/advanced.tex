@@ -1,7 +1,10 @@
 \section{Advanced Usage}
+\label{sec:advanced}
 
-It is possible to do more than optimize a model that is stored as 
-a dense matrix ({\tt arma::mat}).  Support is also provided for:
+In addition to the support for various objective functions and
+the provision of many pre-built optimizers covered in Section~\ref{sec:overview},
+the {\tt ensmallen} library provides further functionality, suitable for advanced users.
+This includes:
 
 \begin{itemize}
 
@@ -28,13 +31,6 @@ integer-valued matrices ({\tt arma::imat}),
 sparse matrices ({\tt arma::sp\_mat}),
 or any type whose implementation matches the Armadillo API.
 
-
-
 \end{itemize}
 
-Each of the above points is covered in more detail
-in the following sections.
-
-% The following sections discuss how we are able to achieve the
-% functionality above---with no runtime overhead.
-
+Each of the above points is covered in more detail below.
