@@ -43,17 +43,26 @@ The external interface to the optimizers is intuitive and matches the ease of us
 optimization toolkits mentioned above.
 
 However, unlike many of the existing optimization toolkits,
-the optimization framework in {\tt ensmallen} is generic and flexible.
-Numerous function types are supported:
+{\tt ensmallen} explicitly supports numerous function types:
 arbitrary, differentiable, separable, categorical, constrained, and semidefinite.
-Furthermore, custom behavior during optimization can be specified via {\it callbacks}.
-Lastly, the framework facilitates the implementation of new optimization techniques.
-As such, the framework supports a wide range of use cases and applications.
+Furthermore, custom behavior during optimization can be easily specified via {\it callbacks}.
+Lastly, the underlying framework facilitates the implementation of new optimization techniques,
+which can be contributed upstream and incorporated into the library.
 Table~\ref{tab:comparison} contrasts the functionality supported
 by {\tt ensmallen} and other optimization toolkits.
 
-%which can be contributed upstream and incorporated into the library.
+This paper is a revised and expanded description of our initial overview
+of {\tt ensmallen}~\cite{ensmallen2018}. 
+It also provides a deep dive into the internals
+of how the library works, which can be a useful resource for anyone looking
+to contribute to the library or get involved with its development.
 
+%% TODO: this will need to be refactored once the document is refactored
+% In this paper, we describe the details of the template metaprogramming
+% techniques and how we are able to simultaneously produce efficient code and a
+% clean user interface.
+
+\TODO{update}
 The paper is continued as follows.
 We introduce the functionality and interface for {\tt ensmallen} in Section~\ref{sec:api}.
 Section~\ref{sec:templated_optimize} shows how {\tt ensmallen} can optimize objective functions
@@ -64,16 +73,6 @@ Section~\ref{sec:callbacks} describes {\tt ensmallen}'s callbacks.
 We demonstrate the empirical efficiency of {\tt ensmallen} in
 Section~\ref{sec:experiments} and conclude in Section~\ref{sec:conclusion}.
 
-%% TODO: this will need to be refactored once the document is refactored
-% In this paper, we describe the details of the template metaprogramming
-% techniques and how we are able to simultaneously produce efficient code and a
-% clean user interface.
-
-This paper is a revised and expanded description of our initial overview
-of {\tt ensmallen}~\cite{ensmallen2018}. 
-It also provides a deep dive into the internals
-of how the library works, which can be a useful resource for anyone looking
-to contribute to the library or get involved with its development.
 
 \begin{table}[!t]
 \centering

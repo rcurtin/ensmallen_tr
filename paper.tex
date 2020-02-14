@@ -10,7 +10,8 @@
 \sloppy  %% this actually gives better linebreaks, minimising overhanging text
 \usepackage[T1]{fontenc}
 %\usepackage{url}
-\usepackage[includefoot,includehead,left=2cm,right=2cm,top=1cm,bottom=2cm]{geometry}
+%\usepackage[includefoot,includehead,left=2cm,right=2cm,top=1cm,bottom=1cm]{geometry}
+\usepackage[left=2cm,right=2cm,top=1.5cm,bottom=2cm]{geometry}
 \usepackage[usenames,dvipsnames]{color}  % see http://en.wikibooks.org/wiki/LaTeX/Colors
 %\usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true,pdftitle={\doctitle},pdfauthor={\docauthor}]{hyperref}
 \usepackage[pdfborder={0 0 0},colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,bookmarks=true]{hyperref}
@@ -55,10 +56,12 @@
 
 \begin{document}
 
+\pagestyle{empty}
+
 \begin{center}
 
 %{\Large {\tt ensmallen}: accelerating mathematical optimization via template metaprogramming}
-{\Large\bf The ensmallen library for efficient mathematical optimization}
+{\Large\bf The ensmallen library for flexible and efficient and  mathematical optimization}
 %% CS: simpler title to avoid frightening people away by the scary words "template" and "metaprogramming"
 
 \vspace{1.5ex}
