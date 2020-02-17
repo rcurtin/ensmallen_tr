@@ -9,11 +9,10 @@ or providing custom heuristics to find and investigate feasible solutions.
 
 In many existing toolkits, this type of functionality is provided only via
 solver-specific interfaces.  For instance, the {\tt tick} statistical learning
-toolkit~\cite{bacry2017tick} requires the use of a solver-specific {\tt History}
-contrast, {\tt ensmallen} provides optimizer-independent callbacks to allow
-class to inspect and work with internal parts of the optimization process.  In
-guidance of the optimization process and to monitor the behavior of
-optimization.  In particular, the callbacks allow code to be
+toolkit~\cite{bacry2017tick} requires the use of a solver-specific {\tt History}.
+In contrast, {\tt ensmallen} provides optimizer-independent callbacks to allow
+classes to inspect and work with internal parts of the optimization process.
+In particular, the callbacks allow code to be
 executed regularly during an optimization session.
 
 
@@ -28,6 +27,39 @@ callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
 not only how the {\tt MomentumSGD} optimizer can be used to find the best
 coordinates but also how the callbacks can be used to control and monitor the
 optimization.
+
+Eight types of optimization callback routines are available,
+as shown in Table~\ref{tab:callback_list}.
+These callbacks are regularly called during the optimization process,
+depending on the objective function type.
+Callbacks are executed in the order that they are specified.
+\TODO{description of bool value has possible inconsistency with Appendix~\ref{sec:callback_details}}
+Each callback may terminate the optimization via its {\tt bool} return value,
+where {\tt false} indicates that the optimization should be stopped.
+By default, subsequent callbacks are not called if an earlier callback terminates
+the optimization: the optimizer terminates immediately.
+
+There are several pre-built callbacks that can be used without
+needing any custom code:
+
+\begin{itemize}
+  \item {\tt EarlyStopAtMinLoss}: stops the optimization process if the loss
+stops decreasing or no improvement has been made.
+
+  \item {\tt PrintLoss}: callback that prints loss to {\tt stdout} or a
+specified output stream.
+
+  \item {\tt ProgressBar}: callback that prints a progress bar to {\tt stdout}
+or a specified output stream.
+
+  \item {\tt StoreBestCoordinates}: callback that stores the model parameter
+after every epoch if the objective decreased.
+\end{itemize}
+
+Note that to use the {\tt StoreBestCoordinates} callback, the user will need to
+instantiate a {\tt StoreBestCoordinates} object, and then call {\tt
+BestCoordinates()} in order to recover the best coordinates found during the
+optimization.  This process is detailed more in the following section.
 
 \begin{figure}[b!]
 \centering
@@ -86,37 +118,6 @@ bar during the optimization.
 \label{tab:callback_list}
 \end{table}
 
-Eight types of optimization callback routines are available,
-as shown in Table~\ref{tab:callback_list}.
-These callbacks are regularly called during the optimization process,
-depending on the objective function type.
-Callbacks are executed in the order that they are specified.
-Each callback may terminate the optimization via its {\tt bool} return value,
-where {\tt false} indicates that the optimization should be stopped.
-By default, subsequent callbacks are not called if an earlier callback terminates
-the optimization: the optimizer terminates immediately.
-
-There are several pre-built callbacks that can be used without
-needing any custom code:
-
-\begin{itemize}
-  \item {\tt EarlyStopAtMinLoss}: stops the optimization process if the loss
-stops decreasing or no improvement has been made.
-
-  \item {\tt PrintLoss}: callback that prints loss to {\tt stdout} or a
-specified output stream.
-
-  \item {\tt ProgressBar}: callback that prints a progress bar to {\tt stdout}
-or a specified output stream.
-
-  \item {\tt StoreBestCoordinates}: callback that stores the model parameter
-after every epoch if the objective decreased.
-\end{itemize}
-
-Note that to use the {\tt StoreBestCoordinates} callback, the user will need to
-instantiate a {\tt StoreBestCoordinates} object, and then call {\tt
-BestCoordinates()} in order to recover the best coordinates found during the
-optimization.  This process is detailed more in the following section.
 
 \subsubsection{Custom Callbacks}
 
@@ -127,16 +128,10 @@ Comprehensive documentation on the required signatures for each callback can be
 found in the {\tt ensmallen} documentation at
 \url{http://ensmallen.org/docs.html#callback-states}.
 
+\TODO{still not happy with how this reads: the two {\tt Evaluate()} functions can be confusing to new users}
 If a custom callback is desired to take an action after any call
-to {\tt Evaluate()}, then only a {\tt bool Evaluate(...)} method is required
+to {\tt Evaluate()}, then only a {\tt CustomCallback::Evaluate()} method is required
 to perform the desired action.
-\TODO{The name clash with two {\tt Evaluate()} functions
-  is potentially confusing,
-  especially to people not familiar with the codebase.
-  Need to better differentiate the two functions,
-  possibly via qualifiers.
-  Need to explicit state which one is used by specific parts of ensmallen.
-  Maybe {\tt Callback::Evaluate()} ?}
 An example of a custom callback that 
 prints a line to {\tt std::cout} every time the optimization calls
 {\tt Evaluate()} is shown in Figure~\ref{fig:example_prog_callbacks_2}.
@@ -175,6 +170,7 @@ class CustomCallback
 after each time the {\tt Evaluate()} function is called by the optimizer.  The
 callback always returns {\tt true}, meaning that the optimization should not be
 terminated on behalf of the callback.
+\TODO{possible inconsistency with Appendix~\ref{sec:callback_details}}
   }
 \label{fig:example_prog_callbacks_2}
 \end{figure}
@@ -213,7 +209,7 @@ opt.Optimize(f, coordinates, cb); // ...and call Optimize() with that object!
 \vspace*{-0.5em}
 \caption
   {
-  A simple C++ program demonstrating how to add additional parameters/state to a
+  Code snippet demonstrating how to add additional parameters/state to a
 callback and accessing optimizer-specific parameters.
   }
 \label{fig:example_prog_callbacks_parameter}
@@ -237,9 +233,9 @@ As such, some care is necessary when implementing custom callbacks.
 There is no performance penalty if no callbacks are used.
 Figure~\ref{fig:callback_compilter_opt} shows two programs;
 one explicitly without callbacks, and one with an empty callback.
-The implementation of callback facility within ensmallen is done via
-template-based mechanisms.
-In all cases, modern C++ compilers ({\tt clang-1100.0.33.16} and {\tt g++} 9.2.1)
+The implementation of callback facility is internally
+done via template metaprogramming.
+In all cases, modern C++ compilers (e.g. {\tt clang-1100.0.33.16} and {\tt g++} 9.2.1)
 optimized away the unused code;
 the resultant machine code appears as if the callback code never existed
 in the first place.
@@ -261,12 +257,14 @@ struct Optimizer
   }
 };
 
-void main()
+
+int main()
 {
   RosenbrockFunction rf;
   arma::mat parameters = rf.GetInitialPoint();
   Optimizer opt;
   opt.Optimize(rf, parameters);
+  return 0;
 }
 
 \end{minted}
@@ -281,19 +279,20 @@ void main()
 struct Optimizer
 {
   template<typename FT, |\colorbox{yellow}{typename... CallbackType}|>
-  void Optimize(FT& f, arma::mat& p,
-                CallbackType&&... c)
+  void Optimize(FT& f, arma::mat& p, CallbackType&&... c)
   {
     |\!\!\colorbox{yellow}{Callback::BeginOptimization(*this, f, p, c...);}|
     f.Evaluate(iterate);
   }
 };
-void main()
+
+int main()
 {
   RosenbrockFunction rf;
   arma::mat parameters = rf.GetInitialPoint();
   Optimizer opt;
   opt.Optimize(rf, parameters);
+  return 0;
 }
 \end{minted}
 \end{minipage}

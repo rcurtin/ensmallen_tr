@@ -3,26 +3,35 @@
 
 In Section~\ref{sec:templated_optimize}, we showed that {\tt ensmallen} uses
 templates to allow arbitrary types to be used for the matrix type or gradient
-type.  However, this requires some amount of special handling to ensure that the
-user encounters a reasonable, comprehensible error message if the given matrix
-or gradient type does not have the required methods.  Here, we discuss the
-details of how we provide better error messages than the default onslaught of
-compiler error messages via the use of {\tt static\_assert()}.
+type.
+However, care must be taken there to avoid a drawback with C++ template metaprogramming,
+which is the issue of compiler errors.
+In Figure~\ref{fig:gd}, the compiler may fail to substitute a given {\tt MatType}
+into the code for {\tt GradientDescent::Optimize()}. A~typical reason might be that
+a required method of {\tt MatType} or {\tt FunctionType} is not available.
+For example, the given {\tt MatType} does not have an {\tt operator\*()} method.
+Ordinarily, current C++ compilers typically emit a long list of error messages,
+with unnecessarily detailed and distracting information.
+The internal framework in {\tt ensmallen} avoids this issue via the use of
+C++ compile-time static assertions ({\tt static\_assert()}),
+resulting in considerably clearer error messages.
 
-{\tt ensmallen} provides a few utility methods for checking traits of {\tt
+The framework provides a set of utility methods for checking traits of {\tt
 MatType} and {\tt GradType} (for differentiable objective functions) inside of
 an optimizer's {\tt Optimize()} method:
 
 \begin{itemize}
   \item {\tt RequireFloatingPointType<MatType>()}: this requires that the
 element type held by {\tt MatType} is either {\tt float} or {\tt double}.
-This is generally needed by optimizers that use LAPACK or BLAS functionality.
+This is generally needed by optimizers that use Armadillo functionality which
+ends up calling LAPACK functions~\cite{TODO} \TODO{citation to LAPACK manual}.
 
   \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
 {\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
 be useful for differentiable optimizers, where we want to ensure, for example,
-that a user can't pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
+that a user cannot pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
 holds {\tt unsigned int}s.
+\TODO{unclear or poor wording}
 
   \item {\tt RequireDenseFloatingPointType<MatType>()}: this requires that the
 element type held by {\tt MatType} is either {\tt float} or {\tt double}, and
@@ -37,6 +46,11 @@ been needed, but it is easy to add more.  The implementation of these functions
 is just a {\tt static\_assert()} that uses some underlying traits of the given
 template parameters.  For example, Figure~\ref{fig:rsit} is the implementation
 of {\tt RequireSameInternalTypes<...>()}.
+
+Note that users who would like to continue despite these {\tt static\_assert()}
+checks failing may simply define the macro {\tt ENS\_DISABLE\_TYPE\_CHECKS} in
+their code before the line {\tt \#include <ensmallen.hpp>}.
+
 
 \begin{figure}[t]
 \hrule
@@ -64,13 +78,6 @@ void RequireSameInternalTypes()
 \vspace*{-0.5em}
 \caption{Implementation of {\tt RequireSameInternalTypes()} from internal
 {\tt ensmallen} code.
-\TODO{This figure is probably not be necessary: it's trivial stuff. The
-descriptions in the preceding bullet points are sufficient.  (Response from
-Ryan: I agree, but I find that people new to mlpack are really scared of
-actually *looking* at code and figuring out what it does.  This gives a direct
-reference to code that's there, which is an entrypoint someone can use to then
-learn more.  Anyway, it's in the back now, so maybe it's not a problem to leave
-it in.  Let me know what you think.)}
 }
 \label{fig:rsit}
 \end{figure}

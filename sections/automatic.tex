@@ -21,12 +21,13 @@ This inefficiency%
   abstract syntax tree~\cite{TODO} \TODO{citation} of the given objective and gradient
   computations to successfully share the computation.  However, at the time of
   this writing, we are not aware of any that do this.
+  \TODO{possible inconsistency: auto-differentiation is mentioned in the experiments section~\ref{sec:experiments}}
   }
 can apply to any optimization package that accepts an objective
 function and its gradient as separate parameters,
 such as SciPy, {\tt Optim.jl} and {\tt bfgsmin()} from Octave~\cite{TODO}\TODO{citation}.
 
-To work around this issue, we use template metaprogramming techniques to allow
+To work around this issue, {\tt ensmallen} internally uses template metaprogramming techniques to allow
 the user to provide {\it either} separate implementations of the objective
 function and gradient, {\it or} a combined implementation that computes {\it
 both} the objective function and gradient simultaneously.
@@ -36,18 +37,17 @@ or {\tt EvaluateWithGradient()}.
 For the example objective function above,
 we empirically show (Section~\ref{sec:experiments}) that the ability to provide
 {\tt EvaluateWithGradient()} can result in a significant speedup.
-
 Similarly, when implementing a differentiable optimizer in {\tt ensmallen},
 it is possible to use {\it either} {\tt Evaluate()} and {\tt Gradient()},
 {\it or} {\tt EvaluateWithGradient()} during optimization.
 
-The same technique can be used to infer and provide more missing methods than
+The same technique is used to infer and provide more missing methods than
 just {\tt EvaluateWithGradient()} or {\tt Evaluate()} and {\tt Gradient()}.  
 For instance, separable functions, differentiable separable functions, constrained
 functions, and categorical functions each have inferrable methods.  Not all of
 these possibilities are currently implemented in {\tt ensmallen}, but the
-existing framework makes it straightforward to add more.  Below are a
-few examples that {\tt ensmallen} currently implements:
+existing framework makes it straightforward to add more.  Below are
+examples that are currently implemented:
 
 \begin{itemize}
   \item {\it (Differentiable functions.)}  If the user provides an objective

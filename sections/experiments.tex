@@ -4,50 +4,9 @@
 To show the efficiency of mathematical optimization with {\tt ensmallen}, we
 compare its performance with several other commonly used optimization
 frameworks, including some that use automatic differentiation.
+\TODO{automatic differentiation: possible inconsistency with footnote in Section~\ref{sec:automatic}}
 
-\begin{figure}[t!]
-\hrule
-\vspace{1ex}
-\begin{minted}[fontsize=\small]{c++}
-#include <ensmallen.hpp>
-
-struct RosenbrockFunction
-{
-  template<typename MatType>
-  static typename MatType::elem_type Evaluate(const MatType& x) const
-  {
-    return 100 * std::pow(x[1] - std::pow(x[0], 2), 2) + std::pow(1 - x[0], 2);
-  }
-};
-
-int main()
-{
-  // We use Armadillo's timing functionality to print how long it takes to optimize.
-  arma::wall_clock clock;
-
-  RosenbrockFunction rf;
-  ens::ExponentialSchedule sched;
-  // A tolerance of 0.0 means the optimization will run for the maximum number of iterations.
-  ens::SA<> s(sched, 100000, 10000, 1000, 100, 0.0);
-
-  // Get the initial point of the optimization.
-  arma::mat parameters = rf.GetInitialPoint();
-
-  // Run the optimization and time it.
-  clock.tic();
-  s.Optimize(rf, parameters);
-  const double time = clock.toc();
-  std::cout << time << std::endl << "Result (optimal 1, 1): " << parameters.t();
-}
-\end{minted}
-\hrule
-\vspace*{-0.5em}
-\caption{Code to use {\tt ensmallen} to optimize the Rosenbrock function using
-100K iterations of simulated annealing.}
-\label{fig:rosenbrock_run}
-\end{figure}
-
-\subsection{Simple optimizations and overhead}
+\subsection{Simple Optimizations and Overhead}
 
 For our first experiment, we aim to capture the overhead involved in various
 optimization toolkits.  In order to do this, we consider the simple and popular
@@ -98,7 +57,49 @@ optimizations.  The overhead of both {\tt scipy} and {\tt samin} are quite
 large---{\tt ensmallen} is nearly three orders of magnitude faster for the same
 task.
 
-\begin{table}[t!]
+\begin{figure}[b!]
+\hrule
+\vspace{1ex}
+\begin{minted}[fontsize=\small]{c++}
+#include <ensmallen.hpp>
+
+struct RosenbrockFunction
+{
+  template<typename MatType>
+  static typename MatType::elem_type Evaluate(const MatType& x) const
+  {
+    return 100 * std::pow(x[1] - std::pow(x[0], 2), 2) + std::pow(1 - x[0], 2);
+  }
+};
+
+int main()
+{
+  arma::wall_clock clock;
+
+  RosenbrockFunction rf;
+  ens::ExponentialSchedule sched;
+  // A tolerance of 0.0 means the optimization will run for the maximum number of iterations.
+  ens::SA<> s(sched, 100000, 10000, 1000, 100, 0.0);
+
+  // Get the initial point of the optimization.
+  arma::mat parameters = rf.GetInitialPoint();
+
+  // Run the optimization and time it.
+  clock.tic();
+  s.Optimize(rf, parameters);
+  const double time = clock.toc();
+  std::cout << time << std::endl << "Result (optimal 1, 1): " << parameters.t();
+  return 0;
+}
+\end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Code to use {\tt ensmallen} to optimize the Rosenbrock function using
+100K iterations of simulated annealing.}
+\label{fig:rosenbrock_run}
+\end{figure}
+
+\begin{table}[b!]
 \begin{center}
 \begin{tabular}{lcccc}
 \toprule
@@ -127,11 +128,12 @@ underlying \texttt{anneal.anneal()} function.
 These techniques did produce some speedup,
 as shown in the second row of Table~\ref{tab:rosenbrock_results}.
 For Octave, a MEX binding did not produce a noticeable difference.
-We were unable to tune either \texttt{ensmallen} or \texttt{
-Optim.jl} to get any speedup, suggesting that novice users will easily be able
+We were unable to tune either \texttt{ensmallen} or
+\texttt{Optim.jl} to get any speedup,
+suggesting that novice users will easily be able
 to write efficient code in these cases.
 
-\subsection{Large-scale linear regression problems}
+\subsection{Large-Scale Linear Regression Problems}
 
 \begin{table}[t!]
 \centering
@@ -141,8 +143,8 @@ to write efficient code in these cases.
 {\em algorithm} & $d$: 100, $n$: 1k & $d$: 100, $n$: 10k & $d$: 100, $n$:
 100k & $d$: 1k, $n$: 100k \\
 \midrule
-\texttt{ensmallen}-1 & {\bf 0.001s} & {\bf 0.009s} & {\bf 0.154s} & {\bf 2.215s} \\
-\texttt{ensmallen}-2 & 0.002s & 0.016s & 0.182s & 2.522s \\
+\texttt{ensmallen-1} & {\bf 0.001s} & {\bf 0.009s} & {\bf 0.154s} & {\bf 2.215s} \\
+\texttt{ensmallen-2} & 0.002s & 0.016s & 0.182s & 2.522s \\
 % Dropped for space and awful performance
 %\texttt{Calculus.jl} & 0.172s & 0.960s & 27.428s & 2535.507s \\
 \texttt{Optim.jl} & 0.006s & 0.030s & 0.337s & 4.271s \\
@@ -165,7 +167,7 @@ All Julia runs do not count compilation time.}
 \end{table}
 
 Next, we consider the linear regression example described in
-Sec.~\ref{sec:linreg_example}.  For this task we use the first-order L-BFGS
+Section~\ref{sec:linreg_example}.  For this task we use the first-order L-BFGS
 optimizer~\cite{liu1989limited}, implemented in {\tt ensmallen} as the {\tt
 L\_BFGS} class.  Using the same four packages, we implement
 the linear regression objective and gradient.  Remembering that {\tt ensmallen}
@@ -174,10 +176,10 @@ implementations (Section~\ref{sec:automatic}), for {\tt ensmallen} we implement
 a version with only {\tt EvaluateWithGradient()}, denoted as {\tt ensmallen-1}.
 We also implement a version with both \texttt{Evaluate()} and
 \texttt{Gradient()}: \texttt{ensmallen-2}.  We also use automatic
-differentiation for Julia via the \texttt{
-ForwardDiff.jl}~\cite{RevelsLubinPapamarkou2016} package and for Python via the
-\texttt{Autograd}~\cite{maclaurin2015autograd} package.  For GNU Octave
-we use the \texttt{bfgsmin()} function.
+differentiation for Julia via the 
+\texttt{ForwardDiff.jl}~\cite{RevelsLubinPapamarkou2016} package
+and for Python via the \texttt{Autograd}~\cite{maclaurin2015autograd} package.  
+For GNU Octave we use the \texttt{bfgsmin()} function.
 
 Results for various data sizes are shown in Table~\ref{tab:lbfgs}.  For each
 implementation, L-BFGS was allowed to run for only $10$ iterations and never
@@ -197,7 +199,7 @@ observe that the output of automatic differentiators is not as efficient,
 especially with \texttt{ForwardDiff.jl}.  We expect this effect to be
 more pronounced with increasingly complex objective functions.
 
-\subsection{Easy pluggability of various optimizers}
+\subsection{Easy Pluggability of Various Optimizers}
 
 Lastly, we demonstrate the easy pluggability in \texttt{ensmallen}
 for using various optimizers on the same task.
@@ -207,7 +209,7 @@ optimizers, we run six optimizers with default parameters in just 8 lines of
 code, as shown in Fig.~\ref{fig:learning_curve_code}.
 Applying these optimizers to the \texttt{YearPredictionMSD}
 dataset from the UCI repository~\cite{ucimlrepository}
-yields the learning curves shown in Fig.~\ref{fig:learning_curve}(b).
+yields the learning curves shown in Fig.~\ref{fig:learning_curve}.
 
 \begin{figure}[t!]
 \hrule
@@ -226,17 +228,18 @@ RMSProp().Optimize(lrf, rmspropModel);
 \end{minted}
 \hrule
 \vspace*{-0.5em}
-\caption{{\tt ensmallen} makes it easy to switch out optimizer types: 8
-lines of code run 6 different optimizers on one problem.}
+\caption{{\tt ensmallen} makes it easy to switch out optimizer types:
+8 lines of code run 6 optimizers on one problem.}
 \label{fig:learning_curve_code}
 \end{figure}
 
 Any other optimizer for separable differentiable objective
-functions can be dropped into place in the same manner; given {\tt ensmallen}'s
-large number of available optimizers, this support could be used to easily
-compare optimizers.  In fact, this is exactly done with the interactive
+functions can be dropped into place in the same manner;
+given the large number of available optimizers in {\tt ensmallen},
+this support could be used to easily compare optimizers.
+In fact, this is exactly done with the interactive
 optimizer visualization tool found at \url{https://vis.ensmallen.org}.
-Figure~\ref{fig:visualization} shows an example visualization from that page.
+Figure~\ref{fig:visualization} shows an example visualization.
 
 \begin{figure}[t!]
   \vspace*{-1em}

@@ -14,23 +14,22 @@ For example, a user might supply a single function named
 {\tt EvaluateWithGradient()}
 in order to allow sharing common computation that may be 
 present in {\tt Evaluate()} and {\tt Gradient()}.
-For instance, the computation of $(\bm X \bm \theta - \bm y$)
-in Equations~(\ref{eqn:obj_lr}) and~(\ref{eqn:grad_lr}) can be reused.
 The two functions can then be automatically inferred when needed.
 
 \item
 Callbacks, which can specify custom behavior during the optimization.
 Examples include printing the loss function value at each iteration,
 terminating when a time limit is reached,
-or other custom user-supplied functionality.
+changing the step size,
+and adding custom constraints when they are violated by the current solution.
 
 \item
 Use of types other than {\tt arma::mat} when calling {\tt Optimize()}.
 This can include
 integer-valued matrices ({\tt arma::imat}),
 sparse matrices ({\tt arma::sp\_mat}),
-or any type whose implementation matches the Armadillo API.
+or any type whose implementation matches the Armadillo API~\cite{sanderson2016armadillo,sanderson2018user}.
 
 \end{itemize}
 
-Each of the above points is covered in more detail below.
+Each of the above points is covered in more detail in the following subsections.

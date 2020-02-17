@@ -86,8 +86,8 @@ provide no functions; if {\tt FunctionType} does {\em not} have an {\tt
 EvaluateWithGradient()} method, then {\tt AddEvaluateWithGradient<...>} will
 provide an {\tt EvaluateWithGradient()} function.
 
-The details of how this work depend on the SFINAE technique~\cite{TODO} and
-template specialization.  The {\tt AddEvaluateWithGradient} class has five
+The details of how this work depend on the SFINAE technique~\cite{TODO} \TODO{citation}
+and template specialization.  The {\tt AddEvaluateWithGradient} class has five
 template parameters, shown in Figure~\ref{fig:aewg}; the last two of these have
 default values.
 
@@ -124,7 +124,7 @@ For the sake of brevity we omit the expressions for the {\tt bool} parameters
 {\tt HasEvaluateGradient} and {\tt HasEvaluateWithGradient}\footnote{Interested
 readers can find that code in {\tt
 ensmallen\_bits/function/add\_evaluate\_with\_gradient.hpp}.}.  These two
-parameters are traits expressions~\cite{TODO} that depend heavily on SFINAE
+parameters are traits expressions that depend heavily on SFINAE
 techniques for method detection; {\tt HasEvaluateGradient} will evaluate to {\tt
 true} if {\tt FunctionType} has {\tt Evaluate()} and {\tt Gradient()}; if only
 one (or neither) is available, the value is {\tt false}.  {\tt

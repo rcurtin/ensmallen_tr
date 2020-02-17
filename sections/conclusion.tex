@@ -1,20 +1,20 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper introduces and explains {\tt ensmallen}, a C++ mathematical
-optimization library that uses template metaprogramming to produce efficient
+This report introduces and explains {\tt ensmallen}, a C++ mathematical
+optimization library that internally uses template metaprogramming to produce efficient
 code.  The library is flexible, with support for numerous types of objective
 functions, and many implemented optimizers.  It is easy to both implement
 objective functions to optimize with {\tt ensmallen}, and to write new
 optimizers for inclusion in the library.  {\tt ensmallen} has support for
 automatic function inference and callbacks.  Because this is done through
-template metaprogramming, there is no additional runtime overhead.  Experimental
-results show that {\tt ensmallen} outperforms other toolkits for similar
-tasks---thus justifying the use of C++ and templates.
+template metaprogramming, there is no additional runtime overhead.
+Empirical results show that {\tt ensmallen} outperforms other toolkits 
+for similar tasks.
 
-Expected future work includes the implementation of additional optimizers
-and better support for vairous types of objective functions
+Future work includes the implementation of additional optimizers
+and better support for various types of objective functions
 (such as better support for constrained functions).
 Development is done in an open manner at \mbox{\url{https://github.com/ensmallen/ensmallen}}.
-The library is BSD-licensed, and anyone is welcome to contribute code
-and help with the effort.
+The library uses the permissive BSD license~\cite{TODO} \TODO{citation}.
+Anyone is welcome to help with the effort and contribute code.

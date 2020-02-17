@@ -72,6 +72,10 @@ To allow exploitation of such attributes, the optimizers are built to work with
 many types of objective functions.  The classes of objective functions
 are listed below.
 
+For details on the required signatures for each objective function type
+(such as {\tt DifferentiableFunctionType}),
+see the online documentation at \mbox{\url{https://ensmallen.org/docs.html}}.
+
 \begin{itemize}
 \item {\bf Arbitrary functions} ({\tt ArbitraryFunctionType}).
 No assumptions are made on function $f(x)$ and only the objective
@@ -116,9 +120,6 @@ support to make optimizing semidefinite
 programs~\cite{vandenberghe1996semidefinite} straightforward.
 \end{itemize}
 
-For details on the required signatures for each objective function type
-(such as {\tt DifferentiableFunctionType}),
-see the online documentation at \mbox{\url{https://ensmallen.org/docs.html}}.
 
 
 \subsection{Pre-Built Optimizers}
