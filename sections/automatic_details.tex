@@ -86,7 +86,7 @@ provide no functions; if {\tt FunctionType} does {\em not} have an {\tt
 EvaluateWithGradient()} method, then {\tt AddEvaluateWithGradient<...>} will
 provide an {\tt EvaluateWithGradient()} function.
 
-The details of how this work depend on the SFINAE technique~\cite{TODO} \TODO{citation}
+The details of how this work depend on the SFINAE technique~\cite{abrahams2004c++,Vandevoorde_2018}
 and template specialization.  The {\tt AddEvaluateWithGradient} class has five
 template parameters, shown in Figure~\ref{fig:aewg}; the last two of these have
 default values.

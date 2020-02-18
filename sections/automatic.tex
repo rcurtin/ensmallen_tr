@@ -18,14 +18,14 @@ This inefficiency%
 \footnote
   {It may be possible to use auto-differentiation to avoid this efficiency,
   or a programming language with introspection to operate directly on the
-  abstract syntax tree~\cite{TODO} \TODO{citation} of the given objective and gradient
+  abstract syntax tree~\cite{Jones_AST_2003} of the given objective and gradient
   computations to successfully share the computation.  However, at the time of
   this writing, we are not aware of any that do this.
-  \TODO{possible inconsistency: auto-differentiation is mentioned in the experiments section~\ref{sec:experiments}}
+  \TODO{possible inconsistency: auto-differentiation is used in the experiments (section~\ref{sec:experiments}); so there are packages that use it?}
   }
 can apply to any optimization package that accepts an objective
 function and its gradient as separate parameters,
-such as SciPy, {\tt Optim.jl} and {\tt bfgsmin()} from Octave~\cite{TODO}\TODO{citation}.
+such as SciPy, {\tt Optim.jl} and {\tt bfgsmin()} from Octave~\cite{octave}.
 
 To work around this issue, {\tt ensmallen} internally uses template metaprogramming techniques to allow
 the user to provide {\it either} separate implementations of the objective

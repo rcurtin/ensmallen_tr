@@ -24,7 +24,7 @@ an optimizer's {\tt Optimize()} method:
   \item {\tt RequireFloatingPointType<MatType>()}: this requires that the
 element type held by {\tt MatType} is either {\tt float} or {\tt double}.
 This is generally needed by optimizers that use Armadillo functionality which
-ends up calling LAPACK functions~\cite{TODO} \TODO{citation to LAPACK manual}.
+ends up calling LAPACK functions~\cite{anderson1999lapack}.
 
   \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
 {\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
