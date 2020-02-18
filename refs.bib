@@ -14,7 +14,7 @@
          {van Mulbregt}, Paul and {Contributors}, SciPy 1. 0},
         title = "{SciPy 1.0--Fundamental Algorithms for Scientific
                   Computing in Python}",
-      journal = {arXiv e-prints},
+      journal = {arXiv pre-print},
          year = "2019",
         month = "Jul",
           eid = {arXiv:1907.10121},
@@ -47,15 +47,15 @@ archivePrefix = {arXiv},
 }
 
 @misc{ortools,
-  title = {OR-Tools},
+  title = {{OR}-Tools},
   version = {7.2},
   author = {Laurent Perron and Vincent Furnon},
   organization = {Google},
   note = {https://developers.google.com/optimization/},
-  date = {2019-7-19}
+  year = {2019-7-19}
 }
 
-@article{vandenberghe2010cvxopt,
+@misc{vandenberghe2010cvxopt,
   title={The {CVXOPT} linear and quadratic cone program solvers},
   author={Vandenberghe, Lieven},
   note={http://cvxopt.org},
@@ -202,7 +202,7 @@ archivePrefix = {arXiv},
      Ying Zhang},
  collaboration = {Theano Development Team},
     title = "{Theano: A {Python} framework for fast computation of mathematical expressions}",
-  journal = {arXiv e-prints},
+  journal = {arXiv pre-print},
    volume = {abs/1605.02688},
  primaryClass = "cs.SC",
  keywords = {Computer Science - Symbolic Computation, Computer Science - Learning, Computer Science - Mathematical Software},
@@ -343,11 +343,11 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 
 @inproceedings{lauzon2012introduction,
   title={An introduction to deep learning},
-  author={Lauzon, Francis Quintal},
-  booktitle={2012 11th International Conference on Information Science, Signal Processing and their Applications (ISSPA)},
+  author={Francis Quintal Lauzon},
+  booktitle={International Conference on Information Science, Signal Processing and their Applications},
   pages={1438--1439},
   year={2012},
-  organization={IEEE}
+  url = {http://doi.org/10.1109/ISSPA.2012.6310529}
 }
 
 @article{dueri2016customized,
@@ -375,18 +375,17 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @inproceedings{zhang2004solving,
   title={Solving large scale linear prediction problems using stochastic gradient descent algorithms},
   author={Zhang, Tong},
-  booktitle={Proceedings of the Twenty-First International Conference on Machine Learning (ICML '04)},
+  booktitle={Proceedings of the Twenty-First International Conference on Machine Learning},
   pages={116},
   year={2004},
-  organization={ACM}
 }
 
-@software{matlab_fminsearch,
+@misc{matlab_fminsearch,
   title={{\tt fminsearch}},
   author={MathWorks},
-  url={https://www.mathworks.com/help/matlab/ref/fminsearch.html},
+  note={https://www.mathworks.com/help/matlab/ref/fminsearch.html},
   version={R2019b},
-  year=2019
+  year={Matlab version R2019b}
 }
 
 @inproceedings{ensmallen2018,
@@ -428,23 +427,24 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 }
 
 @inproceedings{montana1989training,
-  title={Training Feedforward Neural Networks Using Genetic Algorithms.},
+  title={Training Feedforward Neural Networks Using Genetic Algorithms},
   author={Montana, David J and Davis, Lawrence},
-  booktitle={IJCAI},
-  volume={89},
+  booktitle={International Joint Conference on Artificial Intelligence},
+  volume={1},
   pages={762--767},
-  year={1989}
+  year={1989},
+  url={https://www.ijcai.org/Proceedings/89-1/Papers/122.pdf}
 }
 
 @article{storn1997differential,
   title={Differential evolution--a simple and efficient heuristic for global optimization over continuous spaces},
   author={Storn, Rainer and Price, Kenneth},
-  journal={Journal of global optimization},
+  journal={Journal of Global Optimization},
   volume={11},
   number={4},
   pages={341--359},
   year={1997},
-  publisher={Springer}
+  url={https://doi.org/10.1023/A:1008202821328}
 }
 
 @article{spall1992multivariate,
@@ -459,14 +459,14 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 }
 
 @article{liu1989limited,
-  title={On the limited memory BFGS method for large scale optimization},
+  title={On the limited memory {BFGS} method for large scale optimization},
   author={Liu, Dong C and Nocedal, Jorge},
-  journal={Mathematical programming},
+  journal={Mathematical Programming},
   volume={45},
   number={1-3},
   pages={503--528},
   year={1989},
-  publisher={Springer}
+  url={https://doi.org/10.1007/BF01589116}
 }
 
 @inproceedings{jaggi2013revisiting,
@@ -479,10 +479,9 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 
 @inproceedings{Shalev-Shwartz2009,
   author    = {Shalev-Shwartz, Shai and Tewari, Ambuj},
-  title     = {Stochastic Methods for L1 Regularized Loss Minimization},
+  title     = {Stochastic Methods for l1 Regularized Loss Minimization},
   booktitle = {Proceedings of the 26th Annual International Conference on
                Machine Learning},
-  series    = {ICML '09},
   year      = {2009},
   isbn = {978-1-60558-516-1}
 }
@@ -511,10 +510,12 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 }
 
 @article{zeiler2012adadelta,
-  title={ADADELTA: an adaptive learning rate method},
-  author={Zeiler, Matthew D},
-  journal={arXiv preprint arXiv:1212.5701},
-  year={2012}
+  title   = {{ADADELTA}: an adaptive learning rate method},
+  author  = {Zeiler, Matthew D},
+  journal = {arXiv pre-print},
+  volume  = {1212.5701},
+  year    = {2012},
+  url     = {http://arxiv.org/abs/1212.5701}
 }
 
 @article{duchi2011adaptive,
@@ -531,16 +532,19 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{Kingma2014,
   author  = {Diederik P. Kingma and Jimmy Ba},
   title   = {Adam: {A} Method for Stochastic Optimization},
-  journal = {CoRR},
+  journal = {arXiv pre-print},
+  volume  = {1412.6980},
   year    = {2014},
   url     = {http://arxiv.org/abs/1412.6980}
 }
 
 @article{reddi2019convergence,
-  title={On the convergence of adam and beyond},
-  author={Reddi, Sashank J and Kale, Satyen and Kumar, Sanjiv},
-  journal={arXiv preprint arXiv:1904.09237},
-  year={2019}
+  title   = {On the convergence of {Adam} and beyond},
+  author  = {Reddi, Sashank J and Kale, Satyen and Kumar, Sanjiv},
+  journal = {arXiv pre-print},
+  volume  = {1904.09237},
+  year    = {2019},
+  url     = {http://arxiv.org/abs/1904.09237}
 }
 
 @article{De2017,
@@ -548,17 +552,20 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
              Sizes},
   author  = {Soham De and Abhay Kumar Yadav and David W. Jacobs and
              Tom Goldstein},
-  journal = {CoRR},
+  journal = {arXiv pre-print},
+  volume  = {1610.05792},
   year    = {2017},
   url     = {http://arxiv.org/abs/1610.05792},
 }
 
-@misc{1106.5730,
-  author = {Mokhtari, Aryan and Eisen, Mark and Ribeiro, Alejandro},
-  title  = {IQN: An Incremental Quasi-Newton Method with Local Superlinear
+@article{1106.5730,
+  author  = {Mokhtari, Aryan and Eisen, Mark and Ribeiro, Alejandro},
+  title   = {{IQN}: An Incremental Quasi-{Newton} Method with Local Superlinear
             Convergence Rate},
-  year   = {2017},
-  eprint = {arXiv:1702.00709},
+  journal = {arXiv pre-print},
+  volume  = {1702.00709},
+  year    = {2017},
+  url     = {http://arxiv.org/abs/1702.00709},
 }
 
 @inproceedings{Allen-Zhu2016,
@@ -569,35 +576,32 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
                of Computing},
   pages     = {1200--1205},
   publisher = {ACM},
-  year      = {2017},
-  series    = {STOC 2017},
+  year      = {2017}
 }
 
 @article{Zhang2019,
   author  = {Michael R. Zhang and James Lucas and Geoffrey E. Hinton and
              Jimmy Ba},
   title   = {Lookahead Optimizer: k steps forward, 1 step back},
-  journal = {CoRR},
+  journal = {arXiv pre-print},
+  volume  = {1907.08610},
   year    = {2019},
   url     = {http://arxiv.org/abs/1907.08610}
 }
 
 @article{rumelhart1988learning,
   title   = {Learning representations by back-propagating errors},
-  author  = {Rumelhart, David E. and Hinton, Geoffrey E. and
-             Williams, Ronald J.},
-  journal = {Cognitive Modeling},
-  volume  = {5},
-  number  = {3},
-  pages   = {1},
-  year    = {1988}
+  author  = {David E. Rumelhart and Geoffrey E. Hinton and Ronald J. Williams},
+  journal = {Nature},
+  volume  = {323},
+  pages   = {533--536},
+  year    = {1986}
 }
 
 @techreport{Dozat2015,
   title       = {Incorporating {Nesterov} momentum into {Adam}},
   author      = {Timothy Dozat},
   institution = {Stanford University},
-  address     = {Stanford},
   year        = {2015},
   url         = {https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ}
 }
@@ -616,12 +620,13 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
              Haoyang Zeng},
   title   = {Training {GANs} with Optimism},
   year    = {2017},
-  url     = {https://arxiv.org/abs/1711.00141},
-  journal = {CoRR}
+  volume  = {1711.00141},
+  journal = {arXiv pre-print},
+  url     = {https://arxiv.org/abs/1711.00141}
 }
 
 @inproceedings{ma2019qh,
-  title={Quasi-hyperbolic momentum and Adam for deep learning},
+  title={Quasi-hyperbolic momentum and {Adam} for deep learning},
   author={Jerry Ma and Denis Yarats},
   booktitle={International Conference on Learning Representations},
   year={2019}
@@ -642,7 +647,7 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
              K. and {Tak{\'a}{\v c}}, M.},
   title   = {{SARAH}: A Novel Method for Machine Learning Problems Using
              Stochastic Recursive Gradient},
-  journal = {ArXiv pre-print},
+  journal = {arXiv pre-print},
   volume  = {1703.00102},
   url     = {https://arxiv.org/abs/1703.00102},
   year    = {2017}
@@ -651,7 +656,8 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{Loshchilov2016,
   title   = {{SGDR:} Stochastic Gradient Descent with Restarts},
   author  = {Ilya Loshchilov and Frank Hutter},
-  journal = {CoRR},
+  journal = {arXiv pre-print},
+  volume  = {1608.03983},
   year    = {2016},
   url     = {https://arxiv.org/abs/1608.03983}
 }
@@ -689,10 +695,10 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 
 @article{Keskar2017,
   author  = {Nitish Shirish Keskar and Richard Socher},
-  title   = {Improving Generalization Performance by Switching from Adam to
+  title   = {Improving Generalization Performance by Switching from {Adam} to
              {SGD}},
-  journal = {CoRR},
-  volume  = {abs/1712.07628},
+  journal = {arXiv pre-print},
+  volume  = {1712.07628},
   year    = {2017},
   url     = {http://arxiv.org/abs/1712.07628}
 }
@@ -709,7 +715,8 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @article{Koushik2016,
   author  = {Jayanth Koushik and Hiroaki Hayashi},
   title   = {Improving Stochastic Gradient Descent with Feedback},
-  journal = {CoRR},
+  journal = {arXiv pre-print},
+  volume  = {1611.01505},
   year    = {2016},
   url     = {http://arxiv.org/abs/1611.01505}
 }
@@ -727,24 +734,26 @@ url = {http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-perf
 @inproceedings{recht2011hogwild,
   title={Hogwild: A lock-free approach to parallelizing stochastic gradient descent},
   author={Recht, Benjamin and Re, Christopher and Wright, Stephen and Niu, Feng},
-  booktitle={Advances in neural information processing systems},
+  booktitle={Advances in Neural Information Processing Systems},
   pages={693--701},
   year={2011}
 }
 
-@misc{Schoenauer2017,
+@article{Schoenauer2017,
   title   = {Stochastic Gradient Descent:
              Going As Fast As Possible But Not Faster},
-  author  = {Schoenauer-Sebag, Alice and Schoenauer, Marc and Sebag, Michele},
-  journal = {CoRR},
+  author  = {Alice Schoenauer-Sebag and Marc Schoenauer and Mich{\`e}le Sebag},
+  journal = {arXiv pre-print},
+  volume  = {1709.01427},
   year    = {2017},
   url     = {https://arxiv.org/abs/1709.01427},
 }
 
 @article{Wu2018,
   author  = {{Wu}, X. and {Ward}, R. and {Bottou}, L.},
-  title   = {WNGrad: Learn the Learning Rate in Gradient Descent},
-  journal = {ArXiv e-prints},
+  title   = {{WNGrad}: Learn the Learning Rate in Gradient Descent},
+  journal = {arXiv pre-print},
+  volume  = {1803.02865},
   year    = {2018},
   url     = {https://arxiv.org/abs/1803.02865},
 }
@@ -862,8 +871,7 @@ Representations (ICLR 2015)},
   title={Improving the speed of neural networks on {CPUs}},
   author={Vanhoucke, Vincent and Senior, Andrew and Mao, Mark Z},
   year={2011},
-  booktitle={Deep Learning and Unsupervised Feature Learning Workshop at NIPS
-2011}
+  booktitle={Deep Learning and Unsupervised Feature Learning Workshop at NIPS}
 }
 
 @inproceedings{courbariaux2015binaryconnect,
@@ -921,20 +929,19 @@ DOI = {10.3390/mca24030070}
 @inproceedings{athanasopoulos2011gpu,
   title={{GPU} acceleration for support vector machines},
   author={Athanasopoulos, Andreas and Dimou, Anastasios and Mezaris, Vasileios and Kompatsiaris, Ioannis},
-  booktitle={Procs. 12th Inter. Workshop on Image Analysis for Multimedia Interactive Services (WIAMIS 2011), Delft, Netherlands},
+  booktitle={Proceedings of 12th International Workshop on Image Analysis for Multimedia Interactive Services, Delft, Netherlands},
   pages={17--55},
   year={2011}
 }
 
 @article{bacry2017tick,
-  title={Tick: a {Python} library for statistical learning, with an emphasis on hawkes processes and time-dependent models},
-  author={Bacry, Emmanuel and Bompaire, Martin and Deegan, Philip and Ga{\"\i}ffas, St{\'e}phane and Poulsen, S{\o}ren V},
-  journal={The Journal of Machine Learning Research},
-  volume={18},
-  number={1},
-  pages={7937--7941},
-  year={2017},
-  publisher={JMLR. org}
+  author  = {Emmanuel Bacry and Martin Bompaire and Philip Deegan and St{{\'e}}phane Ga{{\"i}}ffas and S{{\o}}ren V. Poulsen},
+  title   = {tick: a {Python} Library for Statistical Learning, with an emphasis on Hawkes Processes and Time-Dependent Models},
+  journal = {Journal of Machine Learning Research},
+  year    = {2018},
+  volume  = {18},
+  number  = {214},
+  pages   = {1-5}
 }
 
 @article{Rosenbrock1960,
@@ -965,7 +972,7 @@ Wehbring},
 }
 
 @inproceedings{maclaurin2015autograd,
-  title={Autograd: Effortless gradients in numpy},
+  title={Autograd: Effortless gradients in {NumPy}},
   author={Maclaurin, Dougal and Duvenaud, David and Adams, Ryan P},
   booktitle={AutoML Workshop at ICML},
   year={2015}
