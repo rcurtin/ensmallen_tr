@@ -16,12 +16,13 @@ The differentiable optimizers in {\tt ensmallen} treat the given functions as or
 and do not know anything about the internal computations of the functions.
 This inefficiency%
 \footnote
-  {It may be possible to use auto-differentiation to avoid this efficiency,
-  or a programming language with introspection to operate directly on the
-  abstract syntax tree~\cite{Jones_AST_2003} of the given objective and gradient
-  computations to successfully share the computation.  However, at the time of
-  this writing, we are not aware of any that do this.
-  \TODO{possible inconsistency: auto-differentiation is used in the experiments (section~\ref{sec:experiments}); so there are packages that use it?}
+  {It may be possible to use a specialized implementation of
+  auto-differentiation or a programming language with introspection that
+  operates directly on the abstract syntax tree~\cite{Jones_AST_2003} of the
+  given objective and gradient computations to avoid this inefficiency and
+  successfully share the computations across the gradient and objective.
+  However, at the time of this writing, we are not aware of any optimization
+  packages that actually do this.
   }
 can apply to any optimization package that accepts an objective
 function and its gradient as separate parameters,
