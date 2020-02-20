@@ -27,11 +27,12 @@ This is generally needed by optimizers that use Armadillo functionality which
 ends up calling LAPACK functions~\cite{anderson1999lapack}.
 
   \item {\tt RequireSameInternalTypes<Mat1Type, Mat2Type>()}: this requires that
-{\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This can
-be useful for differentiable optimizers, where we want to ensure, for example,
-that a user cannot pass a {\tt MatType} that holds {\tt int}s, but a {\tt GradType} that
-holds {\tt unsigned int}s.
-\TODO{unclear or poor wording}
+{\tt Mat1Type} and {\tt Mat2Type} use the same type to hold elements.  This is
+useful for differentiable optimizers, where the user is allowed to specify
+different objective matrix types ({\tt MatType}) and gradient matrix types ({\tt
+GradType}).  This function allows us to require that the same type (e.g., {\tt
+int} or {\tt float} or {\tt double}) is used for both {\tt MatType} and {\tt
+GradType}.
 
   \item {\tt RequireDenseFloatingPointType<MatType>()}: this requires that the
 element type held by {\tt MatType} is either {\tt float} or {\tt double}, and
