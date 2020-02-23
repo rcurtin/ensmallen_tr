@@ -33,9 +33,8 @@ as shown in Table~\ref{tab:callback_list}.
 These callbacks are regularly called during the optimization process,
 depending on the objective function type.
 Callbacks are executed in the order that they are specified.
-\TODO{the following description of bool true/false result has possible inconsistency with Appendix~\ref{sec:callback_details}}
 Each callback may terminate the optimization via its {\tt bool} return value,
-where {\tt false} indicates that the optimization should be stopped.
+where {\tt true} indicates that the optimization should be stopped.
 By default, subsequent callbacks are not called if an earlier callback terminates
 the optimization: the optimizer terminates immediately.
 
@@ -157,7 +156,7 @@ class CustomCallback
                 const double objective)
   {
     std::cout << "The optimization process called Evaluate()!" << std::endl;
-    return true; // Continue the optimization process.
+    return false; // Do not terminate, continue the optimization process.
   }
 };
 \end{minted}
@@ -167,10 +166,9 @@ class CustomCallback
 \caption
   {
   An example of a custom callback.  This callback prints to {\tt std::cout}
-after each time the {\tt Evaluate()} function is called by the optimizer.  The
-callback always returns {\tt true}, meaning that the optimization should not be
+after each time the {\tt Evaluate()} function is called by the optimizer. In the example the
+callback always returns {\tt false}, meaning that the optimization should not be
 terminated on behalf of the callback.
-\TODO{description of bool true/false result has possible inconsistency with Appendix~\ref{sec:callback_details}}
   }
 \label{fig:example_prog_callbacks_2}
 \end{figure}

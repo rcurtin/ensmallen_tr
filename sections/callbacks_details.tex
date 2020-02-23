@@ -54,9 +54,6 @@ static bool Callback::Evaluate(OptimizerType& optimizer,
 \caption{Implementation of {\tt Callback::Evaluate()},
 showing part of the process of calling each callback
 given in the template vararg pack {\tt callbacks}.
-\TODO{possible inconsistency/confusion with Fig.~\ref{fig:example_prog_callbacks_2}
-  which returns {\tt false} to indicate failure;
-  if this isn't an inconsistency, need to briefly explain why}
 }
 \label{fig:callback_evaluate}
 \end{figure}
@@ -82,9 +79,6 @@ every callback that must be called.
 The implementation of the function unpacks the {\tt callbacks},
 calling each callback's {\tt Evaluate()} method (if it exists) in sequence,
 and terminating early if any of these callbacks returns {\tt true}.
-\TODO{should this be ``false'' to indicate optimization failure?
-  possible inconsistency/confusion with Fig.~\ref{fig:example_prog_callbacks_2};
-  if this isn't an inconsistency, need to briefly explain why}
 Each callback's {\tt Evaluate()} method is called through the helper
 function {\tt Callback::EvaluateFunction()},
 which uses SFINAE traits to control behavior depending on whether
