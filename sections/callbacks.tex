@@ -127,10 +127,8 @@ Comprehensive documentation on the required signatures for each callback can be
 found in the {\tt ensmallen} documentation at
 \url{http://ensmallen.org/docs.html#callback-states}.
 
-\TODO{still not happy with how this reads: the two {\tt Evaluate()} functions can be confusing to new users}
-If a custom callback is desired to take an action after any call
-to {\tt Evaluate()}, then only a {\tt CustomCallback::Evaluate()} method is required
-to perform the desired action.
+If a custom callback is desired to take an action before the optimization process starts, then only a
+{\tt CustomCallback::BeginOptimization()} method is required to perform the desired action.
 An example of a custom callback that 
 prints a line to {\tt std::cout} every time the optimization calls
 {\tt Evaluate()} is shown in Figure~\ref{fig:example_prog_callbacks_2}.
