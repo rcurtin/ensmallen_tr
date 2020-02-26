@@ -115,6 +115,10 @@ The salient points are summarized in Section~\ref{sec:conclusion}.
         % support might be possible but would not be easy.
         & TensorFlow \cite{tensorflow2015-whitepaper}        & \CIRCLE & -  & \CIRCLE  & \LEFTcircle & - &
 \LEFTcircle & - & \LEFTcircle & - \\
+        % PyTorch is increasingly popular these days.  It has Caffe integrated
+        % into itself, but this refers to the actual PyTorch optimizer parts.
+        & PyTorch \cite{NEURIPS2019_9015} & \CIRCLE & - & \CIRCLE & \LEFTcircle
+& \LEFTcircle & - & - & \LEFTcircle & - \\
         % Caffe has a nice framework, but it's only for SGD-related optimizers.
         % I think I could write a new one, but it is not the easiest thing in
         % the world.
@@ -155,7 +159,6 @@ take advantage of sparse gradients; {\it categorical} refers to if support
 for categorical features exists; {\it arbitrary types} mean that arbitrary types
 can be used for the parameters $x$;
 {\it callbacks} indicates that user-implementable callback support is available.
-%\TODO{may want to add a comparison with PyTorch, as that's getting popular these days}
 }
 \label{tab:comparison}
 \vspace{1ex}
