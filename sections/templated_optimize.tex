@@ -4,7 +4,53 @@
 % We can start by expanding on the linear regression function example to point
 % out that we may want different types.
 
-\begin{figure}[b!]
+\begin{figure}[t!]
+\hrule
+\vspace{1ex}
+\begin{minted}[fontsize=\small]{c++}
+#include <ensmallen.hpp>
+
+// A trivial parabolic function.  The minimum is at the origin.  The function
+// works with any matrix type.
+class ParabolicFunction
+{
+ public:
+  template<typename MatType>
+  typename MatType::elem_type Evaluate(const MatType& coordinates)
+  {
+    // Return the sum of squared coordinates.
+    return arma::accu(arma::square(coordinates));
+  }
+};
+
+int main()
+{
+  // Use simulated annealing to optimize the ParabolicFunction.
+  ParabolicFunction pf;
+  ens::SA<> optimizer(ens::ExponentialSchedule());
+
+  // element type is double
+  arma::mat doubleCoordinates(10, 1, arma::fill::randu);
+  optimizer.Optimize(pf, doubleCoordinates);
+
+  // element type is float
+  arma::fmat floatCoordinates(10, 1, arma::fill::randu);
+  optimizer.Optimize(pf, floatCoordinates);
+
+  // element type is int
+  arma::imat intCoordinates(10, 1, arma::fill::randi);
+  optimizer.Optimize(pf, intCoordinates);
+}
+\end{minted}
+\hrule
+\vspace*{-0.5em}
+\caption{Example {\tt ensmallen} program showing that {\tt ensmallen}'s
+optimizers can be used to seamlessly optimize functions with many different
+element types.}
+\label{fig:many_optimize}
+\end{figure}
+
+\begin{figure}[t!]
 \hrule
 \vspace{1ex}
 \begin{minted}[fontsize=\small]{c++}
@@ -63,6 +109,15 @@ such a way that any underlying storage type can be used to represent the
 coordinates to be optimized---so long as it matches the Armadillo API.
 This means that the Bandicoot GPU matrix library\footnote{\url{https://gitlab.com/conradsnicta/bandicoot-code}}
 can be used as a drop-in replacement once it is stable.
+
+An example of seamlessly using {\tt ensmallen}'s optimizers with different
+underlying storage types is given in Figure~\ref{fig:many_optimize}.  In this
+example, the types {\tt arma::mat} (which holds {\tt double}), {\tt arma::fmat}
+(which holds {\tt float}), and {\tt arma::imat} (which holds {\tt int}) are all
+used with {\tt ensmallen}'s simulated annealing implementation to optimize a
+very simple parabolic function.  Due to the use of templates both inside {\tt
+ensmallen} and in the implementation of the {\tt ParabolicFunction} class, it is
+trivial to change the underlying type used for storage.
 
 Consider the simplified gradient descent optimizer shown in Figure~\ref{fig:gd}.
 The use of the template types {\tt FunctionType}, {\tt MatType}, and {\tt

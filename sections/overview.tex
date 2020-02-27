@@ -40,13 +40,13 @@ such as L-BFGS~\cite{liu1989limited},
 can then be immediately employed.
 
 Whenever possible, {\tt ensmallen} will automatically infer methods that are
-not provided.  For instance, given a separable objective function where an
-implementation of $f_i(x)$ is provided (as well as the number of such separable
-objectives), an implementation of $f(x)$ can be automatically inferred.
-This is done at compile-time, and so there is no additional runtime overhead
-compared to a manual implementation.
-C++ template metaprogramming techniques~\cite{abrahams2004c++,alexandrescu2001modern,
-veldhuizen1998c++} are internally used to produce efficient code during compilation.
+not provided.  For instance, given a separable objective function $f(x) = \sum_i
+f_i(x)$ where an implementation of $f_i(x)$ is provided (as well as the number
+of such separable objectives), an implementation of $f(x)$ can be automatically
+inferred.  This is done at compile-time, and so there is no additional runtime
+overhead compared to a manual implementation.  C++ template metaprogramming
+techniques~\cite{abrahams2004c++,alexandrescu2001modern, veldhuizen1998c++} are
+internally used to produce efficient code during compilation.
 
 Not every type of objective function can be used with every type of optimizer.
 For instance, since L-BFGS is a differentiable optimizer,
@@ -57,12 +57,10 @@ an internal mechanism automatically checks the requirements,
 resulting in user-friendly error messages if any required methods are not detected.
 
 
-
-
 \subsection{Types of Objective Functions}
 
 In most cases, the objective function $f(x)$ has inherent attributes;
-for example, $f(x)$ might be differentiable.
+for example, as mentioned in the previous paragraphs, $f(x)$ might be differentiable.
 The internal framework in {\tt ensmallen} can optionally take advantage of such attributes.
 In the example of a differentiable function $f(x)$,
 the user can provide an implementation of the gradient $f'(x)$,
@@ -201,7 +199,10 @@ f'(\bm \theta) = 2 \bm X^T (\bm X \bm \theta - \bm y).
 \end{equation}
 
 To find $\bm \theta^*$ using a differentiable
-optimizer, we simply need to provide implementations of $f(\bm \theta)$ and
+optimizer\footnote{Typically, in practice, solving a linear regression model can
+be done directly by taking the psuedoinverse: $\theta^* = X^\dagger y$.  However,
+the objective function is easy to describe and useful for demonstration, so we
+use it in this document.}, we simply need to provide implementations of $f(\bm \theta)$ and
 $f'(\bm \theta)$ according to the signatures required by the {\tt
 DifferentiableFunctionType} of objective function.  For a differentiable
 function, only two methods are necessary: {\tt Evaluate()} and {\tt Gradient()}.
@@ -226,7 +227,7 @@ are readable in a way that closely matches Equations~(\ref{eqn:obj_lr}) and~(\re
 
 
 
-\begin{figure}[!b]
+\begin{figure}[b!]
 \hrule
 \vspace{1ex}
 \centering
@@ -258,12 +259,10 @@ int main()
 
   ens::L_BFGS optimizer; // create the optimizer with default parameters
 
-  arma::mat theta_best(X.n_rows, 1, arma::fill:randu);  // initial starting point (uniform random values)
+  arma::mat theta_best(X.n_rows, 1, arma::fill::randu);  // initial starting point (uniform random values)
 
   optimizer.Optimize(f, theta_best);
   // at this point theta_best contains the best parameters
-
-  return 0;
 }
 \end{minted}
 \hrule
