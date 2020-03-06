@@ -200,7 +200,7 @@ f'(\bm \theta) = 2 \bm X^T (\bm X \bm \theta - \bm y).
 
 To find $\bm \theta^*$ using a differentiable
 optimizer\footnote{Typically, in practice, solving a linear regression model can
-be done directly by taking the psuedoinverse: $\theta^* = X^\dagger y$.  However,
+be done directly by taking the pseudoinverse: $\theta^* = X^\dagger y$.  However,
 the objective function is easy to describe and useful for demonstration, so we
 use it in this document.}, we simply need to provide implementations of $f(\bm \theta)$ and
 $f'(\bm \theta)$ according to the signatures required by the {\tt
