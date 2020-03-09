@@ -45,29 +45,6 @@ executed regularly during an optimization session.
 \label{tab:callback_list}
 \end{table}
 
-
-\subsubsection{Using Callbacks}
-
-To use callbacks, either for optimization, tuning or logging, 
-arbitrary callbacks to any optimizer can be optionally provided
-to the {\tt Optimize()} function.
-Figure~\ref{fig:example_prog_callbacks} contains a code snippet which
-briefly demonstrates usage of the callback functionality.  Given the pre-defined
-callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
-not only how the {\tt MomentumSGD} optimizer can be used to find the best
-coordinates but also how the callbacks can be used to control and monitor the
-optimization.
-
-Eight types of optimization callback routines are available,
-as shown in Table~\ref{tab:callback_list}.
-These callbacks are regularly called during the optimization process,
-depending on the objective function type.
-Callbacks are executed in the order that they are specified.
-Each callback may terminate the optimization via its {\tt bool} return value,
-where {\tt true} indicates that the optimization should be stopped.
-By default, subsequent callbacks are not called if an earlier callback terminates
-the optimization: the optimizer terminates immediately.
-
 \begin{figure}[b!]
 \centering
 \hrule
@@ -93,6 +70,29 @@ bar during the optimization.
   }
 \label{fig:example_prog_callbacks}
 \end{figure}
+
+
+\subsubsection{Using Callbacks}
+
+To use callbacks, either for optimization, tuning or logging, 
+arbitrary callbacks to any optimizer can be optionally provided
+to the {\tt Optimize()} function.
+Figure~\ref{fig:example_prog_callbacks} contains a code snippet which
+briefly demonstrates usage of the callback functionality.  Given the pre-defined
+callbacks {\tt EarlyStopAtMinLoss} and {\tt ProgressBar}, the code snippet shows
+not only how the {\tt MomentumSGD} optimizer can be used to find the best
+coordinates but also how the callbacks can be used to control and monitor the
+optimization.
+
+Eight types of optimization callback routines are available,
+as shown in Table~\ref{tab:callback_list}.
+These callbacks are regularly called during the optimization process,
+depending on the objective function type.
+Callbacks are executed in the order that they are specified.
+Each callback may terminate the optimization via its {\tt bool} return value,
+where {\tt true} indicates that the optimization should be stopped.
+By default, subsequent callbacks are not called if an earlier callback terminates
+the optimization: the optimizer terminates immediately.
 
 There are several pre-built callbacks that can be used without
 needing any custom code:
@@ -146,7 +146,7 @@ terminated on behalf of the callback.
 \label{fig:example_prog_callbacks_2}
 \end{figure}
 
-\begin{figure}[b!]
+\begin{figure}[t!]
 \centering
 \hrule
 \vspace{1ex}
