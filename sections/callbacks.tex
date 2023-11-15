@@ -89,7 +89,8 @@ as shown in Table~\ref{tab:callback_list}.
 These callbacks are regularly called during the optimization process,
 depending on the objective function type.
 Callbacks are executed in the order that they are specified.
-Each callback may terminate the optimization via its {\tt bool} return value,
+All callbacks except for {\tt BeginOptimization()} and {\tt EndOptimization()}
+may terminate the optimization via their {\tt bool} return values,
 where {\tt true} indicates that the optimization should be stopped.
 By default, subsequent callbacks are not called if an earlier callback terminates
 the optimization: the optimizer terminates immediately.
@@ -157,10 +158,11 @@ struct CustomCallback
   CustomCallback(double rIn) : r(rIn) {}
 
   template<typename OptimizerType, typename FunctionType, typename MatType>
-  void StepTaken(OptimizerType& optimizer, FunctionType& function, MatType& coordinates)
+  bool StepTaken(OptimizerType& optimizer, FunctionType& function, MatType& coordinates)
   {
     // Multiply the step size by r (hopefully r is less than 1!).
     optimizer.StepSize() *= r;
+    return false; // Do not terminate the optimization.
   }
 
   double r;
